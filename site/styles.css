@@ -4773,3 +4773,84 @@ p,
     animation: none;
   }
 }
+
+/* --- Idioma ----------------------------------------------------------------- */
+
+.site-nav__lang {
+  margin-left: 4px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--fg-3);
+}
+
+.site-nav__lang:hover {
+  color: var(--fg);
+  border-color: var(--fg-4);
+}
+
+/* A versão e o tamanho do instalador, escritos na publicação. */
+.download__release {
+  white-space: nowrap;
+}
+
+/* --- Página que não existe --------------------------------------------------- */
+
+.lost {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 10vh 24px;
+  text-align: center;
+}
+
+.lost__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.16em;
+  margin: 0;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+}
+
+.lost__logo svg {
+  width: 0.58em;
+  height: 0.58em;
+  fill: currentColor;
+}
+
+.lost__line {
+  max-width: 34ch;
+  margin: 0;
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--fg-2);
+}
+
+.lost__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 22px;
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
+.lost__links a:hover {
+  color: var(--fg);
+}
+
+.lost__caret {
+  height: 1.1em;
+  vertical-align: -0.16em;
+}

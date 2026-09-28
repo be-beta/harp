@@ -1,30 +1,30 @@
 <!doctype html>
-<html lang="pt-BR" data-accent="mint">
+<html lang="en" data-accent="mint" data-root="../">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Harp · Uma nova relação entre escrita e tela</title>
-  <meta name="description" content="Harp é um bloco de notas translúcido que fica por cima do que você está olhando, para que anotar não custe a tela. Gratuito, para Windows, tudo local.">
+  <title>Harp · A new relationship between writing and the screen</title>
+  <meta name="description" content="Harp is a translucent notepad that sits on top of whatever you are looking at, so writing never costs you the screen. Free, for Windows, entirely local.">
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#09090a" id="theme-color">
   <meta property="og:title" content="Harp">
-  <meta property="og:description" content="Escrever não pode custar o que você está olhando.">
+  <meta property="og:description" content="Writing cannot cost you what you are looking at.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://be-beta.github.io/harp/">
-  <meta property="og:locale" content="pt_BR">
-  <meta property="og:locale:alternate" content="en_US">
-  <meta property="og:image" content="https://be-beta.github.io/harp/og.jpg">
+  <meta property="og:url" content="https://be-beta.github.io/harp/en/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="pt_BR">
+  <meta property="og:image" content="https://be-beta.github.io/harp/og-en.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="A janela do Harp, translúcida, sobre uma planilha aberta.">
+  <meta property="og:image:alt" content="The Harp window, translucent, over an open spreadsheet.">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://be-beta.github.io/harp/">
+  <link rel="canonical" href="https://be-beta.github.io/harp/en/">
   <link rel="alternate" hreflang="pt-br" href="https://be-beta.github.io/harp/">
   <link rel="alternate" hreflang="en" href="https://be-beta.github.io/harp/en/">
   <link rel="alternate" hreflang="x-default" href="https://be-beta.github.io/harp/">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="fonts/inter-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../fonts/inter-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../styles.css">
   <script>
     /* Antes da primeira pintura, para o site não aparecer com uma cara e
        trocar em seguida: o tema escolhido (escuro na primeira visita) e, no
@@ -37,10 +37,10 @@
       el.dataset.theme = saved === "light" ? "light" : "dark";
     })(document.documentElement);
   </script>
-  <script type="module" src="main.js"></script>
+  <script type="module" src="../main.js"></script>
 </head>
 <body>
-  <a class="skip" href="#download">Ir direto para o download</a>
+  <a class="skip" href="#download">Skip to the download</a>
 
   <!-- A harpa do ícone do app (assets/harp.svg), redesenhada em currentColor. -->
   <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
@@ -59,22 +59,22 @@
   </svg>
 
   <header class="site-header" id="site-header">
-    <a class="wordmark" href="#inicio" aria-label="Harp, voltar ao início">
+    <a class="wordmark" href="#inicio" aria-label="Harp, back to the top">
       <svg class="wordmark__glyph" aria-hidden="true"><use href="#harp-glyph"/></svg>
       <span class="wordmark__name">Harp</span>
     </a>
-    <nav class="site-nav" aria-label="Principal">
+    <nav class="site-nav" aria-label="Main">
       <a href="#manifesto">Manifesto</a>
       <a href="https://github.com/be-beta/harp" rel="noopener">GitHub</a>
       <a class="site-nav__download" href="#download">Download <span class="arrow" aria-hidden="true">↓</span></a>
-      <a class="site-nav__lang" href="en/" hreflang="en" lang="en">EN</a>
+      <a class="site-nav__lang" href="../" hreflang="pt-BR" lang="pt-BR">PT</a>
       <button class="theme" id="theme" type="button" aria-pressed="false"></button>
     </nav>
   </header>
 
   <!-- Avança um trecho por vez. A roda do mouse e as setas do teclado fazem o
        mesmo; este botão existe para quem prefere clicar. -->
-  <button class="step" id="step" type="button" aria-label="Avançar para o próximo trecho" hidden></button>
+  <button class="step" id="step" type="button" aria-label="Go to the next beat" hidden></button>
 
   <main>
 
@@ -82,7 +82,7 @@
          Um palco só, preso na tela enquanto a seção rola. A área de escrita do
          começo é a mesma que vira a janela do Harp: o que a pessoa digitar no
          primeiro segundo continua ali quando o contexto aparece. -->
-    <section class="scene scene--origem" id="inicio" data-scene="origem" data-accent="mint" aria-label="A página em branco">
+    <section class="scene scene--origem" id="inicio" data-scene="origem" data-accent="mint" aria-label="The blank page">
       <div class="stage">
         <div class="world" aria-hidden="true">
           <div class="world__canvas" id="world"></div>
@@ -91,18 +91,18 @@
 
         <div class="hero">
           <span class="hero-line" aria-hidden="true"><span class="caret caret--inline"></span></span>
-          <h1 class="tagline">Escrever não pode custar o que você está olhando.</h1>
+          <h1 class="tagline">Writing cannot cost you what you are looking at.</h1>
         </div>
 
         <p class="phrase phrase--folha">
-          <span class="w">A tela</span> <span class="w">não é</span><br><span class="w">uma</span> <em class="w folha">folha.</em>
+          <span class="w">The screen</span> <span class="w">is not</span><br><span class="w">a</span> <em class="w folha">page.</em>
         </p>
 
         <p class="harp-name" aria-hidden="true">Harp.</p>
 
         <div class="writer harp" id="writer" data-tabs="document-text-16,photo-16,code-bracket-16" data-status="70%">
           <div class="harp__body">
-            <label class="visually-hidden" for="pad">Área de escrita. Uma linha, pode escrever aqui.</label>
+            <label class="visually-hidden" for="pad">Writing area. One line, you can type here.</label>
             <textarea id="pad" class="pad" rows="1" spellcheck="false" autocomplete="off"></textarea>
             <div class="pad-mirror" aria-hidden="true"></div>
             <span class="caret caret--free" aria-hidden="true"></span>
@@ -111,71 +111,71 @@
         </div>
 
         <div class="captions">
-          <p data-cap="1">Uma janela opaca é uma página: ela cobre o que você estava olhando.</p>
-          <p data-cap="2">A mesma janela, translúcida. O contexto volta, e o texto continua ali.<span class="captions__small"><kbd>Ctrl+[</kbd> e <kbd>Ctrl+]</kbd> ajustam a opacidade, de 20% a 100%.</span></p>
-          <p data-cap="3">A escrita pode ganhar atenção sem tomar a tela.<span class="captions__more">E a janela translúcida é a parte mais simples do Harp.</span></p>
+          <p data-cap="1">An opaque window is a page: it covers what you were looking at.</p>
+          <p data-cap="2">The same window, translucent. The context comes back, and the text is still there.<span class="captions__small"><kbd>Ctrl+[</kbd> and <kbd>Ctrl+]</kbd> set the opacity, from 20% to 100%.</span></p>
+          <p data-cap="3">Writing can take attention without taking the screen.<span class="captions__more">And the translucent window is the simplest part of Harp.</span></p>
         </div>
       </div>
     </section>
 
     <!-- 04 · Situações --------------------------------------------------------
          O contexto chega primeiro; o Harp só depois. -->
-    <section class="scene scene--situacoes" data-scene="situacoes" data-accent="mint" aria-label="A escrita acompanha diferentes contextos">
+    <section class="scene scene--situacoes" data-scene="situacoes" data-accent="mint" aria-label="Writing follows whatever you are doing">
       <div class="stage">
 
         <article class="sit" data-pos="bl">
           <div class="sit__frame">
             <div class="sit__screen" data-ctx="editor"></div>
-            <div class="harp harp--note" data-keys="Ctrl+Alt+Space" data-tabs="photo-16,document-text-16"><p class="note" data-type>Testar outra composição.</p></div>
+            <div class="harp harp--note" data-keys="Ctrl+Alt+Space" data-tabs="photo-16,document-text-16"><p class="note" data-type>Try another composition.</p></div>
           </div>
           <div class="sit__text">
-            <p class="sit__caption">Você está revisando uma imagem.</p>
-            <p class="sit__tag"><span><kbd>Ctrl+Alt+Space</kbd> chama e esconde o Harp, de qualquer aplicativo.</span></p>
+            <p class="sit__caption">You are reviewing an image.</p>
+            <p class="sit__tag"><span><kbd>Ctrl+Alt+Space</kbd> summons and hides Harp, from any application.</span></p>
           </div>
         </article>
         <article class="sit" data-pos="br" data-tab-to="2">
           <div class="sit__frame">
             <div class="sit__screen" data-ctx="sheet"></div>
-            <div class="harp harp--note harp--wide harp--faint" data-tabs="photo-16,table-cells-16,chat-bubble-left-right-16"><p class="note" data-type>Verificar diferença de infraestrutura</p></div>
+            <div class="harp harp--note harp--wide harp--faint" data-tabs="photo-16,table-cells-16,chat-bubble-left-right-16"><p class="note" data-type>Check the infrastructure gap</p></div>
           </div>
           <div class="sit__text">
-            <p class="sit__caption">Você está analisando dados.</p>
-            <p class="sit__tag"><span>Cada anotação em uma aba, com seu ícone. <kbd>Ctrl+2</kbd> troca.</span><span class="sit__after">A opacidade e o tamanho da janela são seus: de 20% a 100%.</span></p>
+            <p class="sit__caption">You are going through data.</p>
+            <p class="sit__tag"><span>Each note in its own tab, with its own icon. <kbd>Ctrl+2</kbd> switches.</span><span class="sit__after">The opacity and the size of the window are yours: from 20% to 100%.</span></p>
           </div>
         </article>
         <article class="sit" data-pos="tr" data-kind="prompt">
           <div class="sit__frame">
             <div class="sit__screen" data-ctx="answer"></div>
-            <div class="harp harp--note harp--wide" data-tabs="sparkles-16,table-cells-16"><p class="note" data-type>Escreve uma versão para a diretoria.
-Três parágrafos, sem listas.
-Mantém os números de março.</p></div>
+            <div class="harp harp--note harp--wide" data-tabs="sparkles-16,table-cells-16"><p class="note" data-type>Write a version for the board.
+Three paragraphs, no bullets.
+Keep the March numbers.</p></div>
           </div>
           <div class="sit__text">
-            <p class="sit__caption">Você está avaliando uma resposta.</p>
-            <p class="sit__tag"><span>Escrever o próximo pedido olhando o resultado.</span><span class="sit__after"><kbd>Ctrl+Shift+Enter</kbd> copia tudo e limpa. <kbd>Ctrl+Z</kbd> desfaz.</span></p>
+            <p class="sit__caption">You are judging an answer.</p>
+            <p class="sit__tag"><span>Writing the next prompt while looking at the result.</span><span class="sit__after"><kbd>Ctrl+Shift+Enter</kbd> copies everything and clears. <kbd>Ctrl+Z</kbd> undoes it.</span></p>
           </div>
         </article>
         <article class="sit sit--quiet" data-pos="br">
           <div class="sit__frame">
             <div class="sit__screen" data-ctx="slides"></div>
-            <div class="harp harp--note" data-keys="Ctrl+Shift+H" data-tabs="presentation-chart-bar-16"><p class="note" data-type>Pedir o mesmo gráfico com o ano anterior.</p></div>
+            <div class="harp harp--note" data-keys="Ctrl+Shift+H" data-tabs="presentation-chart-bar-16"><p class="note" data-type>Ask for the same chart with last year in it.</p></div>
           </div>
           <div class="sit__text">
-            <p class="sit__caption">Alguém está apresentando.</p>
-            <p class="sit__tag"><span>A janela fica fora da gravação e do compartilhamento de tela.</span></p>
+            <p class="sit__caption">Someone is presenting.</p>
+            <p class="sit__tag"><span>The window stays out of the recording and out of screen sharing.</span></p>
           </div>
         </article>
         <article class="sit sit--quiet" data-kind="jot">
           <div class="sit__frame">
             <div class="sit__screen" data-ctx="meeting"></div>
             <div class="jot">
-              <p class="jot__field" data-type data-placeholder="Rascunho rápido…">Ana envia a versão final até sexta</p>
-              <p class="jot__hint" aria-hidden="true">Enter guarda e copia · Shift+Enter quebra a linha · Esc cancela</p>
+              <p class="jot__field" data-type data-placeholder="Quick draft…">Ana sends the final version by Friday</p>
+              <p class="jot__hint" aria-hidden="true">Enter saves and copies · Shift+Enter new line · Esc cancels</p>
             </div>
           </div>
           <div class="sit__text">
-            <p class="sit__caption">Você está numa reunião.</p>
-            <p class="sit__tag"><span>Rascunho · <kbd>Win+J</kbd> abre um campo sobre qualquer aplicativo.</span><span class="sit__after"><kbd>Enter</kbd> guarda, copia e devolve o foco à reunião.</span></p>
+            <p class="sit__caption">You are in a meeting.</p>
+            <p class="sit__tag"><span>Draft · <kbd>Win+J</kbd> opens a field over any application.</span><span class="sit__after"><kbd>Enter</kbd> saves, copies, and hands the focus back to the meeting.</span></p>
           </div>
         </article>
         <article class="sit" data-kind="vidro">
@@ -188,13 +188,13 @@ Mantém os números de março.</p></div>
                 <path class="vd__line vd__halo" pathLength="1"/><path class="vd__line" pathLength="1"/>
                 <path class="vd__head"/>
               </svg>
-              <span class="vd__label" data-type>Testar preenchido, com mais contraste.</span>
+              <span class="vd__label" data-type>Try it filled, with more contrast.</span>
               <span class="vd__flash" aria-hidden="true"></span>
             </div>
           </div>
           <div class="sit__text">
-            <p class="sit__caption">Você está olhando uma interface.</p>
-            <p class="sit__tag"><span>Vidro · <kbd>Win+Alt+V</kbd> cobre a tela para escrever, apontar e circular.</span><span class="sit__after"><kbd>Ctrl+Shift+Enter</kbd> copia a tela e as anotações numa imagem só.</span></p>
+            <p class="sit__caption">You are looking at an interface.</p>
+            <p class="sit__tag"><span>Glass · <kbd>Win+Alt+V</kbd> covers the screen so you can write, point and circle.</span><span class="sit__after"><kbd>Ctrl+Shift+Enter</kbd> copies the screen and the notes as a single image.</span></p>
           </div>
         </article>
       </div>
@@ -207,23 +207,23 @@ Mantém os números de março.</p></div>
           <span class="monitor__lens" aria-hidden="true"></span>
           <div class="monitor__screen" data-ctx="camera"></div>
           <div class="prompter harp" id="prompter">
-            <div class="prompter__view"><p class="prompter__text">Hoje eu quero mostrar uma forma diferente de escrever na tela. Sem precisar sair do que você está olhando. Sem transformar a escrita no centro da tela. O texto fica aqui em cima, perto da câmera, e o olhar continua em quem assiste.</p></div>
+            <div class="prompter__view"><p class="prompter__text">Today I want to show you a different way of writing on a screen. Without leaving what you are looking at. Without turning writing into the center of the screen. The text stays up here, close to the camera, and my eyes stay on you.</p></div>
           </div>
           <figure class="rec-view" aria-hidden="true">
             <div class="rec-view__screen" data-ctx="camera"></div>
-            <figcaption>o que a gravação vê</figcaption>
+            <figcaption>what the recording sees</figcaption>
           </figure>
         </div>
         <div class="prompter__caption-wrap">
-          <h2 class="prompter__caption" id="prompter-title">O texto pode acompanhar o seu olhar.</h2>
-          <p class="prompter__note">Teleprompter numa faixa de três linhas no topo da tela, perto da câmera. E fora da gravação: quem assiste não vê a janela.</p>
+          <h2 class="prompter__caption" id="prompter-title">The text can follow where you look.</h2>
+          <p class="prompter__note">A teleprompter in a three-line band at the top of the screen, close to the camera. And out of the recording: nobody watching sees the window.</p>
         </div>
       </div>
     </section>
 
     <!-- 06 · A frase central -------------------------------------------------->
-    <section class="statement" data-beat="center" data-accent="mint" aria-label="Uma nova relação entre escrita e tela">
-      <h2 class="statement__text"><span>Uma nova relação</span> <span>entre escrita e tela.</span></h2>
+    <section class="statement" data-beat="center" data-accent="mint" aria-label="A new relationship between writing and the screen">
+      <h2 class="statement__text"><span>A new relationship</span> <span>between writing and the screen.</span></h2>
     </section>
 
     <!-- Manifesto, em momentos ------------------------------------------------>
@@ -241,25 +241,25 @@ Mantém os números de março.</p></div>
           <div class="drift__item" style="--x:2;--y:150;--w:22;--d:.75" data-ctx="answer"></div>
         </div>
         <div class="mf">
-          <p class="mf__line">A tela deixou de ser uma página.</p>
-          <p class="mf__line mf__line--verbs">Enquanto escrevemos, também <span class="v">observamos</span>, <span class="v">comparamos</span>, <span class="v">testamos</span>, <span class="v">editamos</span>, <span class="v">apresentamos</span>, <span class="v">ouvimos</span> e <span class="v">decidimos</span>.</p>
-          <p class="mf__line">Existe informação acontecendo em toda parte.</p>
-          <p class="mf__line">A escrita pode existir junto do que estamos fazendo.<span class="caret caret--inline" aria-hidden="true"></span></p>
-          <p class="mf__line">Harp é centrado no contexto.</p>
+          <p class="mf__line">The screen stopped being a page.</p>
+          <p class="mf__line mf__line--verbs">While we write, we also <span class="v">watch</span>, <span class="v">compare</span>, <span class="v">test</span>, <span class="v">edit</span>, <span class="v">present</span>, <span class="v">listen</span> and <span class="v">decide</span>.</p>
+          <p class="mf__line">There is information happening everywhere.</p>
+          <p class="mf__line">Writing can exist alongside what we are doing.<span class="caret caret--inline" aria-hidden="true"></span></p>
+          <p class="mf__line">Harp is centered on context.</p>
         </div>
       </div>
     </section>
 
     <div class="manifesto-full" data-beat="center">
       <details>
-        <summary>Ler o manifesto inteiro</summary>
+        <summary>Read the whole manifesto</summary>
         <div class="manifesto-full__text">
-          <p><strong>Escrever não pode custar o que você está olhando.</strong><br>A tela deixou de ser uma página.</p>
-          <p>Hoje, enquanto escrevemos, também observamos, comparamos, testamos, editamos, apresentamos, ouvimos e decidimos. Existe informação acontecendo em toda parte, ainda assim, quando precisamos escrever, quase sempre abrimos uma página em branco.</p>
-          <p>Harp parte de outra ideia.<br>A escrita pode existir junto do que estamos fazendo. O centro continua sendo aquilo que está diante dos nossos olhos.<br>A escrita centrada no contexto.</p>
-          <p>Cada detalhe parte da mesma pergunta:<br>como escrever sem precisar abandonar o que está acontecendo?</p>
-          <p>Isso também muda o que esperamos de uma ferramenta de escrita.<br>Ela precisa ser rápida o suficiente para acompanhar uma observação e previsível o suficiente para nunca exigir atenção quando ela não é necessária.</p>
-          <p>Harp foi pensado para esse momento.<br><em>Uma nova relação entre escrita e tela.</em></p>
+          <p><strong>Writing cannot cost you what you are looking at.</strong><br>The screen stopped being a page.</p>
+          <p>Today, while we write, we also watch, compare, test, edit, present, listen and decide. There is information happening everywhere, and yet, when we need to write, we almost always open a blank page.</p>
+          <p>Harp starts from another idea.<br>Writing can exist alongside what we are doing. The center is still whatever is in front of our eyes.<br>Writing centered on context.</p>
+          <p>Every detail starts from the same question:<br>how do you write without leaving what is happening?</p>
+          <p>That also changes what we expect from a writing tool.<br>It has to be fast enough to keep up with a thought and predictable enough never to ask for attention when it is not needed.</p>
+          <p>Harp was made for that moment.<br><em>A new relationship between writing and the screen.</em></p>
         </div>
       </details>
     </div>
@@ -277,28 +277,28 @@ Mantém os números de março.</p></div>
             <div class="layer" data-ctx="camera"></div>
           </div>
           <div class="harp harp--layer" data-tabs="clipboard-document-check-16,code-bracket-16,photo-16" data-status="70%">
-            <ul class="layer-notes" aria-label="Tarefas">
-              <li>criar função de exportar pendências</li>
-              <li>aumentar o contraste do céu</li>
-              <li>cortar a entrada em 01:42</li>
-              <li>comparar infraestrutura com fevereiro</li>
-              <li>incluir o ano anterior no slide 7</li>
-              <li>gravar uma abertura mais curta</li>
+            <ul class="layer-notes" aria-label="Tasks">
+              <li>write a function to export what is pending</li>
+              <li>raise the contrast in the sky</li>
+              <li>cut the intro at 01:42</li>
+              <li>compare infrastructure with February</li>
+              <li>add last year to slide 7</li>
+              <li>record a shorter opening</li>
             </ul>
           </div>
         </div>
         <div class="camada__text">
           <h2 class="camada__caption" id="camada-title">
-            <span class="camada__a">A janela continua a mesma.</span>
-            <span class="camada__b">O que muda é o que está atrás.</span>
+            <span class="camada__a">The window stays the same.</span>
+            <span class="camada__b">What changes is what is behind it.</span>
           </h2>
-          <ol class="camada__index" id="camada-index" aria-label="Contextos, clique para ver cada um">
-            <li><button type="button" data-layer="0">código</button></li>
-            <li><button type="button" data-layer="1">imagem</button></li>
-            <li><button type="button" data-layer="2">vídeo</button></li>
-            <li><button type="button" data-layer="3">planilha</button></li>
-            <li><button type="button" data-layer="4">apresentação</button></li>
-            <li><button type="button" data-layer="5">câmera</button></li>
+          <ol class="camada__index" id="camada-index" aria-label="Contexts, click to see each one">
+            <li><button type="button" data-layer="0">code</button></li>
+            <li><button type="button" data-layer="1">image</button></li>
+            <li><button type="button" data-layer="2">video</button></li>
+            <li><button type="button" data-layer="3">spreadsheet</button></li>
+            <li><button type="button" data-layer="4">slides</button></li>
+            <li><button type="button" data-layer="5">camera</button></li>
           </ol>
         </div>
       </div>
@@ -308,50 +308,50 @@ Mantém os números de março.</p></div>
     <section class="principles" data-accent="purple" aria-labelledby="principles-title">
       <div class="container">
         <div class="principles__block" data-beat="center">
-        <h2 class="section-label" id="principles-title">O que sustenta essa relação</h2>
+        <h2 class="section-label" id="principles-title">What holds this up</h2>
         <dl class="principles__list">
           <div class="principle">
-            <dt>Seguro</dt>
-            <dd>Seu texto é gravado a cada pausa, com a versão anterior guardada. Não depende de fechar o app direito. Um histórico local recupera o que se perdeu.</dd>
+            <dt>Safe</dt>
+            <dd>Your text is saved on every pause, with the previous version kept. It does not depend on closing the app properly. A local history brings back what was lost.</dd>
           </div>
           <div class="principle">
-            <dt>Sem conta</dt>
-            <dd>Sem cadastro. Sem nuvem. Nem para baixar, nem para receber versões novas.</dd>
+            <dt>No account</dt>
+            <dd>No sign-up. No cloud. Not to download it, not to get new versions.</dd>
           </div>
           <div class="principle">
-            <dt>Sem interrupção</dt>
-            <dd>Janela sobreposta, controles que aparecem só quando o mouse chega perto, e tudo pelo teclado. <kbd>Ctrl+Alt+Space</kbd>, <kbd>Win+J</kbd> e <kbd>Win+Alt+V</kbd> funcionam de qualquer aplicativo.</dd>
+            <dt>No interruption</dt>
+            <dd>An overlaid window, controls that show up only when the mouse comes close, and everything by keyboard. <kbd>Ctrl+Alt+Space</kbd>, <kbd>Win+J</kbd> and <kbd>Win+Alt+V</kbd> work from any application.</dd>
           </div>
           <div class="principle">
-            <dt>Sempre há uma volta</dt>
-            <dd>Qualquer modo pode ser abandonado rapidamente. <kbd>Ctrl+Alt+G</kbd> desfaz todos eles e traz a janela de volta, mesmo transparente ou fora da tela.</dd>
+            <dt>There is always a way back</dt>
+            <dd>Any mode can be left in a second. <kbd>Ctrl+Alt+G</kbd> undoes all of them and brings the window back, even transparent or off the screen.</dd>
           </div>
           <div class="principle">
-            <dt>Arquivos de verdade</dt>
-            <dd>O texto continua sendo seu. Abre e salva <code>.txt</code> e <code>.md</code>, que qualquer editor lê.</dd>
+            <dt>Real files</dt>
+            <dd>The text stays yours. It opens and saves <code>.txt</code> and <code>.md</code>, which any editor reads.</dd>
           </div>
           <div class="principle">
-            <dt>Controle</dt>
-            <dd>Nada acontece silenciosamente quando algo importante falha. Se o modo oculto não funcionar, o aviso diz que você aparece na gravação. Uma versão nova só instala quando você manda.</dd>
+            <dt>Control</dt>
+            <dd>Nothing fails quietly when it matters. If the hidden mode does not work, the warning says you do show up in the recording. A new version only installs when you say so.</dd>
           </div>
         </dl>
         </div>
 
         <div class="facts" data-beat="center">
-          <h3 class="section-label">Na prática</h3>
+          <h3 class="section-label">In practice</h3>
           <ul class="facts__list">
-            <li>Janela translúcida, sem bordas, sempre por cima, com opacidade de 20% a 100%.</li>
-            <li>Vidro: <kbd>Win+Alt+V</kbd> para escrever, apontar e circular sobre a tela. Copia tela e anotações numa imagem e sai.</li>
-            <li>Rascunhos: <kbd>Win+J</kbd> sobre qualquer aplicativo. <kbd>Enter</kbd> guarda, copia e devolve o foco.</li>
-            <li>Modo fantasma: os cliques atravessam a janela.</li>
-            <li>Fora das gravações e do compartilhamento de tela.</li>
-            <li>Teleprompter com rolagem contínua, em faixa no topo ou em tela cheia.</li>
-            <li>Até dez notas em abas, cada uma com um ícone, e histórico local de versões.</li>
-            <li>Tarefas com <kbd>Ctrl+Enter</kbd>. Listas continuam sozinhas no <kbd>Enter</kbd>.</li>
-            <li>Endereços no texto viram links com <kbd>Ctrl</kbd>+clique.</li>
-            <li>Cantos, metades e tela inteira por atalho.</li>
-            <li>Fica na bandeja e pode iniciar com o Windows, com os atalhos já valendo.</li>
-            <li>Português, inglês e espanhol. Tema claro, escuro ou do sistema, e sete cores de destaque.</li>
+            <li>A translucent window, no borders, always on top, opacity from 20% to 100%.</li>
+            <li>Glass: <kbd>Win+Alt+V</kbd> to write, point and circle over the screen. It copies screen and notes as one image, then leaves.</li>
+            <li>Drafts: <kbd>Win+J</kbd> over any application. <kbd>Enter</kbd> saves, copies and hands the focus back.</li>
+            <li>Ghost mode: clicks go straight through the window.</li>
+            <li>Out of recordings and out of screen sharing.</li>
+            <li>A teleprompter with continuous scrolling, in a band at the top or full screen.</li>
+            <li>Up to ten notes in tabs, each with an icon, and a local version history.</li>
+            <li>Tasks with <kbd>Ctrl+Enter</kbd>. Lists carry on by themselves on <kbd>Enter</kbd>.</li>
+            <li>Addresses in the text become links with <kbd>Ctrl</kbd>+click.</li>
+            <li>Corners, halves and full screen by shortcut.</li>
+            <li>It lives in the tray and can start with Windows, with the shortcuts already working.</li>
+            <li>Portuguese, English and Spanish. Light, dark or system theme, and seven accent colors.</li>
           </ul>
         </div>
       </div>
@@ -363,8 +363,8 @@ Mantém os números de março.</p></div>
          de um atalho não diz o que ele faz. -->
     <section class="shortcuts" id="atalhos" data-beat="center" data-accent="mint" aria-labelledby="atalhos-title">
       <div class="container">
-        <h2 class="section-label" id="atalhos-title">Tudo pelo teclado</h2>
-        <p class="shortcuts__lead">Aponte para um atalho para ver o que ele faz.<span>No app, <kbd>Ctrl+/</kbd> abre a lista inteira, e todos os atalhos globais podem ser trocados.</span></p>
+        <h2 class="section-label" id="atalhos-title">All by keyboard</h2>
+        <p class="shortcuts__lead">Point at a shortcut to see what it does.<span>In the app, <kbd>Ctrl+/</kbd> opens the whole list, and every global shortcut can be changed.</span></p>
         <div class="shortcuts__grid" id="shortcuts"></div>
       </div>
     </section>
@@ -374,7 +374,7 @@ Mantém os números de março.</p></div>
       <div class="container privacy__grid">
         <div class="privacy__visual" aria-hidden="true">
           <div class="harp harp--mini" data-tabs="document-text-16">
-            <p class="mini-text">Testar a abertura mais curta</p>
+            <p class="mini-text">Try a shorter opening</p>
           </div>
           <div class="file">
             <svg viewBox="0 0 40 48" class="file__icon"><path d="M4 2h22l10 10v32a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M26 2v10h10"/><path class="file__lines" d="M9 22h20M9 28h20M9 34h13"/></svg>
@@ -382,10 +382,10 @@ Mantém os números de março.</p></div>
           </div>
         </div>
         <div class="privacy__text">
-          <h2 id="privacy-title">Seu texto continua sendo seu.</h2>
-          <p>Tudo vive na sua máquina.</p>
-          <p class="privacy__list">Sem conta.<br>Sem nuvem.<br>Sem telemetria.<br>Sem IA.<br>Sem depender do Harp para continuar acessando aquilo que você escreveu.</p>
-          <p class="privacy__small">Os rascunhos nem chegam ao disco: somem quando o Harp fecha. A única conexão que o app faz é procurar versão nova, e ela não envia nada sobre quem usa.</p>
+          <h2 id="privacy-title">Your text stays yours.</h2>
+          <p>Everything lives on your machine.</p>
+          <p class="privacy__list">No account.<br>No cloud.<br>No telemetry.<br>No AI.<br>No need for Harp to keep reading what you wrote.</p>
+          <p class="privacy__small">Drafts never even reach the disk: they are gone when Harp closes. The only connection the app makes is to look for a new version, and it sends nothing about whoever is using it.</p>
         </div>
       </div>
     </section>
@@ -395,12 +395,12 @@ Mantém os números de março.</p></div>
       <p class="download__logo" aria-hidden="true">
         <svg class="download__glyph"><use href="#harp-glyph"/></svg><span>Harp</span><span class="caret caret--end"></span>
       </p>
-      <h2 class="download__title" id="download-title">Escreva sem sair do lugar.</h2>
-      <a class="btn-download" href="https://github.com/be-beta/harp/releases/latest/download/Harp-Setup.exe">Baixar para Windows <span class="arrow" aria-hidden="true">↓</span></a>
-      <p class="download__free">Gratuito.</p>
-      <p class="download__req">Windows 10 (versão 2004 ou mais nova) ou 11.<span class="download__release" data-release></span></p>
-      <p class="download__smartscreen">Na primeira vez, o Windows mostra uma tela azul do SmartScreen. Ela aparece para todo programa novo sem certificado pago, e o instalador do Harp ainda não tem um. Clique em <strong>Mais informações</strong> e depois em <strong>Executar assim mesmo</strong>. Cada versão é construída em público e publica o <a href="https://github.com/be-beta/harp/releases/latest">SHA256 do instalador</a>.</p>
-      <nav class="download__links" aria-label="Mais">
+      <h2 class="download__title" id="download-title">Write without leaving where you are.</h2>
+      <a class="btn-download" href="https://github.com/be-beta/harp/releases/latest/download/Harp-Setup.exe">Download for Windows <span class="arrow" aria-hidden="true">↓</span></a>
+      <p class="download__free">Free.</p>
+      <p class="download__req">Windows 10 (version 2004 or newer) or 11.<span class="download__release" data-release></span></p>
+      <p class="download__smartscreen">The first time, Windows shows a blue SmartScreen page. It appears for every new program without a paid certificate, and the Harp installer does not have one yet. Click <strong>More info</strong> and then <strong>Run anyway</strong>. Every version is built in public and publishes the <a href="https://github.com/be-beta/harp/releases/latest">SHA256 of the installer</a>.</p>
+      <nav class="download__links" aria-label="More">
         <a href="https://github.com/be-beta/harp" rel="noopener">GitHub</a>
         <a href="#manifesto">Manifesto</a>
       </nav>
@@ -411,15 +411,15 @@ Mantém os números de março.</p></div>
     <div class="container site-footer__grid">
       <div>
         <p class="site-footer__name"><svg class="wordmark__glyph" aria-hidden="true"><use href="#harp-glyph"/></svg>Harp</p>
-        <p class="site-footer__line">Uma nova relação entre escrita e tela.</p>
+        <p class="site-footer__line">A new relationship between writing and the screen.</p>
       </div>
-      <nav class="site-footer__links" aria-label="Rodapé">
+      <nav class="site-footer__links" aria-label="Footer">
         <a href="https://github.com/be-beta/harp" rel="noopener">GitHub</a>
-        <a href="#atalhos">Atalhos</a>
+        <a href="#atalhos">Shortcuts</a>
         <a href="https://github.com/be-beta/harp/releases/latest/download/Harp-Setup.exe">Download</a>
         <a href="#manifesto">Manifesto</a>
       </nav>
-      <p class="site-footer__small">2026 · Código aberto, licença MIT.<br><span>Fotografias e vídeos do Unsplash e do Pexels.</span></p>
+      <p class="site-footer__small">2026 · Open source, MIT license.<br><span>Photographs and video from Unsplash and Pexels.</span></p>
     </div>
   </footer>
 </body>

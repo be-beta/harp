@@ -11,7 +11,10 @@ name: Site
 on:
   push:
     branches: [main]
-    paths: ["site/**", ".github/workflows/pages.yml"]
+    paths: ["site/**", "scripts/site-release.mjs", ".github/workflows/pages.yml"]
+  # Versao nova publicada: o site sai de novo, agora dizendo qual e ela.
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -31,6 +34,19 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+
+      # A versao e o tamanho entram no HTML aqui, antes de subir: assim a
+      # pagina nao precisa perguntar nada a ninguem quando alguem a abre.
+      # Sem release publicado, o trecho fica vazio e a pagina continua valendo.
+      - name: Versao e tamanho do instalador
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release view --json tagName --jq .tagName 2>/dev/null || true)
+          bytes=$(gh release view --json assets --jq '.assets[] | select(.name == "Harp-Setup.exe") | .size' 2>/dev/null || true)
+          echo "release: ${tag:-nenhum} ${bytes:-0}"
+          node scripts/site-release.mjs "$tag" "$bytes"
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

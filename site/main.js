@@ -15,6 +15,7 @@
 
 import { fillContexts, buildContext } from "./contexts.js";
 import { icon } from "./icons.js";
+import { L } from "./i18n.js";
 
 const root = document.documentElement;
 const $ = (s, r = document) => r.querySelector(s);
@@ -388,7 +389,7 @@ scene("origem", (el) => {
     if (autoTyped || pad.value || document.activeElement === pad) return;
     autoTyped = true;
     cancelAuto = typeText(
-      "Repensar a escrita na tela",
+      L.ui.typed,
       (s) => {
         pad.value = s;
         placeCaret();
@@ -1125,7 +1126,7 @@ function setupTheme() {
 
   const paint = (dark) => {
     btn.innerHTML = icon(dark ? "sun" : "moon");
-    btn.setAttribute("aria-label", dark ? "Mudar para o tema claro" : "Voltar para o tema escuro");
+    btn.setAttribute("aria-label", dark ? L.ui.themeToLight : L.ui.themeToDark);
     btn.setAttribute("aria-pressed", String(!dark));
     if (meta) meta.content = dark ? "#09090a" : "#f4f4f6";
   };
@@ -1151,23 +1152,24 @@ function setupTheme() {
  * para o atalho — nada se mexe sozinho aqui.
  */
 
+/* As teclas são as mesmas nos dois idiomas; só o que elas fazem muda. */
 const SHORTCUTS = [
-  ["call", "Ctrl+Alt+Space", "Chama e esconde o Harp, de qualquer aplicativo"],
-  ["jot", "Win+J", "Rascunho rápido por cima de tudo"],
-  ["vidro", "Win+Alt+V", "Escreve e aponta sobre a própria tela"],
-  ["ghost", "Ctrl+Shift+G", "Modo fantasma: o clique atravessa a janela"],
-  ["stealth", "Ctrl+Shift+H", "Some das gravações e do compartilhamento"],
-  ["opacity", "Ctrl+[ · Ctrl+]", "Menos ou mais opacidade"],
-  ["snap", "Ctrl+Alt+1…5", "Encaixa nos cantos"],
-  ["full", "Ctrl+Alt+0", "Ocupa a tela toda"],
-  ["tabs", "Ctrl+1…9", "Troca de anotação"],
-  ["task", "Ctrl+Enter", "Cria a tarefa, ou marca e desmarca"],
-  ["prompter", "Ctrl+Alt+P", "Teleprompter, com rolagem contínua"],
-  ["notch", "Ctrl+Alt+N", "Faixa de três linhas no topo da tela"],
-  ["copy", "Ctrl+Shift+Enter", "Copia tudo e limpa"],
-  ["help", "Ctrl+/", "Todos os atalhos, dentro do app"],
-  ["rescue", "Ctrl+Alt+G", "Resgate: desfaz todos os modos"],
-];
+  ["call", "Ctrl+Alt+Space"],
+  ["jot", "Win+J"],
+  ["vidro", "Win+Alt+V"],
+  ["ghost", "Ctrl+Shift+G"],
+  ["stealth", "Ctrl+Shift+H"],
+  ["opacity", "Ctrl+[ · Ctrl+]"],
+  ["snap", "Ctrl+Alt+1…5"],
+  ["full", "Ctrl+Alt+0"],
+  ["tabs", "Ctrl+1…9"],
+  ["task", "Ctrl+Enter"],
+  ["prompter", "Ctrl+Alt+P"],
+  ["notch", "Ctrl+Alt+N"],
+  ["copy", "Ctrl+Shift+Enter"],
+  ["help", "Ctrl+/"],
+  ["rescue", "Ctrl+Alt+G"],
+].map(([id, keys], i) => [id, keys, L.ui.shortcuts[i]]);
 
 const keycaps = (combo) =>
   combo

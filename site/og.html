@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Harp · imagem de compartilhamento</title>
+  <!--
+    A imagem que aparece quando alguém cola o link do Harp em algum lugar.
+
+    É uma página, e não um arquivo de design, para poder ser gerada de novo
+    quando o site mudar: abrir em 1200×630 e capturar. O comando está em
+    docs/DISTRIBUICAO.md. O resultado vai para og.jpg.
+  -->
+  <style>
+    @font-face {
+      font-family: "Inter Variable";
+      font-style: normal;
+      font-weight: 100 900;
+      src: url(fonts/inter-latin-opsz-normal.woff2) format("woff2");
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+      background: #09090a;
+      color: #f2f2f3;
+      font-family: "Inter Variable", system-ui, sans-serif;
+      font-optical-sizing: auto;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .shot { position: relative; width: 1200px; height: 630px; }
+
+    /* O contexto: o que já estava na tela. */
+    .shot img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 42%;
+    }
+
+    /* Escurece de baixo para cima, para o texto ter onde pousar. */
+    .shot::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to top, rgba(9, 9, 10, 0.96) 12%, rgba(9, 9, 10, 0.35) 52%, rgba(9, 9, 10, 0.5) 100%);
+    }
+
+    /* A janela do Harp, com os valores do app: 8 px de canto, 1 px de borda,
+       fundo a 70%. O que está atrás continua à vista. */
+    .harp {
+      position: absolute;
+      right: 64px;
+      top: 74px;
+      z-index: 2;
+      width: 420px;
+      padding-bottom: 34px;
+      border-radius: 8px;
+      background: rgba(18, 18, 18, 0.7);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.11), 0 30px 70px -40px rgba(0, 0, 0, 0.8);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    }
+
+    .top {
+      display: flex;
+      gap: 3px;
+      height: 32px;
+      padding: 7px 11px 0;
+    }
+
+    .tab {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 22px;
+      border-radius: 6px;
+      color: rgba(243, 244, 246, 0.55);
+    }
+
+    .tab.on {
+      background: rgba(110, 231, 183, 0.16);
+      color: #6ee7b7;
+    }
+
+    .tab svg { width: 14px; height: 14px; fill: currentColor; }
+
+    .notes {
+      margin: 0;
+      padding: 4px 18px 0;
+      list-style: none;
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    .notes i {
+      display: inline-block;
+      width: 0.78em;
+      height: 0.78em;
+      margin-right: 0.5em;
+      vertical-align: -0.04em;
+      border: 1.5px solid rgba(243, 244, 246, 0.55);
+      border-radius: 3px;
+    }
+
+    .notes .done i {
+      border-color: #6ee7b7;
+      background:
+        no-repeat center / 76% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-5' fill='none' stroke='%23141414' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"),
+        #6ee7b7;
+    }
+
+    .notes .done span { color: rgba(243, 244, 246, 0.55); }
+
+    .caret {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      margin-left: 0.1em;
+      vertical-align: -0.14em;
+      background: #6ee7b7;
+    }
+
+    .status {
+      position: absolute;
+      inset: auto 0 0;
+      display: flex;
+      align-items: center;
+      padding: 6px 14px 10px;
+      font-size: 12px;
+      color: rgba(243, 244, 246, 0.55);
+      opacity: 0.45;
+    }
+
+    .status .dot {
+      width: 5px;
+      height: 5px;
+      margin-right: 6px;
+      border-radius: 50%;
+      background: #6ee7b7;
+    }
+
+    .status .right { margin-left: auto; }
+
+    /* A marca, embaixo à esquerda. */
+    .mark {
+      position: absolute;
+      left: 64px;
+      bottom: 58px;
+      z-index: 3;
+    }
+
+    .name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 62px;
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    .name svg { width: 46px; height: 46px; fill: currentColor; }
+
+    .line {
+      margin: 18px 0 0;
+      max-width: 19ch;
+      font-size: 30px;
+      font-weight: 400;
+      line-height: 1.25;
+      letter-spacing: -0.028em;
+      color: rgba(242, 242, 243, 0.82);
+    }
+  </style>
+</head>
+<body>
+  <div class="shot">
+    <img src="video/montanha.jpg" alt="">
+
+    <div class="harp">
+      <div class="top">
+        <span class="tab on"><svg viewBox="0 0 16 16"><path d="M12 .75a.75.75 0 0 0-.75-.75h-6.5a.75.75 0 0 0 0 1.5h6.5A.75.75 0 0 0 12 .75ZM3 3.5A1.5 1.5 0 0 0 1.5 5v9A1.5 1.5 0 0 0 3 15.5h10a1.5 1.5 0 0 0 1.5-1.5V5A1.5 1.5 0 0 0 13 3.5H3Zm2 3h6a.75.75 0 0 1 0 1.5H5a.75.75 0 0 1 0-1.5Zm0 3h6a.75.75 0 0 1 0 1.5H5a.75.75 0 0 1 0-1.5Z"/></svg></span>
+        <span class="tab"><svg viewBox="0 0 16 16"><path d="M2 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4Zm3.5 1.5a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5ZM12 12l-3-4-2.2 3-1.3-1.5L3.8 12H12Z"/></svg></span>
+        <span class="tab"><svg viewBox="0 0 16 16"><path d="M6.3 2.2a.75.75 0 0 1 .5.94L4.2 13.1a.75.75 0 1 1-1.44-.4L5.36 2.7a.75.75 0 0 1 .94-.5Zm4.4 2.05a.75.75 0 0 1 1.06 0l3 3a.75.75 0 0 1 0 1.06l-3 3a.75.75 0 0 1-1.06-1.06L13.2 7.8l-2.5-2.49a.75.75 0 0 1 0-1.06Z"/></svg></span>
+      </div>
+      <ul class="notes">
+        <li class="done"><i></i><span>cortar a entrada em 01:42</span></li>
+        <li class="done"><i></i><span>aumentar o contraste do céu</span></li>
+        <li><i></i><span>gravar uma abertura mais curta</span><span class="caret"></span></li>
+      </ul>
+      <div class="status"><span class="dot"></span><span id="ontop">Topo</span><span class="right">70% &nbsp; A− 15 A+</span></div>
+    </div>
+
+    <div class="mark">
+      <p class="name">
+        <svg viewBox="0 0 512 512" aria-hidden="true">
+          <g transform="translate(0,512) scale(0.1,-0.1)">
+            <path d="M622 5103 c-98 -48 -108 -192 -18 -256 30 -22 39 -22 406 -28 206 -4 418 -12 470 -18 507 -61 921 -204 1335 -461 303 -188 627 -329 945 -410 l85 -22 122 129 122 128 -62 12 c-392 78 -675 191 -1057 421 -521 314 -1009 470 -1605 512 -77 5 -268 10 -425 10 -242 0 -290 -3 -318 -17z"/>
+            <path d="M740 2583 l0 -1938 24 25 c13 14 80 85 150 158 l126 133 0 1779 0 1780 -150 0 -150 0 0 -1937z"/>
+            <path d="M1340 2894 l0 -1619 24 25 c13 14 80 85 150 158 l126 134 0 1442 0 1443 -82 11 c-46 6 -113 14 -150 18 l-68 7 0 -1619z"/>
+            <path d="M1940 3157 c0 -1222 0 -1251 19 -1232 10 11 77 82 150 158 l131 139 0 1042 0 1042 -77 28 c-43 15 -111 38 -150 51 l-73 23 0 -1251z"/>
+            <path d="M2540 3343 c0 -471 4 -803 9 -798 5 6 72 77 150 159 l141 149 0 561 0 562 -144 87 c-79 48 -147 87 -150 87 -3 0 -6 -363 -6 -807z"/>
+            <path d="M4461 4107 c-20 -10 -3331 -3478 -3339 -3499 -2 -4 445 -7 994 -6 l998 3 663 1529 664 1528 107 114 c59 63 112 127 119 142 42 93 -32 203 -136 201 -25 0 -57 -5 -70 -12z"/>
+            <path d="M3140 3496 c0 -193 4 -326 9 -320 5 5 72 76 150 158 l141 149 0 114 c0 99 -2 114 -17 120 -10 3 -78 29 -150 58 l-133 52 0 -331z"/>
+            <path d="M517 278 c-39 -23 -77 -86 -77 -128 0 -48 39 -108 84 -130 43 -20 45 -20 1364 -18 1316 3 1321 3 1348 24 50 37 69 72 69 124 0 52 -19 87 -69 124 -27 21 -32 21 -1354 23 l-1327 3 -38 -22z"/>
+          </g>
+        </svg><span>Harp</span>
+      </p>
+      <p class="line">Escrever não pode custar o que você está olhando.</p>
+    </div>
+  </div>
+  <script>
+    /* A mesma composição serve às duas páginas: ?en troca os textos. */
+    if (location.search.includes("en")) {
+      document.documentElement.lang = "en";
+      const notas = ["cut the intro at 01:42", "raise the contrast in the sky", "record a shorter opening"];
+      document.querySelectorAll(".notes li span:first-of-type").forEach((el, i) => (el.textContent = notas[i]));
+      document.getElementById("ontop").textContent = "Top";
+      document.querySelector(".line").textContent = "Writing cannot cost you what you are looking at.";
+    }
+  </script>
+</body>
+</html>

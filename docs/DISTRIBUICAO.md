@@ -156,6 +156,29 @@ pacotes `@fontsource`, com as licenças OFL ao lado), os ícones em
 `site/icons.js` (os Heroicons que o app usa, copiados de `node_modules`), e não
 há script de terceiros, cookie nem medição de visitas.
 
+O site tem duas páginas: `site/index.html` em português e `site/en/index.html`
+em inglês, com o mesmo CSS e o mesmo JavaScript. O que o código escreve na tela
+— as telas de contexto, os nomes dos atalhos — vem de `site/i18n.js`, escolhido
+pelo `lang` da página; o resto do texto mora no HTML de cada uma. A página em
+inglês fica um nível abaixo e diz isso no `data-root`, que é o prefixo das
+imagens e dos vídeos. **Mudou o texto de uma, mude o da outra.**
+
+A versão e o tamanho do instalador entram no HTML **na publicação** **[D]**, e
+não no navegador de quem visita: buscar isso na API do GitHub a cada visita
+seria uma chamada a terceiros, a mesma que o app evita. Quem faz é
+[`scripts/site-release.mjs`](../scripts/site-release.mjs), chamado pelo
+workflow; sem release publicado o trecho fica vazio e a página continua valendo.
+O workflow também roda quando um release é publicado, então uma versão nova
+atualiza o site sozinha.
+
+A imagem que aparece quando alguém cola o link (`og.jpg` e `og-en.jpg`) é
+gerada de `site/og.html`, que é uma página como as outras. Para refazer depois
+de mudar o site, abra-a em 1200×630 e capture:
+
+```bash
+chrome --headless --window-size=1200,630 --screenshot=og.png http://localhost:4173/og.html
+```
+
 **O site abre sempre no escuro** e não segue o tema do sistema **[D]**. É no
 escuro que uma janela translúcida se explica: no claro, a mesma janela sobre uma
 página branca quase não se distingue do fundo, e a primeira tela do site perde o
