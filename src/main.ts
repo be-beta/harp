@@ -523,9 +523,9 @@ function changeLang(lang: Lang): void {
   setLang(lang);
   applyStaticTranslations();
 
-  el.chipStealth.title = effects.captureExclusionAvailable
-    ? t("chip.stealth.title")
-    : t("chip.stealth.unavailable");
+  el.chipStealth.title = el.chipStealth.disabled
+    ? t("chip.stealth.unavailable")
+    : t("chip.stealth.title");
 
   updateMetrics(editor.getText());
   renderTabs();
@@ -592,8 +592,20 @@ async function toggleStealth(force?: boolean): Promise<void> {
   } catch (error) {
     el.chipStealth.dataset.active = "false";
     settings.excludeFromCapture = false;
+    stealthUnavailable();
     toast(t("toast.stealth.failed", { error: String(error) }));
   }
+}
+
+/**
+ * O Windows desta maquina nao faz invisibilidade em gravacao.
+ *
+ * So e chamado depois de uma tentativa real ter falhado: ate ali, o botao fica
+ * disponivel. Desligar por suspeita custa mais do que deixar tentar.
+ */
+function stealthUnavailable(): void {
+  el.chipStealth.disabled = true;
+  el.chipStealth.title = t("chip.stealth.unavailable");
 }
 
 // --- Tema ------------------------------------------------------------------
@@ -1797,10 +1809,11 @@ async function boot(): Promise<void> {
   } catch {
     // Mantem o fallback conservador definido na declaracao.
   }
-  if (!effects.captureExclusionAvailable) {
-    el.chipStealth.disabled = true;
-    el.chipStealth.title = t("chip.stealth.unavailable");
-  }
+  // O botao nao nasce desligado por causa da sondagem do backend. Ela roda uma
+  // vez, logo que a janela aparece, e ja deu falso negativo numa maquina onde o
+  // recurso funcionava — o atalho ligava e desligava, e o botao ficava apagado
+  // e sem clique, sem explicar por que. Quem decide e a tentativa de verdade:
+  // se ela falhar, `stealthUnavailable()` desliga o botao e o erro aparece.
 
   await initStores();
   settings = await loadSettings();
@@ -1860,6 +1873,7 @@ async function boot(): Promise<void> {
       el.chipStealth.dataset.active = "true";
     } catch {
       settings.excludeFromCapture = false;
+      stealthUnavailable();
       toast(t("toast.stealth.notRestored"));
     }
   }

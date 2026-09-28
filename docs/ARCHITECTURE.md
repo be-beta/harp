@@ -96,6 +96,14 @@ captura e o atalho de resgate efetivamente registrado. É consultado pelo
 frontend como comando, não emitido como evento — o setup do Rust roda antes de o
 frontend montar, e o evento se perdia.
 
+O relatório informa, mas não decide sozinho. A sondagem de exclusão de captura
+já deu falso negativo numa máquina onde o recurso funcionava: o atalho ligava e
+desligava o modo oculto, e o botão da barra ficava apagado e sem clique, sem
+dizer por quê. Ela roda uma vez, logo que a janela aparece, e não tem como
+repetir. Agora o botão nasce disponível e só é desligado depois de uma
+tentativa de verdade falhar — o erro aparece junto. Desligar por suspeita custa
+mais do que deixar tentar. **[D]**
+
 ### 3.5 Legibilidade
 
 O texto leva `text-shadow: 0 1px 2px rgba(0,0,0,.45)`. Custa nada e é o que
@@ -457,6 +465,20 @@ esconder, do menos para o mais importante:
 |---|---|
 | < 520 px | rótulos dos chips (fica só o ponto de estado) e o chip de fundo |
 | < 400 px | todas as métricas além da primeira |
+
+### Painéis que cabem na janela **[D]**
+
+A barra já se adaptava à largura; os painéis flutuantes, não. O menu dos três
+pontinhos tinha altura livre e, numa janela baixa, as primeiras opções ficavam
+acima da borda, fora de alcance. O seletor de ícone tinha cinco colunas fixas —
+seis linhas de ícones que simplesmente saíam pela borda de baixo.
+
+Agora os dois têm teto de altura e rolam. E a grade de ícones segue o formato
+da janela: quando falta altura, ela se espalha para os lados até onde a largura
+deixar (de 5 a 10 colunas); numa janela alta e estreita volta a ser vertical. O
+número de colunas é medido, não estimado — a grade cresce uma coluna por vez
+até o painel caber. Se a janela muda de tamanho com o seletor aberto, as contas
+são refeitas em vez de o painel fechar: o gesto continua de onde estava.
 
 ### Fase 4 — Segurança do trabalho
 

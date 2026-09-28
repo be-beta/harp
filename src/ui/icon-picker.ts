@@ -39,6 +39,7 @@ export function iconLabel(id: IconId): string {
 export function createIconPicker(host: HTMLElement, handlers: IconPickerHandlers): IconPicker {
   let slot = 0;
   let legendaPadrao = "";
+  let ancora: HTMLElement | null = null;
 
   /**
    * O nome do icone sob o mouse, sempre a vista no rodape.
@@ -73,14 +74,56 @@ export function createIconPicker(host: HTMLElement, handlers: IconPickerHandlers
            <div class="gp-picker__row">${ids.map((id) => botao(id, atual)).join("")}</div>
          </div>`;
 
+  const CELULA = 32; // lado do botao de icone
+  const VAO = 3; // espaco entre botoes
+  const MOLDURA = 16; // o padding do popover, somados os dois lados
+  const FOLGA = 8; // respiro ate a borda da janela
+
+  const colunar = (colunas: number) => {
+    host.style.setProperty("--gp-picker-cols", String(colunas));
+    host.style.width = `${colunas * (CELULA + VAO) - VAO + MOLDURA}px`;
+  };
+
+  /**
+   * A grade segue o formato da janela.
+   *
+   * Cinco colunas fixas davam seis linhas de icones, que nao cabiam numa janela
+   * baixa — e a lista simplesmente saia pela borda. Agora, quando falta altura,
+   * a grade se espalha para os lados ate onde a largura deixar; numa janela alta
+   * e estreita ela volta a ser vertical. O que ainda nao couber rola.
+   */
+  const ajustar = (espaco: number) => {
+    const maximo = Math.max(
+      4,
+      Math.min(10, Math.floor((window.innerWidth - FOLGA * 2 - MOLDURA + VAO) / (CELULA + VAO))),
+    );
+    for (let colunas = 5; colunas <= maximo; colunas += 1) {
+      colunar(colunas);
+      if (host.scrollHeight <= espaco) return;
+    }
+    // Nem na largura toda coube: fica no maximo possivel e rola.
+    colunar(maximo);
+  };
+
   const posicionar = (anchor: HTMLElement) => {
     const alvo = anchor.getBoundingClientRect();
+    const abaixo = window.innerHeight - alvo.bottom - FOLGA * 2;
+    const acima = alvo.top - FOLGA * 2;
+
+    ajustar(Math.max(abaixo, acima));
+
+    // Abaixo da aba por padrao; acima quando la embaixo nao cabe e em cima sobra
+    // mais espaco. O resto rola dentro do proprio popover.
+    const paraCima = host.scrollHeight > abaixo && acima > abaixo;
+    const espaco = Math.max(120, paraCima ? acima : abaixo);
+    host.style.maxHeight = `${espaco}px`;
+
+    const altura = Math.min(host.scrollHeight, espaco);
     const caixa = host.getBoundingClientRect();
-    // Abaixo da aba, sem sair da janela: numa janela estreita, a ultima aba
-    // fica perto da borda direita.
-    const x = Math.min(Math.max(8, alvo.left - 6), window.innerWidth - caixa.width - 8);
-    host.style.left = `${x}px`;
-    host.style.top = `${alvo.bottom + 6}px`;
+    // Sem sair da janela: numa janela estreita, a ultima aba fica perto da borda.
+    const x = Math.min(Math.max(FOLGA, alvo.left - 6), window.innerWidth - caixa.width - FOLGA);
+    host.style.left = `${Math.max(FOLGA, x)}px`;
+    host.style.top = `${paraCima ? alvo.top - 6 - altura : alvo.bottom + 6}px`;
   };
 
   const picker: IconPicker = {
@@ -108,6 +151,7 @@ export function createIconPicker(host: HTMLElement, handlers: IconPickerHandlers
       legendaPadrao = atual ? iconLabel(atual) : t("icons.choose");
 
       host.hidden = false;
+      ancora = anchor;
       posicionar(anchor);
       host.querySelector<HTMLElement>('[data-on="true"], [data-pick]')?.focus();
     },
@@ -118,6 +162,12 @@ export function createIconPicker(host: HTMLElement, handlers: IconPickerHandlers
       handlers.onClose();
     },
   };
+
+  // A janela do Harp muda de tamanho por atalho, com o seletor aberto. Refazer
+  // as contas e mais util que fechar: o gesto continua de onde estava.
+  window.addEventListener("resize", () => {
+    if (picker.isOpen() && ancora) posicionar(ancora);
+  });
 
   host.addEventListener("click", (event) => {
     const alvo = (event.target as HTMLElement).closest<HTMLElement>("[data-pick]");

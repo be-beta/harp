@@ -1041,21 +1041,44 @@ body[data-narrow="true"] .gp-fontsize {
   right: 12px;
   bottom: 34px;
   z-index: 26;
-  min-width: 180px;
+  /* Numa janela baixa a lista passava da borda de cima e as primeiras opcoes
+     ficavam fora de alcance; numa janela estreita, os 180px estouravam a
+     largura. Agora ela encolhe e rola. */
+  min-width: min(180px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 46px);
   padding: 5px;
   border-radius: 10px;
   background: var(--gp-panel);
   box-shadow: inset 0 0 0 1px var(--gp-border), 0 10px 26px rgba(0, 0, 0, 0.5);
   font-size: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Barra de rolagem discreta, a mesma das configuracoes. */
+.gp-menu::-webkit-scrollbar,
+.gp-picker::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gp-menu::-webkit-scrollbar-thumb,
+.gp-picker::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: var(--gp-border);
 }
 
 /* Seletor de icone: preso a aba, e nao ao canto da barra como o menu. */
 .gp-picker {
   right: auto;
   bottom: auto;
+  /* A largura e o numero de colunas vem do JS, pelo formato da janela. */
   width: 198px;
   min-width: 0;
+  max-width: calc(100vw - 16px);
   padding: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   animation: gp-menu-in 140ms var(--gp-ease);
 }
 
@@ -1076,7 +1099,7 @@ body[data-narrow="true"] .gp-fontsize {
 .gp-picker__row,
 .gp-picker__grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(var(--gp-picker-cols, 5), 1fr);
   gap: 3px;
 }
 
