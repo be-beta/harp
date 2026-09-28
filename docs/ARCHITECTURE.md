@@ -825,8 +825,9 @@ simplesmente selecioná-la. Agora só a aba ativa troca de ícone; nas outras, o
 glifo faz parte do clique que seleciona a aba.
 
 O nome de cada ícone aparece no rodapé do seletor assim que o mouse (ou o
-teclado) chega nele. A dica nativa do navegador demora e some ao mexer o mouse,
-e alguns ícones pareciam não ter nome.
+teclado) chega nele. A dica nativa do navegador (`title`) saiu: numa grade ela
+demora a aparecer e não volta enquanto o mouse anda, então alguns ícones
+pareciam ter nome e outros não. O `aria-label` fica, para leitores de tela.
 
 Eram 25 categorias, todas do trabalho sério. Cinco menos sérias — urgente,
 rápido, experimento, bug, querido — fecham 30: anotação também é urgência,
@@ -1000,6 +1001,12 @@ Desde que Rascunho e Vidro ganharam janelas próprias, que vivem escondidas o
 tempo todo, fechar a principal deixava de encerrar o processo: o Harp
 "fechado" continuava rodando invisível, com os atalhos globais ativos. Agora a
 destruição da janela principal encerra o app.
+
+Um processo desses é pior do que parece: ele segura a vez da instância única, e
+aí *nenhum* Harp abre — o novo entrega a vez para o fantasma e sai, e o
+fantasma não tem janela para mostrar. Por isso a instância única também se
+defende: se a chamada chega e não existe janela principal, quem está segurando
+a vez sai, para a próxima tentativa conseguir abrir.
 
 ### Testar a interface sem compilar o Rust **[D]**
 

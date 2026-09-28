@@ -27,11 +27,17 @@ pub fn run() {
     #[cfg(desktop)]
     {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            if let Some(window) = app.get_webview_window("main") {
-                let _ = window.unminimize();
-                let _ = window.show();
-                let _ = window.set_focus();
-            }
+            let Some(window) = app.get_webview_window("main") else {
+                // Sem janela principal, esta instancia e um fantasma: ela segura
+                // a vez e nao tem o que mostrar, entao abrir o Harp nao abria
+                // nada. Sair devolve a vez para a proxima tentativa.
+                app.exit(0);
+                return;
+            };
+            let _ = window.set_ignore_cursor_events(false);
+            let _ = window.unminimize();
+            let _ = window.show();
+            let _ = window.set_focus();
         }));
     }
 

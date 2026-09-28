@@ -4,7 +4,7 @@
  * Um popover preso a aba, e nao um modal: escolher um icone e um gesto de meio
  * segundo, e um modal transformaria isso numa tarefa. Tres grupos, do mais
  * provavel para o mais completo — sugeridos pelo texto, os que a pessoa mais
- * usa, e os 25.
+ * usa, e os 30.
  */
 
 import { t } from "../core/i18n";
@@ -43,9 +43,10 @@ export function createIconPicker(host: HTMLElement, handlers: IconPickerHandlers
   /**
    * O nome do icone sob o mouse, sempre a vista no rodape.
    *
-   * A dica nativa (`title`) demora a aparecer e some ao mexer o mouse; alguns
-   * icones pareciam nao ter nome. O rodape responde na hora, e tambem ao
-   * navegar pelo teclado.
+   * A dica nativa (`title`) saiu: numa grade, ela demora a aparecer e nao volta
+   * enquanto o mouse anda, entao uns icones pareciam ter nome e outros nao. O
+   * rodape responde na hora, e tambem ao navegar pelo teclado. O `aria-label`
+   * fica, para quem usa leitor de tela.
    */
   const legendar = (event: Event) => {
     const legenda = host.querySelector<HTMLElement>("[data-caption]");
@@ -62,7 +63,7 @@ export function createIconPicker(host: HTMLElement, handlers: IconPickerHandlers
 
   const botao = (id: IconId, atual: IconId | undefined) =>
     `<button class="gp-picker__icon" data-pick="${id}" data-on="${id === atual}"
-       title="${iconLabel(id)}" aria-label="${iconLabel(id)}">${iconSvg(id)}</button>`;
+       aria-label="${iconLabel(id)}">${iconSvg(id)}</button>`;
 
   const grupo = (titulo: string, ids: IconId[], atual: IconId | undefined) =>
     ids.length === 0
