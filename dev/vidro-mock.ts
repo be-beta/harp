@@ -4,6 +4,8 @@ declare global {
   interface Window {
     __png?: Uint8Array;
     __chamadas: string[];
+    /** Ultimo recorte pedido ao Rust, para o teste conferir a conta. */
+    __crop?: unknown;
   }
 }
 
@@ -22,6 +24,7 @@ mockIPC(
       const corpo = args as unknown as ArrayBuffer | Uint8Array;
       window.__png = corpo instanceof Uint8Array ? corpo : new Uint8Array(corpo);
     }
+    if (cmd === "vidro_crop") window.__crop = (args as { crop?: unknown }).crop ?? null;
     if (cmd === "plugin:store|load") return 1;
     if (cmd === "plugin:store|get") return [null, false];
     return null;

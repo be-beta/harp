@@ -38,6 +38,13 @@ body.vidro[data-hover="true"] {
   cursor: move;
 }
 
+/* Marcando o recorte, o arraste e so dele: nada de cursor de mover objeto. */
+body.vidro[data-cropping="true"],
+body.vidro[data-cropping="true"][data-hover="true"],
+body.vidro[data-cropping="true"][data-cursor="text"] {
+  cursor: crosshair;
+}
+
 .vidro__canvas {
   position: fixed;
   inset: 0;

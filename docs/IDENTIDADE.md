@@ -76,8 +76,8 @@ Dizer isto evita que o site prometa o que o app não entrega:
 - Não é um gerenciador de conhecimento: não tem base, nem links entre notas, nem
   busca global no acervo.
 - Não é um editor de texto rico: não tem estilos, tabelas nem exportação.
-- Não é editor de imagem nem de screenshot: o Vidro não salva, não recorta,
-  não desfoca. Copia e sai.
+- Não é editor de imagem nem de screenshot: o Vidro não salva arquivo, não
+  desfoca, não tem camadas. Marca a área que interessa, copia e sai.
 - Não é colaborativo, não tem nuvem, não tem conta. Tudo é local.
 - Não tem IA dentro.
 
@@ -197,8 +197,9 @@ Fatos verificáveis, para o site não prometer o que não existe:
 - Abrir e salvar `.txt` e `.md`.
 - **Markdown onde ele ajuda:** listas continuam sozinhas no Enter, negrito e
   itálico por atalho, e tarefas (`- [ ]`) criadas e marcadas com `Ctrl+Enter`
-  ou com um clique na caixa, que aparece sozinha na tela. Não é texto
-  formatado — o arquivo continua sendo texto.
+  ou com um clique na caixa, que aparece sozinha na tela. Os marcadores (`#`,
+  `**`, crases) somem das linhas em que ninguém está mexendo e voltam quando o
+  cursor chega. Não é texto formatado — o arquivo continua sendo texto.
 - **Rascunhos:** `Win+J` abre um campo pequeno e translúcido sobre qualquer
   aplicativo; `Enter` guarda, copia e devolve o foco a quem estava antes. Os dez últimos
   ficam acessíveis na janela principal e **somem ao encerrar o Harp** — são
@@ -207,7 +208,9 @@ Fatos verificáveis, para o site não prometer o que não existe:
   escrever, apontar e circular sobre o que está nela — texto, seta, retângulo e
   círculo, nas cores de destaque do próprio Harp. O texto vira uma etiqueta
   com letra preta ou branca, a que contrastar mais — legível sobre qualquer
-  fundo. `Ctrl+Shift+Enter` copia tela e
+  fundo. `R` marca só o pedaço da tela que vai ser copiado — num programa cheio
+  de barras, o assunto costuma ocupar menos da metade do monitor.
+  `Ctrl+Shift+Enter` copia tela e
   anotações numa imagem só, com os cantos arredondados, pronta para colar — e
   devolve você ao aplicativo onde estava. Não salva arquivo, não guarda histórico, não é editor de imagem:
   anotar, copiar, sair.

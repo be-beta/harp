@@ -103,6 +103,7 @@ function sections(effects: EffectsReport): Section[] {
         { keys: "Ctrl+Shift+G", label: t("shortcuts.ghost") },
         { keys: "Ctrl+Shift+H", label: t("shortcuts.stealth") },
         { keys: "Ctrl+Shift+B", label: t("shortcuts.theme") },
+        { keys: "Ctrl+Shift+M", label: t("shortcuts.markdown") },
         { keys: "Ctrl+Alt+1…5", label: t("shortcuts.corners") },
         { keys: "Ctrl+Alt+6…9", label: t("shortcuts.halves") },
         { keys: "Ctrl+Alt+0", label: t("shortcuts.full") },

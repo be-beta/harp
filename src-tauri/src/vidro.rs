@@ -16,7 +16,7 @@
 
 use std::sync::Mutex;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, State};
 
 use crate::focus::Previous;
@@ -31,9 +31,23 @@ pub struct Area {
     pub scale: f64,
 }
 
+/// Pedaco da area que vai para o clipboard, em pixels fisicos relativos a ela.
+///
+/// Existe porque a tela inteira raramente e o assunto: num Power BI, o painel
+/// ocupa menos da metade do monitor e o resto e barra de ferramentas. Anotar
+/// continua valendo na tela toda; so o que e copiado encolhe. **[D]**
+#[derive(Debug, Clone, Copy, Deserialize)]
+pub struct Crop {
+    pub x: u32,
+    pub y: u32,
+    pub width: u32,
+    pub height: u32,
+}
+
 #[derive(Default)]
 pub struct Vidro {
     area: Mutex<Option<Area>>,
+    crop: Mutex<Option<Crop>>,
     /// A janela principal estava visivel ao entrar? Ela sai de cena durante o
     /// Vidro e volta no fim so se estava la.
     main_visible: Mutex<bool>,
@@ -75,6 +89,10 @@ pub fn toggle(app: &AppHandle) {
     if let Ok(mut slot) = state.area.lock() {
         *slot = Some(area);
     }
+    // Cada sessao comeca copiando a tela inteira.
+    if let Ok(mut slot) = state.crop.lock() {
+        *slot = None;
+    }
 
     // A janela principal sai de cena: o Vidro e sobre o que a pessoa esta
     // olhando, e o Harp por cima disso seria mais uma coisa no caminho — e
@@ -105,6 +123,15 @@ pub fn toggle(app: &AppHandle) {
 ///
 /// A principal volta sem ser ativada: mostrar do jeito comum a poria em
 /// primeiro plano, e o foco precisa ir para o aplicativo onde a pessoa estava.
+/// Define (ou tira) o recorte que sera copiado. Chamado enquanto a pessoa
+/// arrasta a area, e nao so no fim: assim o estado do Rust e o da tela nao se
+/// separam se a captura acontecer no meio.
+#[tauri::command]
+pub fn vidro_crop(state: State<'_, Vidro>, crop: Option<Crop>) -> Result<(), String> {
+    *state.crop.lock().map_err(|_| "estado travado".to_string())? = crop;
+    Ok(())
+}
+
 fn leave(app: &AppHandle, state: &Vidro) {
     if let Some(window) = app.get_webview_window("vidro") {
         let _ = window.hide();
@@ -166,6 +193,7 @@ pub fn vidro_finish(
     let capturado = capture_screen(&app, &state, &request);
     leave(&app, &state);
 
+    let crop = state.crop.lock().ok().and_then(|slot| *slot);
     let (tela, anotacoes, area) = match capturado {
         Ok(partes) => partes,
         Err(error) => {
@@ -176,7 +204,7 @@ pub fn vidro_finish(
     };
 
     std::thread::spawn(move || {
-        if let Err(error) = compose_and_copy(tela, &anotacoes, area) {
+        if let Err(error) = compose_and_copy(tela, &anotacoes, area, crop) {
             let _ = app.emit_to("main", "harp://vidro-failed", error);
         }
     });
@@ -211,7 +239,12 @@ fn capture_screen(
     Ok((tela, png.clone(), area))
 }
 
-fn compose_and_copy(mut tela: Vec<u8>, png: &[u8], area: Area) -> Result<(), String> {
+fn compose_and_copy(
+    mut tela: Vec<u8>,
+    png: &[u8],
+    area: Area,
+    crop: Option<Crop>,
+) -> Result<(), String> {
     let (largura, altura, anotacoes) = decode_png(png)?;
     if largura != area.width || altura != area.height {
         return Err(format!(
@@ -220,17 +253,50 @@ fn compose_and_copy(mut tela: Vec<u8>, png: &[u8], area: Area) -> Result<(), Str
         ));
     }
     compose(&mut tela, &anotacoes);
-    round_corners(&mut tela, area.width, area.height, RAIO_CANTOS * area.scale);
+
+    // Recortar depois de juntar as camadas: as anotacoes sao desenhadas na tela
+    // toda, e so entao o que interessa e separado.
+    let (mut imagem, w, h) = match crop.and_then(|c| c.fit(area)) {
+        Some(c) => (cut(&tela, area.width, c), c.width, c.height),
+        None => (tela, area.width, area.height),
+    };
+    round_corners(&mut imagem, w, h, RAIO_CANTOS * area.scale);
 
     arboard::Clipboard::new()
         .and_then(|mut clipboard| {
             clipboard.set_image(arboard::ImageData {
-                width: area.width as usize,
-                height: area.height as usize,
-                bytes: std::borrow::Cow::Owned(tela),
+                width: w as usize,
+                height: h as usize,
+                bytes: std::borrow::Cow::Owned(imagem),
             })
         })
         .map_err(|e| format!("clipboard: {e}"))
+}
+
+impl Crop {
+    /// O recorte dentro dos limites da area, ou `None` se nao sobrar nada.
+    ///
+    /// A conta de pixel fisico vem do frontend, que trabalha em pixels CSS e
+    /// multiplica pela escala; um arredondamento para fora nao pode virar leitura
+    /// de memoria alheia.
+    fn fit(self, area: Area) -> Option<Crop> {
+        let x = self.x.min(area.width);
+        let y = self.y.min(area.height);
+        let width = self.width.min(area.width - x);
+        let height = self.height.min(area.height - y);
+        (width > 0 && height > 0).then_some(Crop { x, y, width, height })
+    }
+}
+
+/// Copia o retangulo de dentro de uma imagem RGBA.
+fn cut(rgba: &[u8], largura_total: u32, crop: Crop) -> Vec<u8> {
+    let mut saida = Vec::with_capacity((crop.width * crop.height * 4) as usize);
+    for linha in 0..crop.height {
+        let inicio = (((crop.y + linha) * largura_total + crop.x) * 4) as usize;
+        let fim = inicio + (crop.width * 4) as usize;
+        saida.extend_from_slice(&rgba[inicio..fim]);
+    }
+    saida
 }
 
 /// Recorta os quatro cantos em arco, com borda suave.
@@ -370,6 +436,33 @@ mod capture {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Area de 4x3; cada pixel guarda a propria coluna no canal vermelho.
+    fn tela_de_teste() -> Vec<u8> {
+        (0..12u8).flat_map(|i| [i % 4, i / 4, 0, 255]).collect()
+    }
+
+    #[test]
+    fn o_recorte_pega_so_o_retangulo_pedido() {
+        let crop = Crop { x: 1, y: 1, width: 2, height: 2 };
+        let pedaco = cut(&tela_de_teste(), 4, crop);
+        // Colunas 1 e 2 das linhas 1 e 2: (1,1) (2,1) (1,2) (2,2).
+        assert_eq!(
+            pedaco,
+            vec![1, 1, 0, 255, 2, 1, 0, 255, 1, 2, 0, 255, 2, 2, 0, 255]
+        );
+    }
+
+    #[test]
+    fn recorte_que_passa_da_borda_e_aparado_em_vez_de_estourar() {
+        let area = Area { x: 0, y: 0, width: 4, height: 3, scale: 1.0 };
+        let apertado = Crop { x: 3, y: 2, width: 99, height: 99 }.fit(area).unwrap();
+        assert_eq!((apertado.width, apertado.height), (1, 1));
+        // Com o aparo, o corte continua dentro da imagem.
+        assert_eq!(cut(&tela_de_teste(), 4, apertado), vec![3, 2, 0, 255]);
+        // Comecando fora, nao sobra nada para copiar.
+        assert!(Crop { x: 4, y: 0, width: 10, height: 10 }.fit(area).is_none());
+    }
 
     #[test]
     fn anotacao_opaca_substitui_e_transparente_preserva() {

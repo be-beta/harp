@@ -7,9 +7,10 @@
  * alcas.
  *
  * O estilo e do Harp, e nao de editor grafico: traco limpo, cantos levemente
- * arredondados, sem sombra projetada, sem gradiente. Cada traco leva um halo
- * fino de contraste, para continuar visivel sobre fundo claro e escuro — uma
- * seta branca sobre uma pagina branca nao pode sumir.
+ * arredondados, sem gradiente. Cada anotacao leva uma sombra difusa, clara ou
+ * escura conforme a cor, que resolve dois problemas de uma vez: separa do fundo
+ * — uma seta branca sobre uma pagina branca nao pode sumir — e faz a anotacao
+ * parecer pousada sobre a tela, e nao impressa nela.
  */
 
 import { ACCENTS } from "../core/theme";
@@ -58,11 +59,29 @@ function luminance(css: string): number {
 }
 
 /**
- * Halo de contraste: escuro em volta de cor clara, claro em volta de cor
- * escura. Um roxo fundo sobre uma pagina escura some sem o halo claro.
+ * Sombra de contraste: escura em volta de cor clara, clara em volta de cor
+ * escura. Um roxo fundo sobre uma pagina escura some sem a sombra clara.
+ *
+ * Era um contorno de 3 px desenhado por cima do fundo. Cumpria a funcao, mas
+ * tinha borda — de perto, cada traco parecia ter sido recortado e colado. A
+ * mesma cor, agora borrada, separa sem marcar. **[D]**
  */
-function halo(color: Color): string {
-  return luminance(paint(color)) > 0.42 ? "rgba(0, 0, 0, 0.38)" : "rgba(255, 255, 255, 0.55)";
+function sombra(color: Color): string {
+  return luminance(paint(color)) > 0.42 ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 255, 255, 0.62)";
+}
+
+/** Quanto a sombra se espalha, e o quanto ela cai. */
+const BORRAO = 9;
+const QUEDA = 2;
+
+/** Liga a sombra difusa para o proximo desenho. */
+function comSombra(ctx: CanvasRenderingContext2D, color: Color, desenhar: () => void): void {
+  ctx.save();
+  ctx.shadowColor = sombra(color);
+  ctx.shadowBlur = BORRAO;
+  ctx.shadowOffsetY = QUEDA;
+  desenhar();
+  ctx.restore();
 }
 
 /** Preto ou branco, o que tiver mais contraste com a caixa. */
@@ -89,17 +108,20 @@ export const TEXT_PADDING = { x: FOLGA_X, y: FOLGA_Y, line: LINHA, radius: RAIO_
 function tracar(ctx: CanvasRenderingContext2D, color: Color, largura: number, caminho: () => void) {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-
-  ctx.beginPath();
-  caminho();
-  ctx.strokeStyle = halo(color);
-  ctx.lineWidth = largura + 3;
-  ctx.stroke();
-
-  ctx.beginPath();
-  caminho();
   ctx.strokeStyle = paint(color);
   ctx.lineWidth = largura;
+
+  comSombra(ctx, color, () => {
+    ctx.beginPath();
+    caminho();
+    // Duas passadas: sob um traco fino, uma sombra so quase nao aparece.
+    ctx.stroke();
+    ctx.stroke();
+  });
+
+  // De novo por cima, sem sombra, para a cor ficar limpa.
+  ctx.beginPath();
+  caminho();
   ctx.stroke();
 }
 
@@ -131,32 +153,31 @@ function desenharSeta(ctx: CanvasRenderingContext2D, obj: Extract<Obj, { kind: "
   };
 
   ctx.lineJoin = "round";
-  ctx.beginPath();
-  triangulo();
-  ctx.strokeStyle = halo(obj.color);
-  ctx.lineWidth = 3;
-  ctx.stroke();
-  ctx.beginPath();
-  triangulo();
   ctx.fillStyle = paint(obj.color);
-  ctx.fill();
   ctx.strokeStyle = paint(obj.color);
   ctx.lineWidth = 1.5;
+
+  comSombra(ctx, obj.color, () => {
+    ctx.beginPath();
+    triangulo();
+    ctx.fill();
+    ctx.fill();
+  });
+
+  ctx.beginPath();
+  triangulo();
+  ctx.fill();
   ctx.stroke();
 }
 
 function desenharTexto(ctx: CanvasRenderingContext2D, obj: Extract<Obj, { kind: "text" }>) {
   const fundo = paint(obj.color);
-  ctx.save();
-  // Sombra curta, e so aqui: sem ela, uma caixa branca some numa pagina branca.
-  ctx.shadowColor = "rgba(0, 0, 0, 0.28)";
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetY = 1;
-  ctx.beginPath();
-  ctx.roundRect(obj.x, obj.y, obj.w, obj.h, RAIO_TEXTO);
-  ctx.fillStyle = fundo;
-  ctx.fill();
-  ctx.restore();
+  comSombra(ctx, obj.color, () => {
+    ctx.beginPath();
+    ctx.roundRect(obj.x, obj.y, obj.w, obj.h, RAIO_TEXTO);
+    ctx.fillStyle = fundo;
+    ctx.fill();
+  });
 
   ctx.font = FONTE;
   ctx.fillStyle = inkOn(fundo);

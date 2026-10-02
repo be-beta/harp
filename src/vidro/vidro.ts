@@ -58,6 +58,7 @@ const editor = document.getElementById("editor") as HTMLTextAreaElement;
 const hud = document.getElementById("hud") as HTMLDivElement;
 const swatch = document.getElementById("swatch") as HTMLSpanElement;
 const palette = document.getElementById("palette") as HTMLDivElement;
+const cropButton = document.getElementById("crop") as HTMLButtonElement;
 
 // --- Estado da sessao -----------------------------------------------------------
 
@@ -84,6 +85,52 @@ function physicalSize(): { width: number; height: number } {
 let finishing = false;
 const history = new History();
 
+/**
+ * Recorte: que pedaco da tela vai para o clipboard, em pixels CSS.
+ *
+ * `null` e a tela inteira, que continua sendo o padrao. Anotar vale na tela
+ * toda mesmo com recorte definido — o que encolhe e so o que e copiado.
+ */
+let recorte: Caixa | null = null;
+/** Esperando o arraste que define o recorte. */
+let recortando = false;
+
+interface Caixa {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/** O recorte em pixels fisicos, como o Rust precisa. */
+function recorteFisico(): Caixa | null {
+  if (!recorte) return null;
+  const escala = physicalSize().width / window.innerWidth;
+  return {
+    x: Math.round(recorte.x * escala),
+    y: Math.round(recorte.y * escala),
+    w: Math.round(recorte.w * escala),
+    h: Math.round(recorte.h * escala),
+  };
+}
+
+/** Manda o recorte para o Rust, que e quem recorta a imagem no fim. */
+function enviarRecorte(): void {
+  const fisico = recorteFisico();
+  void invoke("vidro_crop", {
+    crop: fisico ? { x: fisico.x, y: fisico.y, width: fisico.w, height: fisico.h } : null,
+  }).catch(() => {});
+}
+
+function setCrop(proximo: Caixa | null): void {
+  recorte = proximo;
+  recortando = false;
+  document.body.dataset.cropping = "false";
+  enviarRecorte();
+  renderHud();
+  redraw();
+}
+
 /** Copia interna: o objeto em si, e nao uma imagem dele — colado, continua editavel. */
 let clipboard: Obj | null = null;
 let pasteCount = 0;
@@ -96,6 +143,7 @@ let gesture:
   | { kind: "draw"; id: number; ax: number; ay: number; before: Obj[] }
   | { kind: "move"; id: number; lx: number; ly: number; before: Obj[]; moved: boolean }
   | { kind: "resize"; id: number; handle: Handle; before: Obj[]; moved: boolean }
+  | { kind: "crop"; ax: number; ay: number }
   | null = null;
 
 /** Setas do teclado seguidas contam como um passo so no desfazer. */
@@ -127,13 +175,36 @@ function redraw(): void {
     }
     const atual = selected();
     if (atual && !editing && !finishing) drawSelection(ctx, atual, cor);
+    // So na tela: a imagem das anotacoes nao passa por aqui, e quem recorta de
+    // verdade e o Rust.
+    if (recorte && !finishing) desenharRecorte(cor);
   });
+}
+
+/** Escurece o que ficou de fora e marca o que vai ser copiado. */
+function desenharRecorte(cor: string): void {
+  const { x, y, w, h } = recorte!;
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+  ctx.beginPath();
+  ctx.rect(0, 0, window.innerWidth, window.innerHeight);
+  // Segundo retangulo no sentido contrario: o buraco fica limpo.
+  ctx.rect(x + w, y, -w, h);
+  ctx.fill();
+
+  ctx.strokeStyle = cor;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 4]);
+  ctx.strokeRect(x, y, w, h);
+  ctx.restore();
 }
 
 function renderHud(): void {
   for (const botao of hud.querySelectorAll<HTMLElement>("[data-tool]")) {
     botao.dataset.on = String(botao.dataset.tool === tool);
   }
+  cropButton.dataset.on = String(recortando || recorte !== null);
+  cropButton.title = t(recorte ? "vidro.tool.crop.clear" : "vidro.tool.crop");
   swatch.style.background = paint(color);
   for (const botao of palette.querySelectorAll<HTMLElement>("[data-color]")) {
     botao.dataset.on = String(botao.dataset.color === color);
@@ -223,6 +294,15 @@ canvas.addEventListener("pointerdown", (event) => {
   const before = structuredClone(objs);
   canvas.setPointerCapture(event.pointerId);
 
+  // Marcando o recorte, o arraste e so dele: nada e selecionado nem desenhado.
+  if (recortando) {
+    selectedId = null;
+    gesture = { kind: "crop", ax: x, ay: y };
+    recorte = { x, y, w: 0, h: 0 };
+    redraw();
+    return;
+  }
+
   // Alca do selecionado vem primeiro: ela fica por cima do contorno.
   const atual = selected();
   const alca = atual ? handleAt(atual, x, y) : undefined;
@@ -267,37 +347,49 @@ canvas.addEventListener("pointermove", (event) => {
     return;
   }
 
-  const obj = objs.find((o) => o.id === gesture!.id);
+  const gesto = gesture;
+  if (gesto.kind === "crop") {
+    recorte = {
+      x: Math.min(gesto.ax, x),
+      y: Math.min(gesto.ay, y),
+      w: Math.abs(x - gesto.ax),
+      h: Math.abs(y - gesto.ay),
+    };
+    redraw();
+    return;
+  }
+
+  const obj = objs.find((o) => o.id === gesto.id);
   if (!obj) return;
 
-  if (gesture.kind === "draw") {
+  if (gesto.kind === "draw") {
     // Shift trava a seta em angulos de 45 graus e a caixa em quadrado.
     let px = x;
     let py = y;
     if (event.shiftKey) {
       if (obj.kind === "arrow") {
-        const ang = Math.round(Math.atan2(py - gesture.ay, px - gesture.ax) / (Math.PI / 4)) * (Math.PI / 4);
-        const len = Math.hypot(px - gesture.ax, py - gesture.ay);
-        px = gesture.ax + Math.cos(ang) * len;
-        py = gesture.ay + Math.sin(ang) * len;
+        const ang = Math.round(Math.atan2(py - gesto.ay, px - gesto.ax) / (Math.PI / 4)) * (Math.PI / 4);
+        const len = Math.hypot(px - gesto.ax, py - gesto.ay);
+        px = gesto.ax + Math.cos(ang) * len;
+        py = gesto.ay + Math.sin(ang) * len;
       } else {
-        const lado = Math.max(Math.abs(px - gesture.ax), Math.abs(py - gesture.ay));
-        px = gesture.ax + Math.sign(px - gesture.ax || 1) * lado;
-        py = gesture.ay + Math.sign(py - gesture.ay || 1) * lado;
+        const lado = Math.max(Math.abs(px - gesto.ax), Math.abs(py - gesto.ay));
+        px = gesto.ax + Math.sign(px - gesto.ax || 1) * lado;
+        py = gesto.ay + Math.sign(py - gesto.ay || 1) * lado;
       }
     }
     replace(
       obj.id,
-      obj.kind === "arrow" ? { ...obj, x2: px, y2: py } : { ...obj, ...boxBetween(gesture.ax, gesture.ay, px, py) },
+      obj.kind === "arrow" ? { ...obj, x2: px, y2: py } : { ...obj, ...boxBetween(gesto.ax, gesto.ay, px, py) },
     );
-  } else if (gesture.kind === "move") {
-    replace(obj.id, moved(obj, x - gesture.lx, y - gesture.ly));
-    gesture.lx = x;
-    gesture.ly = y;
-    gesture.moved = true;
+  } else if (gesto.kind === "move") {
+    replace(obj.id, moved(obj, x - gesto.lx, y - gesto.ly));
+    gesto.lx = x;
+    gesto.ly = y;
+    gesto.moved = true;
   } else {
-    replace(obj.id, resized(obj, gesture.handle, x, y));
-    gesture.moved = true;
+    replace(obj.id, resized(obj, gesto.handle, x, y));
+    gesto.moved = true;
   }
   redraw();
 });
@@ -306,6 +398,12 @@ canvas.addEventListener("pointerup", () => {
   const g = gesture;
   gesture = null;
   if (!g) return;
+
+  if (g.kind === "crop") {
+    // Um clique sem arraste nao e um recorte de 2 px: e desistir dele.
+    setCrop(recorte && recorte.w > 12 && recorte.h > 12 ? recorte : null);
+    return;
+  }
 
   if (g.kind === "draw") {
     const obj = objs.find((o) => o.id === g.id);
@@ -481,8 +579,24 @@ window.addEventListener("keydown", (event) => {
   if (!ctrl && !event.altKey) {
     if (FERRAMENTA_POR_TECLA[event.key]) return prevent(event, () => setTool(FERRAMENTA_POR_TECLA[event.key]));
     if (event.key === "5") return prevent(event, cycleColor);
+    if (tecla === "r") return prevent(event, toggleCrop);
   }
 });
+
+/**
+ * Liga a marcacao do recorte; com um recorte ja definido, desfaz.
+ *
+ * Um botao so para as duas coisas porque sao a mesma pergunta — "o que vai ser
+ * copiado?" — e porque o escurecido na tela ja diz em qual dos dois estados a
+ * pessoa esta.
+ */
+function toggleCrop(): void {
+  closePalette();
+  if (recorte) return setCrop(null);
+  recortando = !recortando;
+  document.body.dataset.cropping = String(recortando);
+  renderHud();
+}
 
 function prevent(event: KeyboardEvent, action: () => void): void {
   event.preventDefault();
@@ -498,6 +612,7 @@ hud.addEventListener("click", (event) => {
   if (!botao || !hud.contains(botao)) return;
   const ferramenta = botao.dataset.tool as Tool | undefined;
   const cor = botao.dataset.color as Color | undefined;
+  if (botao.id === "crop") return toggleCrop();
   if (botao.id === "color") {
     if (palette.hidden) openPalette();
     else closePalette();
@@ -566,6 +681,9 @@ function reset(): void {
   editing = null;
   gesture = null;
   finishing = false;
+  recorte = null;
+  recortando = false;
+  document.body.dataset.cropping = "false";
   editor.hidden = true;
   history.clear();
   hud.hidden = false;

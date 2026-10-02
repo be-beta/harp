@@ -119,11 +119,14 @@ envia um binário feito na própria máquina.
   abas mostram só o ícone
 - **Tarefas em Markdown**: `Ctrl+Enter` cria e marca `- [ ]`; na tela aparece só a
   caixa, que aceita clique
+- **Markdown sem os sinais à vista**: `#`, `**` e crases somem das linhas em que
+  ninguém está mexendo e voltam quando o cursor chega (`Ctrl+Shift+M` desliga)
 - **Rascunhos**: `Win+J` abre um campo sobre qualquer app; `Enter` guarda, copia e
   devolve o foco. Os dez últimos ficam em `Ctrl+J`, e somem ao encerrar o Harp
 - **Vidro**: `Win+Alt+V` cobre a tela para anotar com texto, seta, retângulo e
-  círculo, nas cores de destaque do app; `Ctrl+Shift+Enter` copia tela e
-  anotações numa imagem só, com os cantos arredondados
+  círculo, nas cores de destaque do app; `R` marca só o pedaço da tela que
+  interessa; `Ctrl+Shift+Enter` copia tela e anotações numa imagem só, com os
+  cantos arredondados
 - **Histórico local de versões**, para recuperar texto perdido
 - **Aviso quando há gravação em andamento**, lembrando de se ocultar
 - **Teleprompter** com rolagem automática e modo faixa para gravações
@@ -163,8 +166,11 @@ envia um binário feito na própria máquina.
 | `Ctrl+Alt+6..9` / `Ctrl+Alt+0` | Metade da tela / tela toda |
 | `Ctrl+Alt+Shift+setas` | Redimensiona a janela |
 | `Ctrl+Shift+B` | Tema claro / escuro |
+| `Ctrl+Shift+M` | Mostra ou esconde os marcadores do Markdown |
 | `Ctrl+Q` | Fecha |
 | `Ctrl+Alt+G` | **Resgate** — desfaz todos os modos e traz a janela de volta |
+
+Onde há dígitos, as duas filas valem: a de cima e a do teclado numérico.
 
 O resgate é global: funciona mesmo com a janela em modo fantasma, oculta ou
 fora da área visível. Se outro programa já usar `Ctrl+Alt+G`, o Harp passa
@@ -177,6 +183,7 @@ para `Ctrl+Alt+Shift+G` e mostra o atalho ativo nos avisos. O mesmo vale para
 |---|---|
 | `1` `2` `3` `4` | Texto, seta, retângulo, círculo |
 | `5` | Próxima cor de destaque |
+| `R` | Recorta a área a ser copiada (de novo, volta à tela inteira) |
 | `Shift` ao desenhar | Seta em 45°, retângulo e círculo proporcionais |
 | Setas / `Shift+setas` | Move o selecionado 1 px / 10 px |
 | `Ctrl+C` / `Ctrl+V` | Duplica o selecionado |

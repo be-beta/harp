@@ -608,6 +608,19 @@ function stealthUnavailable(): void {
   el.chipStealth.title = t("chip.stealth.unavailable");
 }
 
+/**
+ * Mostra ou esconde os marcadores do Markdown.
+ *
+ * Escondidos, o texto se le como texto; o cursor na linha devolve os sinais
+ * para editar. Quem prefere ver tudo o tempo todo desliga aqui.
+ */
+function toggleMarkdownPreview(): void {
+  settings.markdownPreview = !settings.markdownPreview;
+  editor.setMarkdownPreview(settings.markdownPreview);
+  toast(t(settings.markdownPreview ? "toast.markdown.on" : "toast.markdown.off"));
+  void saveSettings(settings);
+}
+
 // --- Tema ------------------------------------------------------------------
 
 function changeTheme(theme: Theme): void {
@@ -733,6 +746,8 @@ const persistNote = debounceWithCeiling(
 function onTextChange(text: string): void {
   updateMetrics(text);
   persistNote(activeNote, text);
+  // Escrever e a resposta a "onde eu estou": a lista ja cumpriu o papel dela.
+  if (el.body.dataset.tabs !== "collapsed") collapseTabs();
 
   wakeFromIdle();
 }
@@ -775,20 +790,28 @@ async function copyAllAndClear(): Promise<void> {
  * Elas passam a maior parte do tempo sem uso, e quem esta escrevendo nao precisa
  * ver a lista inteira o tempo todo — basta saber onde esta. O mouse por perto
  * traz tudo de volta, inclusive o botao de nova aba.
+ *
+ * Eram quinze segundos, de quando a aba so tinha um numero e era preciso ler a
+ * lista para se achar. Com um icone em cada uma, tres bastam — e comecar a
+ * escrever recolhe na hora: quem digitou ja sabe onde esta. **[D]**
  */
-const TABS_COLLAPSE_MS = 15_000;
+const TABS_COLLAPSE_MS = 3_000;
 
 let tabsTimer: number | undefined;
 
 function scheduleTabsCollapse(): void {
   if (tabsTimer) window.clearTimeout(tabsTimer);
   el.body.dataset.tabs = "open";
-  tabsTimer = window.setTimeout(() => {
-    // Recolher com o seletor de icone aberto deixaria o popover apontando
-    // para uma aba que encolheu. Espera ele fechar.
-    if (iconPicker.isOpen()) return scheduleTabsCollapse();
-    el.body.dataset.tabs = "collapsed";
-  }, TABS_COLLAPSE_MS);
+  tabsTimer = window.setTimeout(collapseTabs, TABS_COLLAPSE_MS);
+}
+
+function collapseTabs(): void {
+  // Recolher com o seletor de icone aberto deixaria o popover apontando para
+  // uma aba que encolheu. Espera ele fechar.
+  if (iconPicker.isOpen()) return scheduleTabsCollapse();
+  if (tabsTimer) window.clearTimeout(tabsTimer);
+  tabsTimer = undefined;
+  el.body.dataset.tabs = "collapsed";
 }
 
 /** Tecla da aba pela posicao: 1 a 9, e a decima no 0, como nos navegadores. */
@@ -1255,6 +1278,19 @@ async function checkRecorders(): Promise<void> {
 
 // --- Atalhos ---------------------------------------------------------------
 
+/**
+ * O digito de uma tecla, pela posicao fisica dela.
+ *
+ * As duas filas de numeros valem para tudo. `event.key` nao servia para o snap:
+ * `Ctrl+Alt` e `AltGr` no Windows, e a fila de cima chega como `¹²³£¢¬`
+ * conforme o layout — num notebook sem teclado numerico o snap simplesmente nao
+ * existia. E `Digit1` sozinho ignorava o teclado numerico, onde a troca de aba
+ * nao funcionava. `event.code` tambem independe do Num Lock. **[D]**
+ */
+function digitOf(event: KeyboardEvent): string | undefined {
+  return /^(?:Digit|Numpad)(\d)$/.exec(event.code)?.[1];
+}
+
 const CORNER_BY_DIGIT: Record<string, Corner> = {
   "1": "top-left",
   "2": "top-right",
@@ -1382,12 +1418,13 @@ function handleKeydown(event: KeyboardEvent): boolean {
 
   // Alt+Setas fica com o editor (mover linhas), por isso o snap usa Ctrl+Alt+digito.
   if (event.altKey && !event.shiftKey) {
-    if (CORNER_BY_DIGIT[event.key]) {
-      void snapToCorner(CORNER_BY_DIGIT[event.key]);
+    const digito = digitOf(event);
+    if (digito && CORNER_BY_DIGIT[digito]) {
+      void snapToCorner(CORNER_BY_DIGIT[digito]);
       return consume(event);
     }
-    if (HALF_BY_DIGIT[event.key]) {
-      void snapHalf(HALF_BY_DIGIT[event.key]);
+    if (digito && HALF_BY_DIGIT[digito]) {
+      void snapHalf(HALF_BY_DIGIT[digito]);
       return consume(event);
     }
   }
@@ -1430,7 +1467,7 @@ function handleKeydown(event: KeyboardEvent): boolean {
   // Ctrl+digito troca de aba pela posicao dela, com o 0 valendo a decima; com
   // Alt, o mesmo digito move a janela. `event.code` e a posicao fisica: com
   // Shift ou em outro layout, `event.key` pode nao ser o digito.
-  const digito = /^Digit(\d)$/.exec(event.code)?.[1];
+  const digito = digitOf(event);
   if (!event.altKey && !event.shiftKey && digito !== undefined) {
     const slot = openNotes[digito === "0" ? 9 : Number(digito) - 1];
     if (slot) void switchNote(slot);
@@ -1467,6 +1504,9 @@ function handleKeydown(event: KeyboardEvent): boolean {
         return consume(event);
       case "b":
         toggleTheme();
+        return consume(event);
+      case "m":
+        toggleMarkdownPreview();
         return consume(event);
     }
     return false;
@@ -1848,6 +1888,7 @@ async function boot(): Promise<void> {
     fontSize: settings.fontSize,
     onChange: onTextChange,
     onAppKeydown: handleKeydown,
+    markdownPreview: settings.markdownPreview,
   });
   updateMetrics(initialText);
   renderTabs();

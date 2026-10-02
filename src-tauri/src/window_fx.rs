@@ -12,7 +12,7 @@
 //! respondiam sucesso e pintavam um fundo opaco.
 
 use serde::Serialize;
-use tauri::{Manager, PhysicalPosition, PhysicalSize, State, WebviewWindow};
+use tauri::{Manager, PhysicalPosition, PhysicalSize, WebviewWindow};
 
 #[cfg(target_os = "windows")]
 use windows::Win32::{
@@ -115,9 +115,47 @@ fn set_exclude_from_capture_inner(window: &WebviewWindow, enable: bool) -> Resul
 // Comandos expostos ao frontend
 // ---------------------------------------------------------------------------
 
+/// Onde o relatorio espera por quem perguntar.
+///
+/// O setup do Rust migra dados, monta a bandeja e registra atalhos globais; o
+/// webview comeca a carregar antes de tudo isso terminar. Numa maquina fria —
+/// primeira execucao, antivirus, disco lento — o frontend perguntava antes de a
+/// resposta existir, recebia erro e caia no padrao conservador: os quatro
+/// atalhos globais apareciam como "em uso por outro app" e o botao Oculto
+/// nascia desligado, com tudo funcionando por baixo. Agora a pergunta espera a
+/// resposta. **[D]**
+#[derive(Default)]
+pub struct ReportSlot(std::sync::Mutex<Option<EffectsReport>>);
+
+impl ReportSlot {
+    pub fn fill(&self, report: EffectsReport) {
+        if let Ok(mut slot) = self.0.lock() {
+            *slot = Some(report);
+        }
+    }
+
+    fn read(&self) -> Option<EffectsReport> {
+        self.0.lock().ok().and_then(|slot| slot.clone())
+    }
+}
+
 #[tauri::command]
-pub fn get_effects_report(report: State<'_, EffectsReport>) -> EffectsReport {
-    report.inner().clone()
+pub async fn get_effects_report(app: tauri::AppHandle) -> EffectsReport {
+    let slot = app.state::<std::sync::Arc<ReportSlot>>().inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        // Cinco segundos e muito mais do que o setup leva, e e a diferenca entre
+        // esperar um instante e mentir para sempre: a resposta so e dada uma vez.
+        for _ in 0..200 {
+            if let Some(report) = slot.read() {
+                return report;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(25));
+        }
+        eprintln!("[harp] o relatorio de capacidades nao ficou pronto a tempo");
+        EffectsReport::default()
+    })
+    .await
+    .unwrap_or_default()
 }
 
 /// Invisibilidade em gravacoes (OBS, Zoom, Teams, Meet).

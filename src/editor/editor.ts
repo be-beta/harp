@@ -30,6 +30,7 @@ import { markdown } from "@codemirror/lang-markdown";
 import { t } from "../core/i18n";
 import { ghostSearchPanel } from "./search-panel";
 import { links } from "./links";
+import { markdownPreview } from "./markdown-preview";
 import { tasks, toggleTask } from "./tasks";
 import { tags } from "@lezer/highlight";
 
@@ -45,6 +46,8 @@ export interface EditorOptions {
    * tratou o evento, para o CodeMirror nao processar a mesma tecla.
    */
   onAppKeydown: (event: KeyboardEvent) => boolean;
+  /** Esconde os marcadores do Markdown fora da linha em uso. */
+  markdownPreview: boolean;
 }
 
 /**
@@ -215,6 +218,12 @@ const editable = new Compartment();
 const typography = new Compartment();
 
 /**
+ * Esconder os marcadores do Markdown e opcional, e a opcao vale em tempo de
+ * execucao: quem escreve Markdown a serio as vezes quer ver o que digitou.
+ */
+const preview = new Compartment();
+
+/**
  * O tamanho vai literal, e nao como `var()`: o valor precisa estar no tema para
  * que uma troca seja uma troca de verdade. A familia continua vindo do CSS, que
  * a carrega sob demanda; como este tema e reconstruido junto, trocar de fonte
@@ -255,6 +264,8 @@ export interface GhostEditor {
   lineHeight(): number;
   /** Avisa que o tamanho ou a familia do texto mudou. */
   setTypography(size: number): void;
+  /** Liga ou desliga o esconder dos marcadores do Markdown. */
+  setMarkdownPreview(on: boolean): void;
   view: EditorView;
 }
 
@@ -263,6 +274,7 @@ export function createEditor(options: EditorOptions): GhostEditor {
     // Atalhos do app primeiro: uma tecla do Harp nunca chega ao editor.
     editable.of(EditorView.editable.of(true)),
     typography.of(typographyTheme(options.fontSize)),
+    preview.of(options.markdownPreview ? markdownPreview : []),
     Prec.highest(
       EditorView.domEventHandlers({
         keydown: (event) => options.onAppKeydown(event),
@@ -322,6 +334,9 @@ export function createEditor(options: EditorOptions): GhostEditor {
     lineHeight: () => view.defaultLineHeight,
     setTypography: (size) => {
       view.dispatch({ effects: typography.reconfigure(typographyTheme(size)) });
+    },
+    setMarkdownPreview: (on) => {
+      view.dispatch({ effects: preview.reconfigure(on ? markdownPreview : []) });
     },
     captureSession: () => view.state,
     restoreSession: (session) => {

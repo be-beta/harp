@@ -27,6 +27,8 @@ export interface Settings {
   excludeFromCapture: boolean;
   /** Esmaece sozinho quando a janela fica parada e sem foco. */
   idleFade: boolean;
+  /** Esconde os marcadores do Markdown fora da linha em uso. */
+  markdownPreview: boolean;
   /** Atalhos globais escolhidos pelo usuario; ausentes = padrao do backend. */
   shortcuts: Partial<Record<GlobalAction, KeyCombo>>;
   /** Metricas visiveis na barra de status. */
@@ -53,6 +55,9 @@ export const DEFAULT_SETTINGS: Settings = {
   // opaco o bastante para o usuario novo ler os controles.
   opacity: 0.9,
   alwaysOnTop: true,
+  // Ligado de saida: quem nao escreve Markdown nunca ve um marcador, e quem
+  // escreve ve o seu de volta assim que o cursor chega na linha.
+  markdownPreview: true,
   // Nunca liga sozinho: um usuario que nao pediu isso acharia que o app sumiu.
   excludeFromCapture: false,
   idleFade: true,

@@ -480,6 +480,36 @@ número de colunas é medido, não estimado — a grade cresce uma coluna por ve
 até o painel caber. Se a janela muda de tamanho com o seletor aberto, as contas
 são refeitas em vez de o painel fechar: o gesto continua de onde estava.
 
+### As duas filas de números valem para tudo **[D]**
+
+O snap lia `event.key`. No Windows, `Ctrl+Alt` é `AltGr`: a fila de cima chega
+como `¹²³£¢¬`, conforme o layout, e num notebook sem teclado numérico o atalho
+simplesmente não existia. A troca de aba tinha o problema oposto — lia só
+`Digit1…9`, e o teclado numérico ficava de fora. Os dois passam por `digitOf`,
+que lê a posição física da tecla e aceita as duas filas. `event.code` também
+independe do Num Lock.
+
+### O relatório de capacidades espera, em vez de mentir **[D]**
+
+Um usuário instalou o Harp num segundo notebook e os quatro atalhos globais
+apareceram como "em uso por outro app" — todos funcionando. O botão "Oculto"
+nascia desligado na mesma máquina. Era tudo o mesmo objeto: o relatório
+conservador que o frontend usa quando a pergunta falha.
+
+O setup do Rust migra dados, monta a bandeja e registra atalhos; o webview
+começa a carregar antes de isso terminar. Numa máquina fria a pergunta chegava
+antes da resposta existir, e a resposta só é dada uma vez. Agora o lugar do
+relatório é criado junto com o app, e quem pergunta cedo espera até cinco
+segundos em vez de receber "indisponível" para sempre.
+
+### Reaplicar o atalho que já está lá não pode falhar **[D]**
+
+Trocar um atalho registra o novo antes de soltar o antigo, para a ação nunca
+ficar sem atalho. Mas pedir exatamente o atalho que a ação já tem fazia o
+sistema recusar o registro duplicado, e a mensagem dizia "em uso por outro
+programa" — o outro programa era o próprio Harp. Agora isso é um não-operação,
+e um atalho que pertence a outra ação daqui diz qual é.
+
 ### Fase 4 — Segurança do trabalho
 
 **Histórico local de versões** (`Ctrl+Shift+S`). O `notes.rs` guarda o texto que
@@ -880,6 +910,25 @@ mesmo texto dá sempre a mesma resposta, e a sugestão nunca troca um ícone
 escolhido. Palavras são comparadas inteiras: "ata" não acende "reunião" dentro
 de "batata".
 
+### Markdown sem os sinais à vista **[D]**
+
+Os marcadores (`#`, `**`, `` ` ``) já eram discretos, mas continuavam no meio
+da frase. Agora eles somem das linhas em que ninguém está mexendo e voltam
+inteiros quando o cursor chega — nenhuma tecla edita algo que não está na tela.
+O marcador de lista fica: ele não é sintaxe sobrando, é o que mostra que aquilo
+é uma lista.
+
+`Ctrl+Shift+M` desliga, para quem escreve Markdown a sério e quer ver o que
+digitou. A escolha é uma extensão num `Compartment`, e não uma classe de CSS:
+esconder é `Decoration.replace`, que o CodeMirror precisa saber que entrou e
+saiu.
+
+### As abas se calam quando a pessoa escreve **[D]**
+
+Eram quinze segundos, de quando a aba só tinha um número e era preciso ler a
+lista inteira para se achar. Com um ícone em cada uma, três bastam — e começar
+a escrever recolhe na hora: quem digitou já sabe onde está.
+
 ### Tarefas: o texto continua sendo Markdown **[D]**
 
 `- [ ]` e `- [x]` ficam no arquivo como estão; a caixa é desenhada no lugar do
@@ -985,6 +1034,25 @@ A barra começa centralizada por `translateX(-50%)`. O arraste partia de
 para a direita no primeiro movimento. Agora a partida é o retângulo real na
 tela. A alça tem duas colunas de quatro pontos, com a altura múltipla do passo
 do desenho — com 22 px, a última fileira saía cortada.
+
+### Vidro: o recorte do que vai ser copiado **[D]**
+
+A tela inteira raramente é o assunto. No Power BI, o painel ocupa menos da
+metade do monitor e o resto é barra de ferramentas. O recorte (`R`, ou o botão
+da barra) marca o pedaço que vai para o clipboard; o que fica de fora escurece.
+
+Anotar continua valendo na tela toda, e o recorte acontece depois de juntar as
+camadas: as anotações são desenhadas sobre o monitor inteiro e só então o
+pedaço é separado. A conta de pixel físico vem do frontend, que trabalha em
+pixels CSS, e o Rust apara o retângulo contra os limites da área antes de
+cortar — um arredondamento para fora não pode virar leitura de memória alheia.
+
+### Vidro: sombra difusa, e não contorno **[D]**
+
+Cada traço levava um contorno de 3 px da cor de contraste. Cumpria a função de
+separar do fundo, mas tinha borda: de perto, cada desenho parecia recortado e
+colado. Agora a mesma cor vai borrada, como sombra — separa sem marcar, e a
+anotação parece pousada sobre a tela em vez de impressa nela.
 
 ### Vidro: desfazer por cópias inteiras **[D]**
 

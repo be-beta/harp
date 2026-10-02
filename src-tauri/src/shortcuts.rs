@@ -149,6 +149,23 @@ fn label_for(mods: Modifiers, code: Code) -> String {
     parts.join("+")
 }
 
+/// O rotulo que a acao ja usa, se o atalho pedido for exatamente esse.
+fn current_label(registry: &Registry, action: Action, shortcut: &Shortcut) -> Option<String> {
+    let slot = registry.slot(action).lock().ok()?;
+    let binding = slot.as_ref()?;
+    (binding.shortcut == *shortcut).then(|| binding.label.clone())
+}
+
+/// Nome da acao para uma mensagem de erro legivel.
+fn action_name(action: Action) -> &'static str {
+    match action {
+        Action::Panic => "resgate",
+        Action::Summon => "chamar o Harp",
+        Action::Jot => "rascunho",
+        Action::Vidro => "Vidro",
+    }
+}
+
 fn apply<R: Runtime>(
     app: &AppHandle<R>,
     registry: &Registry,
@@ -157,9 +174,26 @@ fn apply<R: Runtime>(
     code: Code,
 ) -> Result<String, String> {
     let shortcut = Shortcut::new(Some(mods), code);
+
+    // Reaplicar o atalho que a acao ja tem nao pode falhar. Registrar duas vezes
+    // o mesmo atalho e um erro do sistema, e a pessoa recebia "em uso por outro
+    // programa" justamente ao tentar voltar para o padrao — o atalho em uso era
+    // o do proprio Harp.
+    if let Some(label) = current_label(registry, action, &shortcut) {
+        return Ok(label);
+    }
+
+    // Ja e de outra acao daqui: dizer qual e mais util que "outro programa".
+    if let Some(outra) = registry.action_for(&shortcut) {
+        return Err(format!(
+            "Esse atalho já é o de {} no Harp",
+            action_name(outra)
+        ));
+    }
+
     app.global_shortcut()
         .register(shortcut)
-        .map_err(|e| e.to_string())?;
+        .map_err(|_| "Esse atalho já está em uso por outro programa".to_string())?;
 
     let label = label_for(mods, code);
     let previous = registry
@@ -220,5 +254,4 @@ pub fn set_global_shortcut(
 
     let code: Code = code.parse().map_err(|_| format!("Tecla desconhecida: {code}"))?;
     apply(&app, &registry, action, mods, code)
-        .map_err(|_| "Esse atalho já está em uso por outro programa".to_string())
 }

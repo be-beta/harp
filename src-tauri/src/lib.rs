@@ -52,7 +52,10 @@ pub fn run() {
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             Some(vec![START_HIDDEN]),
         ))
-        .plugin(tauri_plugin_updater::Builder::new().build());
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        // Antes do setup: o webview pode perguntar pelas capacidades antes de o
+        // setup terminar, e precisa achar o lugar onde a resposta vai chegar.
+        .manage(std::sync::Arc::new(window_fx::ReportSlot::default()));
 
     #[cfg(desktop)]
     {
@@ -113,6 +116,7 @@ pub fn run() {
             jot::jot_clear,
             vidro::vidro_cancel,
             vidro::vidro_finish,
+            vidro::vidro_crop,
             tray::set_tray_labels,
             watch::detect_recorders,
             window_state::persist_window_state,
@@ -166,9 +170,9 @@ pub fn run() {
 
             eprintln!("[harp] efeitos: {report:?}");
 
-            // Guardado como estado, nao emitido como evento: o setup roda antes de
-            // o frontend montar, e um evento emitido aqui se perderia.
-            app.manage(report);
+            // O lugar ja existe desde a construcao do app; aqui so e preenchido.
+            // Quem perguntar antes espera, em vez de receber "indisponivel".
+            app.state::<std::sync::Arc<window_fx::ReportSlot>>().fill(report);
 
             Ok(())
         })
