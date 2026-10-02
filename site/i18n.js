@@ -14,6 +14,9 @@
 const pt = {
   ui: {
     typed: "Repensar a escrita na tela",
+    placeholder: "Escreva aqui…",
+    scrollHint: "Role para continuar",
+    onTop: "Topo",
     themeToLight: "Mudar para o tema claro",
     themeToDark: "Voltar para o tema escuro",
     shortcuts: [
@@ -231,6 +234,9 @@ async def conciliar_lote(contas: Iterable[str], regras: list[Regra],
 const en = {
   ui: {
     typed: "Rethinking writing on screen",
+    placeholder: "Write here…",
+    scrollHint: "Scroll to continue",
+    onTop: "Top",
     themeToLight: "Switch to the light theme",
     themeToDark: "Back to the dark theme",
     shortcuts: [

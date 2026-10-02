@@ -189,7 +189,7 @@ function harpChrome(harp) {
     const st = document.createElement("div");
     st.className = "harp__status";
     st.setAttribute("aria-hidden", "true");
-    st.innerHTML = `<span class="chip is-on"><i></i>Topo</span><span class="harp__status-right"><span class="h-op">${harp.dataset.status}</span><span>A− 15 A+</span><span>···</span><span>⚙</span><span>?</span></span>`;
+    st.innerHTML = `<span class="chip is-on"><i></i>${L.ui.onTop}</span><span class="harp__status-right"><span class="h-op">${harp.dataset.status}</span><span>A− 15 A+</span><span>···</span><span>⚙</span><span>?</span></span>`;
     harp.append(st);
   }
 }
@@ -403,7 +403,7 @@ scene("origem", (el) => {
     beats: [0, 0.24, 0.41, 0.62, 0.73, 0.85, 0.97],
     measure: placeCaret,
     enterStatic() {
-      pad.placeholder = "Escreva aqui…";
+      pad.placeholder = L.ui.placeholder;
       if (!pad.value) {
         pad.value = "Revisar isso depois";
         autoTyped = true;
@@ -470,14 +470,14 @@ scene("origem", (el) => {
         });
       });
       // A palavra se abre junto com a composição.
-      css(folha, { letterSpacing: `${lerp(-0.01, 0.07, open).toFixed(4)}em` });
+      css(folha, { letterSpacing: `${lerp(-0.01, 0.035, open).toFixed(4)}em` });
 
       css(name, { opacity: seg(p, 0.49, 0.53) * (1 - seg(p, 0.66, 0.7)) });
 
       // A linha vira janela.
       const wf = ease(seg(p, 0.52, 0.6));
       // O fundo da janela só existe depois que ela vira janela.
-      pad.placeholder = wf > 0.6 ? "Escreva aqui…" : "";
+      pad.placeholder = wf > 0.6 ? L.ui.placeholder : "";
       if (p > 0.57) autoType();
 
       // A janela chega opaca, como a página em branco de sempre: ela cobre o
@@ -1095,7 +1095,7 @@ function onKey(e) {
 
 const stepButton = (() => {
   const btn = $("#step");
-  btn.innerHTML = icon("chevron-down-20");
+  btn.innerHTML = `<span class="step__hint">${L.ui.scrollHint}</span>${icon("chevron-down-20")}`;
   let revealed = false;
   btn.addEventListener("click", () => {
     if (!anim) step(1);
@@ -1109,6 +1109,9 @@ const stepButton = (() => {
       const atEnd = nextBeat(1) === undefined;
       btn.hidden = isStatic() || !revealed;
       btn.classList.toggle("is-end", atEnd);
+      // Na primeira tela o botão se explica; depois do primeiro passo, volta a
+      // ser só a seta. Quem já entendeu não precisa ler de novo.
+      btn.classList.toggle("is-first", scrollY < 40);
     },
   };
 })();
