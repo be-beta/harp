@@ -31,6 +31,14 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const modeQuery = matchMedia("(prefers-reduced-motion: reduce), (max-width: 760px)");
 const isStatic = () => root.classList.contains("static");
 
+/** Escolha de quem visita: a página em lista, sem as cenas. */
+let lista = false;
+try {
+  lista = localStorage.getItem("harp-modo") === "lista";
+} catch (e) {
+  /* Sem armazenamento, a escolha vale só para esta visita. */
+}
+
 /* Elementos cujo estilo inline foi escrito pelo laço. Ao trocar de modo, eles
    voltam ao estilo original do HTML. */
 const touched = new Map();
@@ -1016,29 +1024,37 @@ const nextBeat = (dir) => {
 };
 
 let anim = null;
-let lockedUntilQuiet = false;
-let lastWheel = 0;
-let lastMag = 0;
-let acc = 0;
 
-function goTo(target) {
+/**
+ * Leva a página até `target`, com uma curva.
+ *
+ * Usado pelas setas, pelo botão e pelo índice. A roda do mouse não passa mais
+ * por aqui: ela rola a página como em qualquer lugar.
+ */
+function goTo(target, dur) {
   if (target === undefined) return;
   const from = scrollY;
   const dist = Math.abs(target - from);
   if (dist < 1) return;
-  const vh = innerHeight;
-  const dur = clamp(760 + (dist / vh) * 520, 850, 2100);
+  const duracao = dur ?? clamp(520 + (dist / innerHeight) * 380, 560, 1300);
   const start = performance.now();
   const id = {};
   anim = id;
+  let escrito = from;
   const tick = (now) => {
     if (anim !== id) return;
-    const t = clamp((now - start) / dur);
-    scrollTo(0, from + (target - from) * ease(t));
+    // Quem rolou no meio do caminho manda: a animação sai de cena em vez de
+    // puxar a página de volta. Sem isto, rolar durante o ímã vira uma briga.
+    if (Math.abs(scrollY - escrito) > 2) {
+      anim = null;
+      return;
+    }
+    const t = clamp((now - start) / duracao);
+    escrito = Math.round(from + (target - from) * ease(t));
+    scrollTo(0, escrito);
     if (t < 1) requestAnimationFrame(tick);
     else {
       anim = null;
-      lockedUntilQuiet = true;
       stepButton.update();
     }
   };
@@ -1047,29 +1063,44 @@ function goTo(target) {
 
 const step = (dir) => goTo(nextBeat(dir));
 
-function onWheel(e) {
-  if (isStatic() || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-  e.preventDefault();
-  const now = performance.now();
-  const gap = now - lastWheel;
-  const mag = Math.abs(e.deltaY);
-  const growing = mag > lastMag * 1.6 + 4;
-  lastWheel = now;
-  lastMag = mag;
-  if (gap > 320) acc = 0;
-  if (anim) return;
-  // A inércia do touchpad continua mandando eventos depois do passo, cada vez
-  // mais fracos. Só conta como pedido novo um gesto depois de um instante de
-  // silêncio, ou um impulso que volta a crescer.
-  if (lockedUntilQuiet) {
-    if (gap < 300 && !growing) return;
-    lockedUntilQuiet = false;
-  }
-  acc += e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
-  if (Math.abs(acc) < 22) return;
-  const dir = Math.sign(acc);
-  acc = 0;
-  step(dir);
+/* --- O ímã ------------------------------------------------------------------
+ * A rolagem é livre: a roda, o touchpad e a barra movem a página como em
+ * qualquer site, e a cena acompanha a mão. A paginação dura, que trocava o
+ * gesto por um comando, fazia a página parecer travada — o gesto não importava,
+ * e a resposta vinha sempre no mesmo passo.
+ *
+ * O que ficou dela é só o ímã: quando a pessoa para, se houver um trecho
+ * perto, a página escorrega até ele. Perto é meia tela; mais do que isso é
+ * porque ela quis parar ali, e aí nada acontece.
+ */
+let settleTimer = 0;
+let gestoDe = null;
+
+function onScrollSettle() {
+  if (isStatic() || anim) return;
+  if (gestoDe === null) gestoDe = scrollY;
+  clearTimeout(settleTimer);
+  settleTimer = setTimeout(() => {
+    const y = scrollY;
+    const gesto = gestoDe;
+    const sentido = Math.sign(y - gesto);
+    gestoDe = null;
+    if (anim || isStatic()) return;
+    const limite = innerHeight * 0.5;
+    const perto = beats.filter((b) => Math.abs(b - y) <= limite);
+    if (!perto.length) return;
+    // O ímã respeita a direção do gesto: quem desceu um pouco não é puxado de
+    // volta para onde estava.
+    const adiante = perto.filter((b) => (sentido >= 0 ? b >= y : b <= y));
+    // Gesto com intenção e nada à frente: fica onde está. Puxar de volta o que
+    // a pessoa acabou de avançar é a sensação que este ímã veio tirar.
+    const andou = Math.abs(y - (gesto ?? y)) > 20;
+    if (!adiante.length && andou) return;
+    const alvo = (adiante.length ? adiante : perto).reduce((a, b) => (Math.abs(b - y) < Math.abs(a - y) ? b : a));
+    const d = Math.abs(alvo - y);
+    if (d < 8) return;
+    goTo(alvo, clamp(260 + d * 0.9, 300, 620));
+  }, 150);
 }
 
 function onKey(e) {
@@ -1290,6 +1321,88 @@ function setupAnchors() {
   });
 }
 
+/* --- Trilha ------------------------------------------------------------------
+ * Uma régua à direita com um ponto por capítulo. Ela responde duas perguntas
+ * que a rolagem sozinha não responde: onde eu estou e quanto falta. Com o
+ * mouse por perto vira índice, e cada nome leva direto ao seu capítulo.
+ *
+ * O último item não é um capítulo: é a saída. Quem não quer a experiência
+ * troca por uma página comum, que é a mesma que o celular recebe.
+ */
+
+const rail = (() => {
+  const el = document.createElement("nav");
+  el.className = "rail";
+  el.setAttribute("aria-label", L.ui.index);
+  const caps = $$("[data-chapter]");
+  el.innerHTML =
+    caps
+      .map(
+        (c, i) =>
+          `<button type="button" data-cap="${i}"><i></i><span>${c.dataset.chapter}</span></button>`
+      )
+      .join("") +
+    `<button type="button" class="rail__mode" data-mode><i></i><span></span></button>`;
+  document.body.appendChild(el);
+
+  const botoes = $$("button[data-cap]", el);
+  const modo = $(".rail__mode", el);
+  const nomeModo = $("span", modo);
+
+  el.addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.mode !== undefined) return toggleList();
+    const alvo = caps[Number(b.dataset.cap)];
+    if (isStatic()) alvo.scrollIntoView({ behavior: "smooth", block: "start" });
+    else jumpTo(anchorTarget(alvo));
+  });
+
+  return {
+    update() {
+      const y = scrollY + innerHeight * 0.35;
+      let ativo = 0;
+      caps.forEach((c, i) => {
+        if (c.getBoundingClientRect().top + scrollY <= y) ativo = i;
+      });
+      botoes.forEach((b, i) => b.classList.toggle("is-on", i === ativo));
+      nomeModo.textContent = isStatic() ? L.ui.asScenes : L.ui.asList;
+      modo.setAttribute("aria-label", nomeModo.textContent);
+    },
+  };
+})();
+
+/* --- Ver tudo de uma vez ------------------------------------------------------
+ * A mesma página sem as cenas: tudo em fluxo, rolagem comum, cada demonstração
+ * parada no estado que a explica. Já existia para o celular e para quem pede
+ * menos movimento; agora é também uma escolha. O princípio é o do app: de
+ * qualquer modo existe uma volta.
+ */
+
+function toggleList() {
+  const virando = !lista;
+  lista = virando;
+  try {
+    if (virando) localStorage.setItem("harp-modo", "lista");
+    else localStorage.removeItem("harp-modo");
+  } catch (e) {
+    /* Navegador sem armazenamento: vale para esta visita. */
+  }
+  // A pessoa continua no capítulo em que estava, não volta ao topo.
+  const caps = $$("[data-chapter]");
+  const y = scrollY + innerHeight * 0.35;
+  let ativo = 0;
+  caps.forEach((c, i) => {
+    if (c.getBoundingClientRect().top + scrollY <= y) ativo = i;
+  });
+  applyMode();
+  requestAnimationFrame(() => {
+    const alvo = caps[ativo];
+    scrollTo(0, Math.max(0, alvo.getBoundingClientRect().top + scrollY - (isStatic() ? 72 : 0)));
+    rail.update();
+  });
+}
+
 /* --- Laço ------------------------------------------------------------------ */
 
 let running = false;
@@ -1304,7 +1417,7 @@ function frame(now) {
   lastT = now;
   // Suavização curta: a rolagem por passos já chega com a própria curva, e
   // uma segunda camada de atraso faria a cena parecer presa à roda.
-  const k = 1 - Math.pow(1 - 0.24, dt / 16.7);
+  const k = 1 - Math.pow(1 - 0.32, dt / 16.7);
   pointer.x += (pointer.tx - pointer.x) * k * 0.5;
   pointer.y += (pointer.ty - pointer.y) * k * 0.5;
   let busy = Math.abs(pointer.tx - pointer.x) > 0.001 || Math.abs(pointer.ty - pointer.y) > 0.001;
@@ -1374,7 +1487,7 @@ function setupReveals() {
 /* --- Modo ------------------------------------------------------------------ */
 
 function applyMode() {
-  const next = modeQuery.matches;
+  const next = modeQuery.matches || lista;
   root.classList.toggle("static", next);
   anim = null;
   resetTouched();
@@ -1385,6 +1498,7 @@ function applyMode() {
     kick();
   }
   stepButton.update();
+  rail.update();
 }
 
 /* --- Início ---------------------------------------------------------------- */
@@ -1403,11 +1517,12 @@ addEventListener(
   () => {
     onScrollHeader();
     if (!anim) stepButton.update();
+    onScrollSettle();
+    rail.update();
     kick();
   },
   { passive: true }
 );
-addEventListener("wheel", onWheel, { passive: false });
 addEventListener("keydown", onKey);
 addEventListener("resize", () => {
   measure();

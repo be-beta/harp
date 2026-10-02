@@ -31,7 +31,9 @@
        celular ou com movimento reduzido, a versão estática. */
     (function (el) {
       el.classList.add("js");
-      if (matchMedia("(prefers-reduced-motion: reduce), (max-width: 760px)").matches) el.classList.add("static");
+      var modo;
+      try { modo = localStorage.getItem("harp-modo"); } catch (e) {}
+      if (modo === "lista" || matchMedia("(prefers-reduced-motion: reduce), (max-width: 760px)").matches) el.classList.add("static");
       var saved;
       try { saved = localStorage.getItem("harp-tema"); } catch (e) {}
       el.dataset.theme = saved === "light" ? "light" : "dark";
@@ -82,7 +84,7 @@
          Um palco só, preso na tela enquanto a seção rola. A área de escrita do
          começo é a mesma que vira a janela do Harp: o que a pessoa digitar no
          primeiro segundo continua ali quando o contexto aparece. -->
-    <section class="scene scene--origem" id="inicio" data-scene="origem" data-accent="mint" aria-label="The blank page">
+    <section class="scene scene--origem" id="inicio" data-chapter="Start" data-scene="origem" data-accent="mint" aria-label="The blank page">
       <div class="stage">
         <div class="world" aria-hidden="true">
           <div class="world__canvas" id="world"></div>
@@ -120,7 +122,7 @@
 
     <!-- 04 · Situações --------------------------------------------------------
          O contexto chega primeiro; o Harp só depois. -->
-    <section class="scene scene--situacoes" data-scene="situacoes" data-accent="mint" aria-label="Writing follows whatever you are doing">
+    <section class="scene scene--situacoes" data-scene="situacoes" id="situacoes" data-chapter="Situations" data-accent="mint" aria-label="Writing follows whatever you are doing">
       <div class="stage">
 
         <article class="sit" data-pos="bl">
@@ -201,7 +203,7 @@ Keep the March numbers.</p></div>
     </section>
 
     <!-- 05 · O texto acompanha o olhar ---------------------------------------->
-    <section class="scene scene--prompter" data-scene="prompter" data-accent="mint" aria-labelledby="prompter-title">
+    <section class="scene scene--prompter" data-scene="prompter" id="teleprompter" data-chapter="The eyes" data-accent="mint" aria-labelledby="prompter-title">
       <div class="stage">
         <div class="monitor">
           <span class="monitor__lens" aria-hidden="true"></span>
@@ -227,7 +229,7 @@ Keep the March numbers.</p></div>
     </section>
 
     <!-- Manifesto, em momentos ------------------------------------------------>
-    <section class="scene scene--manifesto" id="manifesto" data-scene="manifesto" data-accent="purple" aria-labelledby="manifesto-title">
+    <section class="scene scene--manifesto" id="manifesto" data-chapter="Manifesto" data-scene="manifesto" data-accent="purple" aria-labelledby="manifesto-title">
       <h2 class="visually-hidden" id="manifesto-title">Manifesto</h2>
       <div class="stage">
         <div class="drift" aria-hidden="true">
@@ -265,7 +267,7 @@ Keep the March numbers.</p></div>
     </div>
 
     <!-- 07 · O Harp como camada ---------------------------------------------->
-    <section class="scene scene--camada" data-scene="camada" data-accent="mint" aria-labelledby="camada-title">
+    <section class="scene scene--camada" data-scene="camada" id="camada" data-chapter="The layer" data-accent="mint" aria-labelledby="camada-title">
       <div class="stage">
         <div class="camada__frame">
           <div class="layers" aria-hidden="true">
@@ -305,7 +307,7 @@ Keep the March numbers.</p></div>
     </section>
 
     <!-- 08 · O que sustenta essa relação ------------------------------------->
-    <section class="principles" data-accent="purple" aria-labelledby="principles-title">
+    <section class="principles" id="fundamentos" data-chapter="Foundations" data-accent="purple" aria-labelledby="principles-title">
       <div class="container">
         <div class="principles__block" data-beat="center">
         <h2 class="section-label" id="principles-title">What holds this up</h2>
@@ -361,7 +363,7 @@ Keep the March numbers.</p></div>
          A lista inteira vive no app, em Ctrl+/. Aqui ficam os que mudam o que a
          janela faz, cada um com uma demonstração de poucas formas: ler o nome
          de um atalho não diz o que ele faz. -->
-    <section class="shortcuts" id="atalhos" data-beat="center" data-accent="mint" aria-labelledby="atalhos-title">
+    <section class="shortcuts" id="atalhos" data-chapter="Shortcuts" data-beat="center" data-accent="mint" aria-labelledby="atalhos-title">
       <div class="container">
         <h2 class="section-label" id="atalhos-title">All by keyboard</h2>
         <p class="shortcuts__lead">Point at a shortcut to see what it does.<span>In the app, <kbd>Ctrl+/</kbd> opens the whole list, and every global shortcut can be changed.</span></p>
@@ -370,7 +372,7 @@ Keep the March numbers.</p></div>
     </section>
 
     <!-- Privacidade ----------------------------------------------------------->
-    <section class="privacy" data-beat="center" data-accent="mint" aria-labelledby="privacy-title">
+    <section class="privacy" id="privacidade" data-chapter="Privacy" data-beat="center" data-accent="mint" aria-labelledby="privacy-title">
       <div class="container privacy__grid">
         <div class="privacy__visual" aria-hidden="true">
           <div class="harp harp--mini" data-tabs="document-text-16">
@@ -391,7 +393,7 @@ Keep the March numbers.</p></div>
     </section>
 
     <!-- Download -------------------------------------------------------------->
-    <section class="download" id="download" data-beat="top" data-accent="mint" aria-labelledby="download-title">
+    <section class="download" id="download" data-chapter="Download" data-beat="top" data-accent="mint" aria-labelledby="download-title">
       <p class="download__logo" aria-hidden="true">
         <svg class="download__glyph"><use href="#harp-glyph"/></svg><span>Harp</span><span class="caret caret--end"></span>
       </p>
