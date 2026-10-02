@@ -205,6 +205,14 @@ function harpChrome(harp) {
 /* Os contextos precisam existir antes das cenas procurarem o que há neles. */
 fillContexts();
 
+/* Experimento: com ?b no endereço, a versão B do palco vem antes da A. Quem vê
+   a segunda já conhece a primeira, e a ordem pesa na escolha. */
+if (new URLSearchParams(location.search).has("b")) {
+  const a = document.querySelector('[data-scene="palco-a"]');
+  const b = document.querySelector('[data-scene="palco-b"]');
+  if (a && b) a.before(b);
+}
+
 /* --- Mouse: profundidade mínima -------------------------------------------- */
 
 const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
@@ -979,6 +987,468 @@ scene("camada", (el) => {
     },
   };
 });
+
+/* --- O palco único -----------------------------------------------------------
+ * Experimento. As situações, o teleprompter e a camada viram um palco só, que
+ * não sai da tela: cinco momentos, uma parada para cada. A rolagem só escolhe
+ * o momento; o que acontece dentro dele é uma demonstração que se repete
+ * enquanto a pessoa fica ali.
+ *
+ * As duas versões usam a mesma tela e as mesmas demonstrações. Muda quem é o
+ * protagonista:
+ *   produto (A): a janela fica à vista e muda de forma entre um momento e
+ *   outro; o contexto troca atrás dela.
+ *   casos (B): o contexto troca primeiro, numa cortina, e o Harp só aparece
+ *   depois, chamado pelo atalho, na forma que a situação pede.
+ */
+
+/* A forma da janela em cada momento. "off" é o Vidro: a janela principal sai
+   de cena enquanto ele está aberto, como no app. */
+const FORM = { janela: "win", prompt: "win", share: "win", jot: "jot", prompter: "band", vidro: "off" };
+
+function palco(el) {
+  const produto = el.dataset.variant === "produto";
+  const screen = $(".palco__screen", el);
+  const ctxs = $$(".palco__ctx", el);
+  const pms = $$(".pm", el);
+  const kinds = pms.map((p) => p.dataset.kind);
+  const n = kinds.length;
+  const goBtns = $$("[data-go]", el);
+  const counter = $(".palco__n", el);
+  const pw = $(".pw", screen);
+  harpChrome(pw);
+  const faces = Object.fromEntries($$(".pw__face", pw).map((f) => [f.dataset.face, f]));
+  const typed = {};
+  for (const [k, f] of Object.entries(faces)) {
+    const t = $("[data-type]", f);
+    if (t) typed[k] = makeTyped(t);
+  }
+  if (typed.jot) typed.jot.el.dataset.placeholder = "Rascunho rápido…";
+  const task = $(".pw__task", pw);
+  const opOut = $(".h-op", pw);
+  const fsOut = $(".h-fs", pw);
+  const chips = Object.fromEntries($$("[data-chip]", pw).map((c) => [c.dataset.chip, c]));
+  const seen = Object.fromEntries($$(".palco__seen", screen).map((f) => [f.dataset.for, f]));
+  const cursor = $(".palco__cursor", screen);
+  const ptext = $(".prompter__text", pw);
+  const keys = makeKeys(screen);
+
+  // O pedido escrito vai para o campo da conversa, como no app.
+  const answerIn = $('.palco__ctx[data-ctx="answer"] .a-input span', screen);
+  const answerOrig = answerIn?.textContent;
+
+  /* Vidro, com o recorte da 0.2.2. */
+  const vd = $(".vd", screen);
+  const hud = $(".vd__hud", vd);
+  hud.innerHTML = `<i class="vd__grip"></i>
+    <span class="vd__tool">T</span>
+    <span class="vd__tool"><svg viewBox="0 0 16 16"><path d="M3 13 13 3M6.5 3H13v6.5"/></svg></span>
+    <span class="vd__tool" data-tool="rect"><svg viewBox="0 0 16 16"><rect x="2.5" y="3.5" width="11" height="9" rx="1.8"/></svg></span>
+    <span class="vd__tool"><svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="5.5" ry="4.8"/></svg></span>
+    <i class="vd__sep"></i><span class="vd__tool" data-tool="crop"><svg viewBox="0 0 16 16"><path d="M5 1.5v9.5h9.5M1.5 5H11v9.5"/></svg></span>
+    <i class="vd__sep"></i><span class="vd__swatch"></span><i class="vd__sep"></i>
+    <span class="vd__finish">Copiar <kbd>Ctrl+Shift+Enter</kbd></span>`;
+  const tool = (name) => $$("[data-tool]", hud).forEach((t) => t.classList.toggle("is-on", t.dataset.tool === name));
+  const rects = $$(".vd__rect", vd);
+  const lines = $$(".vd__line", vd);
+  const head = $(".vd__head", vd);
+  const dim = $(".vd__dim", vd);
+  const crop = $(".vd__crop", vd);
+  const flash = $(".vd__flash", vd);
+  const label = makeTyped($(".vd__label", vd));
+  const vctx = $('.palco__ctx[data-ctx="browser"]', screen);
+
+  /* Coordenadas do desenho: 1000 × 625, a proporção da tela. */
+  const toInk = (r) => {
+    const fr = screen.getBoundingClientRect();
+    const k = 1000 / fr.width;
+    return { x: (r.left - fr.left) * k, y: (r.top - fr.top) * k, w: r.width * k, h: r.height * k };
+  };
+
+  function placeVidro() {
+    const flag = $("[data-flag]", vctx);
+    if (!flag || !screen.offsetWidth) return;
+    const f = toInk(flag.getBoundingClientRect());
+    const x = f.x - 12;
+    const y = f.y - 10;
+    const w = f.w + 24;
+    const hh = f.h + 20;
+    rects.forEach((r) => {
+      r.setAttribute("x", x.toFixed(1));
+      r.setAttribute("y", y.toFixed(1));
+      r.setAttribute("width", w.toFixed(1));
+      r.setAttribute("height", hh.toFixed(1));
+      r.setAttribute("rx", "7");
+    });
+    const x2 = x - 6;
+    const y2 = y + hh + 6;
+    const x1 = x - 92;
+    const y1 = y + hh + 70;
+    lines.forEach((l) => l.setAttribute("d", `M${x1} ${y1} L${x2} ${y2}`));
+    const ang = Math.atan2(y2 - y1, x2 - x1);
+    const bx = x2 - Math.cos(ang) * 16;
+    const by = y2 - Math.sin(ang) * 16;
+    const nx = -Math.sin(ang) * 7;
+    const ny = Math.cos(ang) * 7;
+    head.setAttribute("d", `M${x2} ${y2} L${bx + nx} ${by + ny} L${bx - nx} ${by - ny}Z`);
+    css(label.el, { right: `${(100 - (x1 + 20) / 10).toFixed(2)}%`, top: `${((y1 + 6) / 6.25).toFixed(2)}%` });
+  }
+
+  /* O recorte cobre o botão, a seta e a etiqueta, com folga. Escrito como o
+     arraste de quem marca: de um canto até o outro. */
+  function cropBox() {
+    const plan = $("[data-flag]", vctx)?.closest(".b-plan");
+    const a = plan ? toInk(plan.getBoundingClientRect()) : { x: 600, y: 200, w: 200, h: 200 };
+    const lb = toInk(label.el.getBoundingClientRect());
+    const x0 = Math.min(a.x, lb.x) - 18;
+    const y0 = Math.min(a.y, lb.y) - 18;
+    const x1 = Math.max(a.x + a.w, lb.x + lb.w) + 18;
+    const y1 = Math.max(a.y + a.h, lb.y + lb.h) + 18;
+    return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+  }
+  function drawCrop(b) {
+    crop.setAttribute("x", b.x.toFixed(1));
+    crop.setAttribute("y", b.y.toFixed(1));
+    crop.setAttribute("width", Math.max(0, b.w).toFixed(1));
+    crop.setAttribute("height", Math.max(0, b.h).toFixed(1));
+    dim.setAttribute("d", `M0 0H1000V625H0Z M${b.x} ${b.y}h${b.w}v${b.h}h${-b.w}Z`);
+    css(flash, { left: `${b.x / 10}%`, top: `${b.y / 6.25}%`, width: `${b.w / 10}%`, height: `${b.h / 6.25}%` });
+  }
+  function dragCrop(id, ms = 750) {
+    const end = cropBox();
+    return new Promise((resolve) => {
+      const t0 = performance.now();
+      const tick = (now) => {
+        if (id !== run) return resolve();
+        const t = ease(clamp((now - t0) / ms));
+        drawCrop({ x: end.x, y: end.y, w: end.w * t, h: end.h * t });
+        if (t < 1) requestAnimationFrame(tick);
+        else resolve();
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
+  /* Compartilhando a tela: a janela fica por cima do ponto do gráfico que vai
+     receber o clique, para o clique ter de atravessá-la. */
+  function placeShare() {
+    const dot = $('.palco__ctx[data-ctx="slides"] [data-flag]', screen);
+    if (!dot || !screen.offsetWidth) return;
+    const fr = screen.getBoundingClientRect();
+    const r = dot.getBoundingClientRect();
+    const cx = ((r.left + r.width / 2 - fr.left) / fr.width) * 100;
+    const cy = ((r.top + r.height / 2 - fr.top) / fr.height) * 100;
+    pw.style.setProperty("--share-l", `${clamp(cx - 12, 2, 58).toFixed(2)}%`);
+    pw.style.setProperty("--share-t", `${clamp(cy - 18, 4, 50).toFixed(2)}%`);
+    pw.dataset.dotX = cx.toFixed(2);
+    pw.dataset.dotY = cy.toFixed(2);
+  }
+
+  const setOp = (v) => {
+    css(pw, { "--ha": v.toFixed(2) });
+    if (opOut) opOut.textContent = `${Math.round(v * 100)}%`;
+  };
+  const setFs = (v) => {
+    css(pw, { "--fs": String(v) });
+    if (fsOut) fsOut.textContent = String(v);
+  };
+  /* A opacidade anda em passos de 10%, como no atalho. */
+  async function stepOp(id, from, to) {
+    const dir = Math.sign(to - from);
+    for (let v = from; dir > 0 ? v <= to + 0.001 : v >= to - 0.001; v += dir * 0.1) {
+      if (id !== run) return false;
+      setOp(v);
+      await wait(150);
+    }
+    return id === run;
+  }
+  const show = (on = true) => pw.classList.toggle("is-shown", on);
+
+  let cur = -1;
+  let run = 0;
+  let shownCtx = -1;
+  let idle = -1;
+  const alive = async (id, ms) => {
+    await wait(ms);
+    return id === run;
+  };
+
+  /* O estado de entrada de cada momento. */
+  function setup(i) {
+    const kind = kinds[i];
+    keys.clear();
+    el.dataset.m = kind;
+    // Só o contexto que acabou de sair fica embaixo da cortina do novo.
+    if (shownCtx !== i) {
+      ctxs.forEach((c, k) => {
+        c.classList.toggle("is-prev", k === shownCtx);
+        c.classList.toggle("is-on", k === i);
+      });
+      shownCtx = i;
+    }
+    pms.forEach((p, k) => p.classList.toggle("is-on", k === i));
+    goBtns.forEach((b, k) => b.parentElement.classList.toggle("is-on", k === i));
+    if (counter) counter.textContent = `${i + 1} / ${n}`;
+    for (const [k, f] of Object.entries(faces)) f.classList.toggle("is-on", k === kind);
+    pw.dataset.form = FORM[kind];
+    pw.dataset.kind = kind;
+    pw.classList.remove("is-flip", "is-wide", "is-ghost", "is-sent", "is-toast");
+    setOp(0.7);
+    setFs(15);
+    Object.values(chips).forEach((c) => c.classList.remove("is-on"));
+    Object.values(seen).forEach((s) => s.classList.remove("is-on"));
+    screen.classList.remove("is-clicked");
+    cursor.classList.remove("is-on", "is-click");
+    task?.classList.remove("is-task", "is-done");
+    for (const t of Object.values(typed)) t.clear();
+    if (answerIn) {
+      answerIn.textContent = answerOrig;
+      answerIn.parentElement.classList.remove("is-filled");
+    }
+    css(ptext, { transition: "none", transform: "translate3d(0, 1.4em, 0)" });
+    vd.className = "vd";
+    tool("rect");
+    label.clear();
+    drawCrop({ x: 0, y: 0, w: 0, h: 0 });
+    if (kind === "vidro") placeVidro();
+    if (kind === "share") placeShare();
+    // A: a janela continua à vista e muda de forma. B: some, e só volta
+    // chamada, depois que o contexto chegou.
+    show(produto && FORM[kind] !== "off");
+  }
+
+  const demos = {
+    async janela(id) {
+      await typed.janela.type(200);
+      if (!(await alive(id, 450))) return;
+      keys.press("Ctrl+Enter", 1100);
+      task.classList.add("is-task");
+      if (!(await alive(id, 1300))) return;
+      keys.press("Ctrl+[", 1200);
+      if (!(await stepOp(id, 0.7, 0.4))) return;
+      if (!(await alive(id, 900))) return;
+      keys.press("Ctrl+Shift+B", 1200);
+      pw.classList.add("is-flip");
+      if (!(await alive(id, 1500))) return;
+      keys.press("Ctrl+=", 1100);
+      setFs(17);
+      if (!(await alive(id, 1300))) return;
+      keys.press("Ctrl+Alt+Shift+→", 1300);
+      pw.classList.add("is-wide");
+      if (!(await alive(id, 1600))) return;
+      keys.press("Ctrl+Enter", 1100);
+      task.classList.add("is-done");
+      if (!(await alive(id, 1500))) return;
+      keys.press("Ctrl+Shift+B", 1200);
+      pw.classList.remove("is-flip");
+      setFs(15);
+      pw.classList.remove("is-wide");
+      await stepOp(id, 0.4, 0.7);
+    },
+
+    async prompt(id) {
+      if (!produto) {
+        keys.press("Ctrl+Alt+Space", 1200);
+        if (!(await alive(id, 380))) return;
+        show();
+      }
+      if (!(await alive(id, 500))) return;
+      await typed.prompt.type(200, true);
+      if (!(await alive(id, 900))) return;
+      keys.press("Ctrl+Shift+Enter", 1200);
+      if (!(await alive(id, 380))) return;
+      typed.prompt.clear();
+      typed.prompt.state = "done";
+      if (answerIn) {
+        answerIn.textContent = typed.prompt.full.split(String.fromCharCode(10)).join(" ");
+        answerIn.parentElement.classList.add("is-filled");
+      }
+    },
+
+    async jot(id) {
+      keys.press("Win+J", 1200);
+      if (!(await alive(id, 320))) return;
+      show();
+      await typed.jot.type(500, true);
+      if (!(await alive(id, 700))) return;
+      keys.press("Enter", 1100);
+      if (!(await alive(id, 320))) return;
+      pw.classList.add("is-sent");
+    },
+
+    async prompter(id) {
+      keys.press("Ctrl+Alt+N", 1200);
+      if (!(await alive(id, 320))) return;
+      show();
+      if (!(await alive(id, 700))) return;
+      // Rolagem contínua: o texto sobe numa velocidade só, do começo ao fim.
+      const lh = parseFloat(getComputedStyle(ptext).lineHeight) || 30;
+      const rows = Math.max(1, Math.round(ptext.offsetHeight / lh));
+      const dur = rows * 1500;
+      css(ptext, { transition: `transform ${dur}ms linear`, transform: `translate3d(0, ${(-(rows - 2) * lh).toFixed(1)}px, 0)` });
+      if (!(await alive(id, 2200))) return;
+      keys.press("Ctrl+Shift+H", 1200);
+      seen.prompter?.classList.add("is-on");
+      await alive(id, Math.max(0, dur - 2200));
+    },
+
+    async vidro(id) {
+      if (!(await alive(id, 300))) return;
+      placeVidro();
+      keys.press("Win+Alt+V", 1300);
+      if (!(await alive(id, 360))) return;
+      vd.classList.add("is-on");
+      if (!(await alive(id, 550))) return;
+      vd.classList.add("is-rect");
+      if (!(await alive(id, 750))) return;
+      vd.classList.add("is-arrow");
+      if (!(await alive(id, 450))) return;
+      vd.classList.add("is-label");
+      await label.type(0);
+      if (!(await alive(id, 700))) return;
+      keys.press("R", 1000);
+      tool("crop");
+      vd.classList.add("is-crop");
+      if (!(await alive(id, 250))) return;
+      await dragCrop(id);
+      if (!(await alive(id, 900))) return;
+      keys.press("Ctrl+Shift+Enter", 1300);
+      if (!(await alive(id, 420))) return;
+      vd.classList.add("is-copy");
+      if (!(await alive(id, 260))) return;
+      vd.classList.add("is-flash");
+      if (!(await alive(id, 240))) return;
+      vd.classList.add("is-gone");
+    },
+
+    async share(id) {
+      if (!produto) {
+        if (!(await alive(id, 300))) return;
+        keys.press("Ctrl+Alt+Space", 1200);
+        if (!(await alive(id, 380))) return;
+        show();
+      }
+      if (!(await alive(id, 900))) return;
+      keys.press("Ctrl+[", 1200);
+      if (!(await stepOp(id, 0.7, 0.4))) return;
+      if (!(await alive(id, 700))) return;
+      keys.press("Ctrl+Shift+H", 1300);
+      chips.stealth?.classList.add("is-on");
+      pw.classList.add("is-toast");
+      seen.share?.classList.add("is-on");
+      if (!(await alive(id, 1700))) return;
+      pw.classList.remove("is-toast");
+      keys.press("Ctrl+Shift+G", 1300);
+      chips.ghost?.classList.add("is-on");
+      pw.classList.add("is-ghost");
+      if (!(await alive(id, 1200))) return;
+      // O cursor cruza a janela e clica no gráfico que está embaixo dela.
+      css(cursor, { transition: "none", left: "18%", top: "86%" });
+      cursor.classList.add("is-on");
+      void cursor.offsetWidth;
+      css(cursor, { transition: "", left: `${pw.dataset.dotX}%`, top: `${pw.dataset.dotY}%` });
+      if (!(await alive(id, 1300))) return;
+      cursor.classList.add("is-click");
+      screen.classList.add("is-clicked");
+      if (!(await alive(id, 900))) return;
+      cursor.classList.remove("is-on");
+    },
+  };
+
+  /* O estado final de cada momento, para a página sem movimento. */
+  function still(i) {
+    const kind = kinds[i];
+    setup(i);
+    show(FORM[kind] !== "off");
+    if (kind === "janela") {
+      typed.janela.show();
+      task.classList.add("is-task");
+    } else if (kind === "prompt") typed.prompt.show();
+    else if (kind === "jot") typed.jot.show();
+    else if (kind === "prompter") {
+      css(ptext, { transform: "translate3d(0, 0, 0)" });
+      seen.prompter?.classList.add("is-on");
+    } else if (kind === "vidro") {
+      placeVidro();
+      vd.classList.add("is-on", "is-rect", "is-arrow", "is-label", "is-crop");
+      tool("crop");
+      label.show();
+      requestAnimationFrame(() => drawCrop(cropBox()));
+    } else if (kind === "share") {
+      setOp(0.4);
+      chips.stealth?.classList.add("is-on");
+      chips.ghost?.classList.add("is-on");
+      pw.classList.add("is-ghost");
+      seen.share?.classList.add("is-on");
+      screen.classList.add("is-clicked");
+    }
+  }
+
+  async function play(i) {
+    const id = ++run;
+    cur = i;
+    setup(i);
+    // Espera a troca terminar: em A, a janela mudando de forma; em B, a
+    // cortina do contexto.
+    if (!(await alive(id, produto ? 900 : 1000))) return;
+    while (id === run) {
+      await demos[kinds[i]](id);
+      if (!(await alive(id, 2600))) return;
+      setup(i);
+      if (!(await alive(id, 900))) return;
+    }
+  }
+
+  function stop() {
+    run++;
+    cur = -1;
+    keys.clear();
+  }
+
+  // Fora da tela, nada roda; ao voltar, o momento recomeça do início.
+  new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) stop();
+  }).observe(el);
+
+  el.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-go]");
+    if (!b) return;
+    const i = Number(b.dataset.go);
+    const me = scenes.find((s) => s.el === el);
+    if (isStatic()) return still(i);
+    jumpTo(Math.round(me.top + me.total * me.beats[i]));
+  });
+
+  return {
+    beats: kinds.map((_, i) => (i + 0.5) / n),
+    measure() {
+      if (cur >= 0 && kinds[cur] === "vidro") placeVidro();
+      placeShare();
+    },
+    enterStatic() {
+      stop();
+      still(0);
+    },
+    update(p, raw) {
+      const i = clamp(Math.floor(raw * n), 0, n - 1);
+      // Antes de o palco prender na tela, e depois de ele soltar, o momento
+      // fica parado no começo: quem chega vê a demonstração desde o início.
+      if (raw < -0.02 || raw > 1.02) {
+        if (cur !== -1 || idle !== i) {
+          stop();
+          setup(i);
+          idle = i;
+        }
+        return;
+      }
+      idle = -1;
+      if (i !== cur) play(i);
+    },
+  };
+}
+
+scene("palco-a", palco);
+scene("palco-b", palco);
 
 /* --- Trechos: a rolagem por passos ----------------------------------------- */
 
