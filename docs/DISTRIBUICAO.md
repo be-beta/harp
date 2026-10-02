@@ -203,7 +203,12 @@ ffmpeg -i site/video/nome.mp4 -frames:v 1 -vf scale=640:-1 site/video/nome.jpg
 
 Fora de loja, ninguém atualiza por você: sem isto, cada correção dependeria de a
 pessoa lembrar de visitar o repositório. O app procura versão nova trinta
-segundos depois de abrir e a cada seis horas.
+segundos depois de abrir, a cada seis horas, e ao voltar para a janela depois
+de uma hora ou mais sem olhar. Nas configurações há um botão para procurar na
+hora.
+
+A busca é uma requisição ao GitHub: o `latest.json` do release mais recente.
+É a única vez que o Harp fala com a internet.
 
 Três decisões, todas pelo mesmo motivo — um app que promete não interromper não
 pode interromper nem para se atualizar:
@@ -216,9 +221,11 @@ pode interromper nem para se atualizar:
   ser informado quando já não dá para voltar atrás.
 - **Nunca instala sozinho.** Atualizar fecha o app, e fechar o app sem a pessoa
   mandar é exatamente o que este projeto não faz.
-- **Falha calada.** Sem rede, GitHub fora do ar ou manifesto malformado não
-  viram aviso: não são problema de quem só queria anotar alguma coisa. O erro
-  vai para o console.
+- **Falha calada, menos quando perguntam.** Sem rede, GitHub fora do ar ou
+  manifesto malformado não viram aviso: não são problema de quem só queria
+  anotar alguma coisa. Mas quem clicou em "procurar atualização" fez uma
+  pergunta, e "não tem versão nova" e "não deu para olhar" são respostas
+  diferentes — essas duas aparecem.
 
 ## Caminhos que ficam para depois
 

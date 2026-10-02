@@ -26,10 +26,22 @@ const FIRST_CHECK_MS = 30_000;
 /** Entre checagens, para quem deixa o app aberto por dias. */
 const INTERVAL_MS = 6 * 60 * 60 * 1000;
 
+/**
+ * Intervalo minimo entre checagens oportunistas.
+ *
+ * O Harp fica aberto por dias, e so olhava a cada seis horas: uma versao
+ * publicada de manha podia so aparecer a noite. Voltar para a janela depois de
+ * um tempo e um bom momento para olhar de novo — mas nao a cada clique. **[D]**
+ */
+const OPPORTUNISTIC_MS = 60 * 60 * 1000;
+
 export interface UpdateInfo {
   version: string;
   notes?: string;
 }
+
+/** Como terminou uma busca pedida pela pessoa. */
+export type CheckResult = "found" | "none" | "failed";
 
 /**
  * Procura uma versao nova sem incomodar.
@@ -37,18 +49,25 @@ export interface UpdateInfo {
  * Erro aqui nunca vira aviso: falta de rede, GitHub fora do ar ou release
  * malformado nao sao problema de quem so queria anotar alguma coisa.
  */
-async function look(): Promise<Update | null> {
+async function look(): Promise<{ ok: true; update: Update | null } | { ok: false }> {
   try {
-    return await check();
+    return { ok: true, update: await check() };
   } catch (error) {
     console.error("[harp] falha ao procurar atualizacao", error);
-    return null;
+    return { ok: false };
   }
 }
 
 export interface UpdateWatcher {
   /** Versao encontrada, ou null enquanto nao houver nenhuma. */
   pending(): UpdateInfo | null;
+  /**
+   * Procura agora, a pedido da pessoa, e diz o que aconteceu.
+   *
+   * A busca silenciosa engole erro de proposito; esta nao pode: quem clicou
+   * num botao precisa saber se a resposta e "nao tem" ou "nao deu para olhar".
+   */
+  checkNow(): Promise<CheckResult>;
   /**
    * Baixa, instala e reinicia. So retorna em caso de falha — no caminho feliz o
    * app e substituido antes disso.
@@ -66,10 +85,17 @@ export interface UpdateWatcher {
 export function watchForUpdates(onFound: () => void): UpdateWatcher {
   let found: Update | null = null;
 
-  const procurar = async () => {
-    if (found) return;
-    found = await look();
-    if (found) onFound();
+  let ultima = 0;
+
+  const procurar = async (): Promise<CheckResult> => {
+    if (found) return "found";
+    ultima = Date.now();
+    const resposta = await look();
+    if (!resposta.ok) return "failed";
+    found = resposta.update;
+    if (!found) return "none";
+    onFound();
+    return "found";
   };
 
   window.setTimeout(() => {
@@ -77,8 +103,19 @@ export function watchForUpdates(onFound: () => void): UpdateWatcher {
     window.setInterval(() => void procurar(), INTERVAL_MS);
   }, FIRST_CHECK_MS);
 
+  // Voltar para a janela depois de um tempo longe conta como "agora e uma boa
+  // hora de olhar" — contanto que nao tenha olhado na ultima hora.
+  const aoVoltar = () => {
+    if (document.hidden || found) return;
+    if (Date.now() - ultima < OPPORTUNISTIC_MS) return;
+    void procurar();
+  };
+  window.addEventListener("focus", aoVoltar);
+  document.addEventListener("visibilitychange", aoVoltar);
+
   return {
     pending: () => (found ? { version: found.version, notes: found.body } : null),
+    checkNow: procurar,
     install: async (onProgress) => {
       if (!found) return;
 

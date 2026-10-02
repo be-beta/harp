@@ -222,6 +222,8 @@ const settingsPanel = createSettingsPanel(el.settings, {
       current: appVersion,
       available: updates?.pending() ?? null,
       progress: updateProgress,
+      checking: updateChecking,
+      lastCheck: updateLastCheck,
     },
   }),
   onLang: changeLang,
@@ -239,6 +241,7 @@ const settingsPanel = createSettingsPanel(el.settings, {
     void saveSettings(settings);
   },
   onUpdate: () => void installUpdate(),
+  onCheckUpdate: () => void checkUpdateNow(),
   onAutostart: (value) => void changeAutostart(value),
 });
 
@@ -446,6 +449,9 @@ function renderFontSize(): void {
 
 let updates: UpdateWatcher | undefined;
 let updateProgress: number | null = null;
+let updateChecking = false;
+/** Resposta da ultima busca pedida pela pessoa, para ela ficar na tela. */
+let updateLastCheck: "none" | "failed" | null = null;
 let appVersion = "";
 
 /**
@@ -462,6 +468,26 @@ function renderUpdate(): void {
     ? t("update.title", { v: nova.version })
     : t("chip.settings.title");
   settingsPanel.refreshUpdate();
+}
+
+/**
+ * Procura uma versao nova agora, porque a pessoa pediu.
+ *
+ * A busca automatica e rara de proposito — meio minuto depois de abrir, e de
+ * seis em seis horas. Quem acabou de saber que saiu uma versao nao devia ter de
+ * esperar o relogio do app.
+ */
+async function checkUpdateNow(): Promise<void> {
+  if (updateChecking || !updates) return;
+
+  updateChecking = true;
+  updateLastCheck = null;
+  settingsPanel.refreshUpdate();
+
+  const resultado = await updates.checkNow();
+  updateChecking = false;
+  updateLastCheck = resultado === "found" ? null : resultado;
+  renderUpdate();
 }
 
 /** Baixa e instala. O app reinicia sozinho no fim; daqui so volta se falhar. */

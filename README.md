@@ -106,7 +106,8 @@ envia um binário feito na própria máquina.
 - **Invisível em gravações** — OBS, Zoom, Teams e Meet não capturam a janela
 - **Snap de cantos** consciente de multi-monitor e escala de tela
 - **Endereços viram links** — `Ctrl+clique` abre no navegador
-- **Atualização dentro do app**, sem loja e sem instalar nada por conta própria
+- **Atualização dentro do app**, sem loja e sem instalar nada por conta própria;
+  um ponto discreto avisa, e há um botão para procurar na hora
 - **Chamada instantânea** de qualquer app com `Ctrl+Alt+Space`
 - **Editor com atalhos do VS Code**: mover e duplicar linhas, multi-cursor
 - **Copiar tudo e limpar** para o ciclo de escrever prompts

@@ -34,6 +34,10 @@ export interface UpdateSection {
   available: { version: string; notes?: string } | null;
   /** Fração baixada (0 a 1) enquanto a instalação acontece. */
   progress: number | null;
+  /** Procurando agora, a pedido da pessoa. */
+  checking: boolean;
+  /** Como terminou a última busca pedida, para a resposta ficar na tela. */
+  lastCheck: "none" | "failed" | null;
 }
 
 export interface SettingsPanel {
@@ -59,6 +63,7 @@ export interface SettingsHandlers {
   onAccent: (accent: AccentId) => void;
   onAutostart: (value: boolean) => void;
   onUpdate: () => void;
+  onCheckUpdate: () => void;
 }
 
 /**
@@ -76,9 +81,23 @@ function updateBox(update: UpdateSection): string {
   }
 
   if (!update.available) {
+    // O botão existe porque a busca automática é rara de propósito (a primeira
+    // meia hora depois de abrir, e de seis em seis horas). Quem acabou de saber
+    // que saiu uma versão não devia ter de esperar o relógio do app.
+    const resposta =
+      update.lastCheck === "failed"
+        ? t("update.check.failed")
+        : update.lastCheck === "none"
+          ? t("update.check.none")
+          : t("update.none");
     return `
       <p class="gp-sheet__note">${t("update.current", { v: update.current })}</p>
-      <p class="gp-sheet__note gp-sheet__note--faint">${t("update.none")}</p>`;
+      <p class="gp-sheet__note gp-sheet__note--faint">${resposta}</p>
+      <div class="gp-options">
+        <button class="gp-option" data-check-update ${update.checking ? "disabled" : ""}>
+          ${t(update.checking ? "update.check.doing" : "update.check")}
+        </button>
+      </div>`;
   }
 
   // O aviso do reinício vem ANTES do botão, e não depois de clicar: quem está
@@ -316,6 +335,11 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
     if (cor) {
       handlers.onAccent(cor as AccentId);
       syncState();
+      return;
+    }
+
+    if (target.closest("[data-check-update]")) {
+      handlers.onCheckUpdate();
       return;
     }
 

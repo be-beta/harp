@@ -1098,6 +1098,19 @@ fantasma não tem janela para mostrar. Por isso a instância única também se
 defende: se a chamada chega e não existe janela principal, quem está segurando
 a vez sai, para a próxima tentativa conseguir abrir.
 
+### Procurar atualização na hora **[D]**
+
+A busca é silenciosa de propósito: meio minuto depois de abrir, e de seis em
+seis horas. Mas o Harp fica aberto por dias, e uma versão publicada de manhã
+podia só aparecer à noite — quem já sabia que ela existia não tinha o que fazer
+além de esperar.
+
+Duas respostas, nenhuma delas um aviso na tela. Um botão nas configurações, que
+diz o que achou: "você já está na versão mais recente" e "não foi possível
+verificar agora" são respostas diferentes, e a busca silenciosa engole as duas.
+E uma busca oportunista ao voltar para a janela, no máximo uma por hora — voltar
+depois de um tempo longe é uma boa hora de olhar; a cada clique, não.
+
 ### Testar a interface sem compilar o Rust **[D]**
 
 `dev/app.html` e `dev/vidro.html` rodam as páginas reais no navegador com o
