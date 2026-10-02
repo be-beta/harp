@@ -199,7 +199,9 @@ Fatos verificáveis, para o site não prometer o que não existe:
   itálico por atalho, e tarefas (`- [ ]`) criadas e marcadas com `Ctrl+Enter`
   ou com um clique na caixa, que aparece sozinha na tela. Os marcadores (`#`,
   `**`, crases) somem das linhas em que ninguém está mexendo e voltam quando o
-  cursor chega. Não é texto formatado — o arquivo continua sendo texto.
+  cursor chega, e o traço e o número da lista ficam em destaque. `Tab` numa
+  lista numerada cria o subitem como `a.`, `b.`, `c.`. Não é texto formatado —
+  o arquivo continua sendo texto.
 - **Rascunhos:** `Win+J` abre um campo pequeno e translúcido sobre qualquer
   aplicativo; `Enter` guarda, copia e devolve o foco a quem estava antes. Os dez últimos
   ficam acessíveis na janela principal e **somem ao encerrar o Harp** — são

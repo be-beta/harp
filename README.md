@@ -122,6 +122,8 @@ envia um binário feito na própria máquina.
   caixa, que aceita clique
 - **Markdown sem os sinais à vista**: `#`, `**` e crases somem das linhas em que
   ninguém está mexendo e voltam quando o cursor chega (`Ctrl+Shift+M` desliga)
+- **Listas** com o marcador em destaque; `Tab` numa lista numerada cria o
+  subitem como `a.`, `b.`, `c.`, e `Shift+Tab` volta para os números
 - **Rascunhos**: `Win+J` abre um campo sobre qualquer app; `Enter` guarda, copia e
   devolve o foco. Os dez últimos ficam em `Ctrl+J`, e somem ao encerrar o Harp
 - **Vidro**: `Win+Alt+V` cobre a tela para anotar com texto, seta, retângulo e
@@ -158,6 +160,7 @@ envia um binário feito na própria máquina.
 | `Ctrl+Shift+V` | Versões anteriores do texto |
 | `Ctrl+J` | Rascunhos recentes |
 | `Ctrl+Enter` | Cria a tarefa, ou marca e desmarca |
+| `Tab` / `Shift+Tab` | Entra e sai de um subitem da lista |
 | `Ctrl+[` / `Ctrl+]` | Diminui / aumenta a opacidade em 10% |
 | `Ctrl+Shift+[` / `]` | Opacidade em saltos de 50% |
 | `Ctrl+P` | Alterna sempre-no-topo |

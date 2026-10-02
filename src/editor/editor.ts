@@ -29,6 +29,7 @@ import { HighlightStyle, indentUnit, syntaxHighlighting } from "@codemirror/lang
 import { markdown } from "@codemirror/lang-markdown";
 import { t } from "../core/i18n";
 import { ghostSearchPanel } from "./search-panel";
+import { INDENT, listKeymap, lists } from "./lists";
 import { links } from "./links";
 import { markdownPreview } from "./markdown-preview";
 import { tasks, toggleTask } from "./tasks";
@@ -293,12 +294,17 @@ export function createEditor(options: EditorOptions): GhostEditor {
     // Alt+Click adiciona cursor, como no VS Code (o padrao do CodeMirror e Ctrl).
     EditorView.clickAddsSelectionRange.of((event) => event.altKey),
     EditorView.lineWrapping,
-    indentUnit.of("  "),
+    indentUnit.of(INDENT),
     // Sem titulos "setext": em Markdown, uma linha de texto seguida de outra so
     // com "-" vira titulo. Ao comecar uma lista, o paragrafo de cima mudava de
     // tamanho sozinho. Titulos com "#" continuam funcionando.
+    // Antes do Markdown, e nao depois: a continuacao de lista dele tambem e
+    // `Prec.high`, e entre iguais vence quem vem primeiro. Ele nao conhece os
+    // marcadores alfabeticos e, numa sublista, continuava a lista de fora.
+    Prec.high(keymap.of(listKeymap)),
     markdown({ extensions: [{ remove: ["SetextHeading"] }] }),
     links,
+    lists,
     tasks,
     syntaxHighlighting(markdownHighlight),
     placeholder(t("editor.placeholder")),

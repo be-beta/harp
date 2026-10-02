@@ -929,6 +929,38 @@ Eram quinze segundos, de quando a aba só tinha um número e era preciso ler a
 lista inteira para se achar. Com um ícone em cada uma, três bastam — e começar
 a escrever recolhe na hora: quem digitou já sabe onde está.
 
+### Listas: o marcador precisa aparecer **[D]**
+
+Com o resto do Markdown escondido, o `-` e o `1.` viraram o único sinal de que
+a lista pegou — e, apagados como os outros marcadores, davam a impressão de que
+nada tinha acontecido. O traço ficou mais largo, como um travessão, e o número
+ficou firme.
+
+A largura vem de duas cópias deslocadas do próprio glifo (`text-shadow`), e não
+de um tamanho de fonte maior: mudar o tamanho de um caractere empurraria a
+altura da linha inteira.
+
+### Sublista numerada vira alfabética **[D]**
+
+`Tab` dentro de uma lista numerada cria o subitem como `a.`, `b.`, `c.`, como
+se escreve à mão; `Shift+Tab` volta para os números, continuando a contagem de
+onde a lista parou — sair de uma sublista recomeçava no `1.`.
+
+`a.` não é lista para o CommonMark: outro leitor mostra a linha como texto
+comum. É uma escolha a favor de quem escreve — o arquivo continua texto puro, e
+dentro do Harp a continuação no Enter funciona igual à das outras listas.
+
+Duas armadilhas no caminho. A continuação de lista do Markdown é registrada
+pela própria linguagem com `Prec.high`; entre precedências iguais vence quem
+vem primeiro no array, então o `Enter` das listas precisa ser declarado **antes**
+do `markdown()` — depois dele, uma sublista continuava a lista de fora. E ao
+mover vários itens de uma vez, o documento ainda não mudou: o comando guarda o
+último marcador que ele mesmo colocou em cada nível, senão todos virariam `a.`.
+
+Um nível passou a ser quatro espaços, e não dois — é o que o subitem precisa
+para ficar visivelmente embaixo do item, e o bastante para o `1.` aninhar em
+Markdown de verdade.
+
 ### Tarefas: o texto continua sendo Markdown **[D]**
 
 `- [ ]` e `- [x]` ficam no arquivo como estão; a caixa é desenhada no lugar do
