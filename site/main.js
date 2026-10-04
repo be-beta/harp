@@ -159,13 +159,15 @@ function makeKeys(frame) {
   frame.appendChild(box);
   let timer = 0;
   return {
-    /** Mostra o atalho, afunda as teclas, e some sozinho. */
-    press(combo, hold = 1500) {
+    /** Mostra o atalho, afunda as teclas, e some sozinho. `what` diz, ao lado
+        das teclas, o que o atalho faz. */
+    press(combo, hold = 1500, what = "") {
       clearTimeout(timer);
-      box.innerHTML = combo
-        .split("+")
-        .map((k) => `<kbd>${k}</kbd>`)
-        .join('<i>+</i>');
+      box.innerHTML =
+        combo
+          .split("+")
+          .map((k) => `<kbd>${k}</kbd>`)
+          .join('<i>+</i>') + (what ? `<span class="keys__what">${what}</span>` : "");
       box.classList.remove("is-on", "is-down");
       void box.offsetWidth;
       box.classList.add("is-on");
@@ -204,14 +206,6 @@ function harpChrome(harp) {
 
 /* Os contextos precisam existir antes das cenas procurarem o que há neles. */
 fillContexts();
-
-/* Experimento: com ?b no endereço, a versão B do palco vem antes da A. Quem vê
-   a segunda já conhece a primeira, e a ordem pesa na escolha. */
-if (new URLSearchParams(location.search).has("b")) {
-  const a = document.querySelector('[data-scene="palco-a"]');
-  const b = document.querySelector('[data-scene="palco-b"]');
-  if (a && b) a.before(b);
-}
 
 /* --- Mouse: profundidade mínima -------------------------------------------- */
 
@@ -988,33 +982,32 @@ scene("camada", (el) => {
   };
 });
 
-/* --- O palco único -----------------------------------------------------------
- * Experimento. As situações, o teleprompter e a camada viram um palco só, que
- * não sai da tela: cinco momentos, uma parada para cada. A rolagem só escolhe
- * o momento; o que acontece dentro dele é uma demonstração que se repete
- * enquanto a pessoa fica ali.
+/* --- As formas ---------------------------------------------------------------
+ * As situações, o teleprompter e a camada viraram uma tela só, com cinco
+ * formas do Harp. A janela fica à vista e muda de forma de uma para outra; o
+ * contexto troca atrás dela.
  *
- * As duas versões usam a mesma tela e as mesmas demonstrações. Muda quem é o
- * protagonista:
- *   produto (A): a janela fica à vista e muda de forma entre um momento e
- *   outro; o contexto troca atrás dela.
- *   casos (B): o contexto troca primeiro, numa cortina, e o Harp só aparece
- *   depois, chamado pelo atalho, na forma que a situação pede.
+ * A rolagem não para aqui. As formas passam sozinhas enquanto a seção está na
+ * tela, cada uma depois de a sua demonstração terminar, e a aba de cima mostra
+ * quanto falta. Quem clica numa aba fica com ela: dali em diante, nada passa
+ * sozinho, e a demonstração escolhida se repete.
  */
 
 /* A forma da janela em cada momento. "off" é o Vidro: a janela principal sai
    de cena enquanto ele está aberto, como no app. */
-const FORM = { janela: "win", prompt: "win", share: "win", jot: "jot", prompter: "band", vidro: "off" };
+const FORM = { janela: "win", share: "win", jot: "jot", prompter: "band", vidro: "off" };
+
+/* Quanto cada demonstração dura, para a barra da aba. A primeira passada mede
+   o tempo de verdade e corrige a estimativa. */
+const DUR = { janela: 15000, jot: 5200, prompter: 13500, vidro: 8000, share: 9500 };
 
 function palco(el) {
-  const produto = el.dataset.variant === "produto";
   const screen = $(".palco__screen", el);
   const ctxs = $$(".palco__ctx", el);
   const pms = $$(".pm", el);
   const kinds = pms.map((p) => p.dataset.kind);
   const n = kinds.length;
-  const goBtns = $$("[data-go]", el);
-  const counter = $(".palco__n", el);
+  const tabs = $$(".palco__tab", el);
   const pw = $(".pw", screen);
   harpChrome(pw);
   const faces = Object.fromEntries($$(".pw__face", pw).map((f) => [f.dataset.face, f]));
@@ -1032,10 +1025,6 @@ function palco(el) {
   const cursor = $(".palco__cursor", screen);
   const ptext = $(".prompter__text", pw);
   const keys = makeKeys(screen);
-
-  // O pedido escrito vai para o campo da conversa, como no app.
-  const answerIn = $('.palco__ctx[data-ctx="answer"] .a-input span', screen);
-  const answerOrig = answerIn?.textContent;
 
   /* Vidro, com o recorte da 0.2.2. */
   const vd = $(".vd", screen);
@@ -1167,7 +1156,6 @@ function palco(el) {
   let cur = -1;
   let run = 0;
   let shownCtx = -1;
-  let idle = -1;
   const alive = async (id, ms) => {
     await wait(ms);
     return id === run;
@@ -1187,8 +1175,10 @@ function palco(el) {
       shownCtx = i;
     }
     pms.forEach((p, k) => p.classList.toggle("is-on", k === i));
-    goBtns.forEach((b, k) => b.parentElement.classList.toggle("is-on", k === i));
-    if (counter) counter.textContent = `${i + 1} / ${n}`;
+    tabs.forEach((b, k) => {
+      b.classList.toggle("is-on", k === i);
+      b.setAttribute("aria-selected", String(k === i));
+    });
     for (const [k, f] of Object.entries(faces)) f.classList.toggle("is-on", k === kind);
     pw.dataset.form = FORM[kind];
     pw.dataset.kind = kind;
@@ -1201,10 +1191,6 @@ function palco(el) {
     cursor.classList.remove("is-on", "is-click");
     task?.classList.remove("is-task", "is-done");
     for (const t of Object.values(typed)) t.clear();
-    if (answerIn) {
-      answerIn.textContent = answerOrig;
-      answerIn.parentElement.classList.remove("is-filled");
-    }
     css(ptext, { transition: "none", transform: "translate3d(0, 1.4em, 0)" });
     vd.className = "vd";
     tool("rect");
@@ -1212,72 +1198,56 @@ function palco(el) {
     drawCrop({ x: 0, y: 0, w: 0, h: 0 });
     if (kind === "vidro") placeVidro();
     if (kind === "share") placeShare();
-    // A: a janela continua à vista e muda de forma. B: some, e só volta
-    // chamada, depois que o contexto chegou.
-    show(produto && FORM[kind] !== "off");
+    show(FORM[kind] !== "off");
   }
+
+  /* Cada atalho aparece com o que ele faz: ler a tecla sozinha não diz nada a
+     quem ainda não usa o app. */
+  const K = L.ui.keys;
+  const press = (combo, what, hold = 1700) => keys.press(combo, hold, what);
 
   const demos = {
     async janela(id) {
       await typed.janela.type(200);
       if (!(await alive(id, 450))) return;
-      keys.press("Ctrl+Enter", 1100);
+      press("Ctrl+Enter", K.task);
       task.classList.add("is-task");
-      if (!(await alive(id, 1300))) return;
-      keys.press("Ctrl+[", 1200);
+      if (!(await alive(id, 1500))) return;
+      press("Ctrl+[", K.less);
       if (!(await stepOp(id, 0.7, 0.4))) return;
-      if (!(await alive(id, 900))) return;
-      keys.press("Ctrl+Shift+B", 1200);
+      if (!(await alive(id, 1000))) return;
+      press("Ctrl+Shift+B", K.theme);
       pw.classList.add("is-flip");
-      if (!(await alive(id, 1500))) return;
-      keys.press("Ctrl+=", 1100);
+      if (!(await alive(id, 1700))) return;
+      press("Ctrl+=", K.bigger);
       setFs(17);
-      if (!(await alive(id, 1300))) return;
-      keys.press("Ctrl+Alt+Shift+→", 1300);
-      pw.classList.add("is-wide");
       if (!(await alive(id, 1600))) return;
-      keys.press("Ctrl+Enter", 1100);
+      press("Ctrl+Alt+Shift+→", K.wider);
+      pw.classList.add("is-wide");
+      if (!(await alive(id, 1800))) return;
+      press("Ctrl+Enter", K.done);
       task.classList.add("is-done");
-      if (!(await alive(id, 1500))) return;
-      keys.press("Ctrl+Shift+B", 1200);
+      if (!(await alive(id, 1700))) return;
+      press("Ctrl+Shift+B", K.themeBack);
       pw.classList.remove("is-flip");
       setFs(15);
       pw.classList.remove("is-wide");
       await stepOp(id, 0.4, 0.7);
     },
 
-    async prompt(id) {
-      if (!produto) {
-        keys.press("Ctrl+Alt+Space", 1200);
-        if (!(await alive(id, 380))) return;
-        show();
-      }
-      if (!(await alive(id, 500))) return;
-      await typed.prompt.type(200, true);
-      if (!(await alive(id, 900))) return;
-      keys.press("Ctrl+Shift+Enter", 1200);
-      if (!(await alive(id, 380))) return;
-      typed.prompt.clear();
-      typed.prompt.state = "done";
-      if (answerIn) {
-        answerIn.textContent = typed.prompt.full.split(String.fromCharCode(10)).join(" ");
-        answerIn.parentElement.classList.add("is-filled");
-      }
-    },
-
     async jot(id) {
-      keys.press("Win+J", 1200);
+      press("Win+J", K.jot);
       if (!(await alive(id, 320))) return;
       show();
       await typed.jot.type(500, true);
       if (!(await alive(id, 700))) return;
-      keys.press("Enter", 1100);
+      press("Enter", K.save);
       if (!(await alive(id, 320))) return;
       pw.classList.add("is-sent");
     },
 
     async prompter(id) {
-      keys.press("Ctrl+Alt+N", 1200);
+      press("Ctrl+Alt+N", K.band);
       if (!(await alive(id, 320))) return;
       show();
       if (!(await alive(id, 700))) return;
@@ -1287,7 +1257,7 @@ function palco(el) {
       const dur = rows * 1500;
       css(ptext, { transition: `transform ${dur}ms linear`, transform: `translate3d(0, ${(-(rows - 2) * lh).toFixed(1)}px, 0)` });
       if (!(await alive(id, 2200))) return;
-      keys.press("Ctrl+Shift+H", 1200);
+      press("Ctrl+Shift+H", K.hide);
       seen.prompter?.classList.add("is-on");
       await alive(id, Math.max(0, dur - 2200));
     },
@@ -1295,7 +1265,7 @@ function palco(el) {
     async vidro(id) {
       if (!(await alive(id, 300))) return;
       placeVidro();
-      keys.press("Win+Alt+V", 1300);
+      press("Win+Alt+V", K.vidro);
       if (!(await alive(id, 360))) return;
       vd.classList.add("is-on");
       if (!(await alive(id, 550))) return;
@@ -1306,13 +1276,13 @@ function palco(el) {
       vd.classList.add("is-label");
       await label.type(0);
       if (!(await alive(id, 700))) return;
-      keys.press("R", 1000);
+      press("R", K.crop);
       tool("crop");
       vd.classList.add("is-crop");
       if (!(await alive(id, 250))) return;
       await dragCrop(id);
-      if (!(await alive(id, 900))) return;
-      keys.press("Ctrl+Shift+Enter", 1300);
+      if (!(await alive(id, 1000))) return;
+      press("Ctrl+Shift+Enter", K.copy);
       if (!(await alive(id, 420))) return;
       vd.classList.add("is-copy");
       if (!(await alive(id, 260))) return;
@@ -1322,26 +1292,20 @@ function palco(el) {
     },
 
     async share(id) {
-      if (!produto) {
-        if (!(await alive(id, 300))) return;
-        keys.press("Ctrl+Alt+Space", 1200);
-        if (!(await alive(id, 380))) return;
-        show();
-      }
-      if (!(await alive(id, 900))) return;
-      keys.press("Ctrl+[", 1200);
+      if (!(await alive(id, 600))) return;
+      press("Ctrl+[", K.less);
       if (!(await stepOp(id, 0.7, 0.4))) return;
-      if (!(await alive(id, 700))) return;
-      keys.press("Ctrl+Shift+H", 1300);
+      if (!(await alive(id, 800))) return;
+      press("Ctrl+Shift+H", K.hide);
       chips.stealth?.classList.add("is-on");
       pw.classList.add("is-toast");
       seen.share?.classList.add("is-on");
-      if (!(await alive(id, 1700))) return;
+      if (!(await alive(id, 1800))) return;
       pw.classList.remove("is-toast");
-      keys.press("Ctrl+Shift+G", 1300);
+      press("Ctrl+Shift+G", K.ghost);
       chips.ghost?.classList.add("is-on");
       pw.classList.add("is-ghost");
-      if (!(await alive(id, 1200))) return;
+      if (!(await alive(id, 1300))) return;
       // O cursor cruza a janela e clica no gráfico que está embaixo dela.
       css(cursor, { transition: "none", left: "18%", top: "86%" });
       cursor.classList.add("is-on");
@@ -1358,13 +1322,13 @@ function palco(el) {
   /* O estado final de cada momento, para a página sem movimento. */
   function still(i) {
     const kind = kinds[i];
+    stop();
     setup(i);
     show(FORM[kind] !== "off");
     if (kind === "janela") {
       typed.janela.show();
       task.classList.add("is-task");
-    } else if (kind === "prompt") typed.prompt.show();
-    else if (kind === "jot") typed.jot.show();
+    } else if (kind === "jot") typed.jot.show();
     else if (kind === "prompter") {
       css(ptext, { transform: "translate3d(0, 0, 0)" });
       seen.prompter?.classList.add("is-on");
@@ -1384,16 +1348,40 @@ function palco(el) {
     }
   }
 
+  /* Até alguém escolher, as formas passam sozinhas. */
+  let auto = true;
+
+  /* A barra da aba enche no tempo que a demonstração costuma levar, mais a
+     pausa antes da próxima. As abas que já passaram ficam cheias. */
+  function bar(i, ms) {
+    tabs.forEach((t, k) => {
+      const b = $(".palco__bar", t);
+      b.style.transition = "none";
+      b.style.transform = `scaleX(${auto && k < i ? 1 : 0})`;
+    });
+    if (!auto || ms === undefined) return;
+    const b = $(".palco__bar", tabs[i]);
+    void b.offsetWidth;
+    b.style.transition = `transform ${Math.round(ms)}ms linear`;
+    b.style.transform = "scaleX(1)";
+  }
+
   async function play(i) {
     const id = ++run;
     cur = i;
     setup(i);
-    // Espera a troca terminar: em A, a janela mudando de forma; em B, a
-    // cortina do contexto.
-    if (!(await alive(id, produto ? 900 : 1000))) return;
-    while (id === run) {
-      await demos[kinds[i]](id);
-      if (!(await alive(id, 2600))) return;
+    bar(i);
+    // Espera a janela terminar de mudar de forma.
+    if (!(await alive(id, 900))) return;
+    for (let first = true; id === run; first = false) {
+      const kind = kinds[i];
+      const t0 = performance.now();
+      if (first) bar(i, DUR[kind] + 2200);
+      await demos[kind](id);
+      if (id !== run) return;
+      DUR[kind] = performance.now() - t0;
+      if (!(await alive(id, 2200))) return;
+      if (auto) return play((i + 1) % n);
       setup(i);
       if (!(await alive(id, 900))) return;
     }
@@ -1405,50 +1393,51 @@ function palco(el) {
     keys.clear();
   }
 
-  // Fora da tela, nada roda; ao voltar, o momento recomeça do início.
-  new IntersectionObserver(([e]) => {
-    if (!e.isIntersecting) stop();
-  }).observe(el);
+  // Roda só com a seção na tela. Ao voltar, retoma a forma em que estava.
+  let last = 0;
+  let visible = false;
+  new IntersectionObserver(
+    ([e]) => {
+      visible = e.intersectionRatio >= 0.45;
+      if (isStatic()) return;
+      if (visible && cur === -1) play(last);
+      else if (e.intersectionRatio < 0.15 && cur !== -1) {
+        last = cur;
+        stop();
+      }
+    },
+    { threshold: [0, 0.15, 0.45] }
+  ).observe(el);
 
   el.addEventListener("click", (e) => {
     const b = e.target.closest("[data-go]");
     if (!b) return;
     const i = Number(b.dataset.go);
-    const me = scenes.find((s) => s.el === el);
+    // Quem escolhe fica com a escolha: nada mais passa sozinho.
+    auto = false;
+    last = i;
     if (isStatic()) return still(i);
-    jumpTo(Math.round(me.top + me.total * me.beats[i]));
+    play(i);
   });
 
   return {
-    beats: kinds.map((_, i) => (i + 0.5) / n),
+    beats: [],
     measure() {
       if (cur >= 0 && kinds[cur] === "vidro") placeVidro();
       placeShare();
     },
     enterStatic() {
+      still(last);
+    },
+    leaveStatic() {
       stop();
-      still(0);
+      if (visible) play(last);
     },
-    update(p, raw) {
-      const i = clamp(Math.floor(raw * n), 0, n - 1);
-      // Antes de o palco prender na tela, e depois de ele soltar, o momento
-      // fica parado no começo: quem chega vê a demonstração desde o início.
-      if (raw < -0.02 || raw > 1.02) {
-        if (cur !== -1 || idle !== i) {
-          stop();
-          setup(i);
-          idle = i;
-        }
-        return;
-      }
-      idle = -1;
-      if (i !== cur) play(i);
-    },
+    update() {},
   };
 }
 
-scene("palco-a", palco);
-scene("palco-b", palco);
+scene("palco", palco);
 
 /* --- Trechos: a rolagem por passos ----------------------------------------- */
 
@@ -1965,6 +1954,7 @@ function applyMode() {
   if (next) {
     for (const s of scenes) s.enterStatic?.();
   } else {
+    for (const s of scenes) s.leaveStatic?.();
     kick();
   }
   stepButton.update();

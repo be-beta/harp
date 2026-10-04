@@ -120,39 +120,25 @@
       </div>
     </section>
 
-    <!-- Experimento · o palco único ---------------------------------------------
-         As situações, o teleprompter e a camada contavam a mesma frase três
-         vezes, e cada uma recomeçava o quadro. Aqui elas viram um palco só, que
-         não sai da tela, com cinco momentos. Duas versões, uma abaixo da outra,
-         para escolher uma:
-         A, pelo produto: a janela muda de forma na frente de quem olha.
-         B, pelos casos de uso: o contexto muda primeiro, e o Harp aparece na
-         forma que ele pede.
-         ?b no endereço mostra a B primeiro. -->
-    <section class="scene scene--palco" data-scene="palco-a" data-variant="produto" id="metamorfoses" data-chapter="A · Produto" data-accent="mint" aria-labelledby="palco-a-title">
-      <div class="stage">
+    <!-- As formas ------------------------------------------------------------
+         As situações, o teleprompter e a camada viraram uma tela só. Em cima,
+         o nome de cada forma do Harp, para quem quiser escolher; embaixo, o
+         momento de trabalho em que ela serve. A rolagem não para aqui: as
+         formas passam sozinhas, e quem clica numa fica com ela. -->
+    <section class="palco-sec" data-scene="palco" id="formas" data-chapter="Formas" data-beat="center" data-accent="mint" aria-labelledby="palco-title">
       <div class="palco">
         <header class="palco__head">
-          <div>
-            <p class="palco__versao">Versão A · pelo produto</p>
-            <h2 class="palco__title" id="palco-a-title">Uma janela, cinco formas.</h2>
-          </div>
-          <ol class="palco__index" aria-label="As formas do Harp">
-        <li><button type="button" data-go="0">A janela</button></li>
-        <li><button type="button" data-go="1">Rascunho</button></li>
-        <li><button type="button" data-go="2">Teleprompter</button></li>
-        <li><button type="button" data-go="3">Vidro</button></li>
-        <li><button type="button" data-go="4">Oculto e fantasma</button></li>
-      </ol>
+          <h2 class="palco__title" id="palco-title">Uma janela, cinco formas.</h2>
+          <div class="palco__tabs" role="tablist" aria-label="As formas do Harp"><button type="button" class="palco__tab" role="tab" id="tab-0" aria-controls="pm-0" data-go="0"><span>A janela</span><i class="palco__bar" aria-hidden="true"></i></button><button type="button" class="palco__tab" role="tab" id="tab-1" aria-controls="pm-1" data-go="1"><span>Rascunho</span><i class="palco__bar" aria-hidden="true"></i></button><button type="button" class="palco__tab" role="tab" id="tab-2" aria-controls="pm-2" data-go="2"><span>Teleprompter</span><i class="palco__bar" aria-hidden="true"></i></button><button type="button" class="palco__tab" role="tab" id="tab-3" aria-controls="pm-3" data-go="3"><span>Vidro</span><i class="palco__bar" aria-hidden="true"></i></button><button type="button" class="palco__tab" role="tab" id="tab-4" aria-controls="pm-4" data-go="4"><span>Oculto e fantasma</span><i class="palco__bar" aria-hidden="true"></i></button></div>
         </header>
         <div class="palco__device">
           <span class="palco__lens" aria-hidden="true"></span>
           <div class="palco__screen">
-          <div class="palco__ctx" data-ctx="code"></div>
-          <div class="palco__ctx" data-ctx="meeting"></div>
-          <div class="palco__ctx" data-ctx="camera"></div>
-          <div class="palco__ctx" data-ctx="browser"></div>
-          <div class="palco__ctx" data-ctx="slides"></div>
+            <div class="palco__ctx" data-ctx="code"></div>
+            <div class="palco__ctx" data-ctx="meeting"></div>
+            <div class="palco__ctx" data-ctx="camera"></div>
+            <div class="palco__ctx" data-ctx="browser"></div>
+            <div class="palco__ctx" data-ctx="slides"></div>
             <div class="harp pw" data-tabs="document-text-16,code-bracket-16,photo-16" aria-hidden="true">
               <div class="pw__face" data-face="janela">
                 <p class="pw__h">Fechamento de março</p>
@@ -195,82 +181,12 @@
           </div>
         </div>
         <div class="palco__text">
-        <div class="pm" data-kind="janela"><h3 class="pm__t">A janela</h3><p class="pm__d">Translúcida e sempre por cima. Opacidade, tema, tamanho e texto mudam pelo teclado, e o que está atrás continua à vista.</p></div>
-        <div class="pm" data-kind="jot"><h3 class="pm__t">Rascunho</h3><p class="pm__d"><kbd>Win+J</kbd> abre um campo pequeno sobre qualquer aplicativo. <kbd>Enter</kbd> guarda, copia e devolve o foco.</p></div>
-        <div class="pm" data-kind="prompter"><h3 class="pm__t">Teleprompter</h3><p class="pm__d">O texto rola numa faixa de três linhas, logo abaixo da câmera, e o olhar fica perto da lente. Com o modo oculto, a gravação não vê a faixa.</p></div>
-        <div class="pm" data-kind="vidro"><h3 class="pm__t">Vidro</h3><p class="pm__d"><kbd>Win+Alt+V</kbd> cobre a tela para escrever, apontar e circular. <kbd>R</kbd> separa o pedaço que interessa, e <kbd>Ctrl+Shift+Enter</kbd> copia tudo numa imagem.</p></div>
-        <div class="pm" data-kind="share"><h3 class="pm__t">Oculto e fantasma</h3><p class="pm__d">Fora da gravação, com o clique atravessando a janela. O que você precisa falar fica na tela, e quem assiste vê só o que você mostra.</p></div>
+        <div class="pm" data-kind="janela" id="pm-0" role="tabpanel" aria-labelledby="tab-0"><h3 class="pm__t">Você está programando.</h3><p class="pm__d">Translúcida e sempre por cima. Opacidade, tema, tamanho e texto mudam pelo teclado, e o código continua à vista.</p></div>
+        <div class="pm" data-kind="jot" id="pm-1" role="tabpanel" aria-labelledby="tab-1"><h3 class="pm__t">Você está numa reunião.</h3><p class="pm__d"><kbd>Win+J</kbd> abre um campo sobre qualquer aplicativo. <kbd>Enter</kbd> guarda, copia e devolve o foco à reunião.</p></div>
+        <div class="pm" data-kind="prompter" id="pm-2" role="tabpanel" aria-labelledby="tab-2"><h3 class="pm__t">Você está gravando um vídeo.</h3><p class="pm__d">Três linhas logo abaixo da câmera, e o olhar fica perto da lente. Com o modo oculto, a gravação não vê a faixa.</p></div>
+        <div class="pm" data-kind="vidro" id="pm-3" role="tabpanel" aria-labelledby="tab-3"><h3 class="pm__t">Você está olhando uma interface.</h3><p class="pm__d"><kbd>Win+Alt+V</kbd> para escrever, apontar e circular sobre a tela. <kbd>R</kbd> recorta só o que interessa, e <kbd>Ctrl+Shift+Enter</kbd> copia numa imagem.</p></div>
+        <div class="pm" data-kind="share" id="pm-4" role="tabpanel" aria-labelledby="tab-4"><h3 class="pm__t">Você está compartilhando a tela.</h3><p class="pm__d">As anotações do que falar ficam na tela, fora da transmissão, e o clique passa através delas.</p></div>
         </div>
-      </div>
-      </div>
-    </section>
-
-    <section class="scene scene--palco" data-scene="palco-b" data-variant="casos" id="situacoes" data-chapter="B · Casos de uso" data-accent="mint" aria-labelledby="palco-b-title">
-      <div class="stage">
-      <div class="palco">
-        <header class="palco__head">
-          <div>
-            <p class="palco__versao">Versão B · pelos casos de uso</p>
-            <h2 class="palco__title" id="palco-b-title">A escrita acompanha o que você está fazendo.</h2>
-          </div>
-          <div class="palco__count"><span class="palco__n" aria-hidden="true">1 / 5</span><ol class="palco__index palco__index--dots" aria-label="Situações"><li><button type="button" data-go="0" aria-label="Você está avaliando uma resposta."></button></li><li><button type="button" data-go="1" aria-label="Você está numa reunião."></button></li><li><button type="button" data-go="2" aria-label="Você está olhando uma interface."></button></li><li><button type="button" data-go="3" aria-label="Você está gravando um vídeo."></button></li><li><button type="button" data-go="4" aria-label="Você está compartilhando a tela."></button></li></ol></div>
-        </header>
-        <div class="palco__device">
-          <span class="palco__lens" aria-hidden="true"></span>
-          <div class="palco__screen">
-          <div class="palco__ctx" data-ctx="answer"></div>
-          <div class="palco__ctx" data-ctx="meeting"></div>
-          <div class="palco__ctx" data-ctx="browser"></div>
-          <div class="palco__ctx" data-ctx="camera"></div>
-          <div class="palco__ctx" data-ctx="slides"></div>
-            <div class="harp pw" data-tabs="document-text-16,code-bracket-16,photo-16" aria-hidden="true">
-              <div class="pw__face" data-face="prompt">
-                <p class="pw__prompt" data-type>Escreve uma versão para a diretoria.
-Três parágrafos, sem listas.
-Mantém os números de março.</p>
-              </div>
-              <div class="pw__face" data-face="jot">
-                <p class="jot__field" data-type data-placeholder="Rascunho rápido…">Ana envia a versão final até sexta</p>
-                <p class="jot__hint" aria-hidden="true">Enter guarda e copia · Shift+Enter quebra a linha · Esc cancela</p>
-              </div>
-              <div class="pw__face" data-face="prompter">
-                <div class="prompter__view"><p class="prompter__text">Hoje eu quero mostrar uma forma diferente de escrever na tela. Sem precisar sair do que você está olhando. Sem transformar a escrita no centro da tela. O texto fica aqui em cima, perto da câmera, e o olhar continua em quem assiste.</p></div>
-              </div>
-              <div class="pw__face" data-face="share">
-                <ol class="pw__ol">
-                  <li><b class="pw__mk">1.</b>Começar pela retenção de 90 dias</li>
-                  <li><b class="pw__mk">2.</b>Explicar o Nordeste</li>
-                  <li><b class="pw__mk">3.</b>Mostrar o pico de agosto</li>
-                </ol>
-              </div>
-              <p class="pw__toast">Oculto em gravações e chamadas</p>
-              <div class="harp__status pw__status"><span class="chip is-on"><i></i>Topo</span><span class="chip" data-chip="ghost"><i></i>Fantasma</span><span class="chip" data-chip="stealth"><i></i>Oculto</span><span class="harp__status-right"><span class="h-op">70%</span><span>A− <b class="h-fs">15</b> A+</span><span>···</span><span>⚙</span><span>?</span></span></div>
-            </div>
-            <div class="vd">
-              <div class="vd__hud" aria-hidden="true"></div>
-              <svg class="vd__ink" viewBox="0 0 1000 625" preserveAspectRatio="none" aria-hidden="true">
-                <rect class="vd__rect vd__halo" pathLength="1"/><rect class="vd__rect" pathLength="1"/>
-                <path class="vd__line vd__halo" pathLength="1"/><path class="vd__line" pathLength="1"/>
-                <path class="vd__head"/>
-                <path class="vd__dim" fill-rule="evenodd"/>
-                <rect class="vd__crop"/>
-              </svg>
-              <span class="vd__label" data-type>Testar preenchido, com mais contraste.</span>
-              <span class="vd__flash" aria-hidden="true"></span>
-            </div>
-            <figure class="palco__seen" data-for="prompter" aria-hidden="true"><div class="palco__seen-screen" data-ctx="camera"></div><figcaption>o que a gravação vê</figcaption></figure>
-            <figure class="palco__seen" data-for="share" aria-hidden="true"><div class="palco__seen-screen" data-ctx="slides"></div><figcaption>o que a chamada vê</figcaption></figure>
-            <svg class="palco__cursor" viewBox="0 0 16 22" aria-hidden="true"><path d="M1.5 1.5v16.2l4.2-4 2.7 6.3 2.6-1.1-2.6-6.2h5.9z"/></svg>
-          </div>
-        </div>
-        <div class="palco__text">
-        <div class="pm" data-kind="prompt"><h3 class="pm__t">Você está avaliando uma resposta.</h3><p class="pm__d">Escrever o próximo pedido olhando o resultado. <kbd>Ctrl+Shift+Enter</kbd> copia tudo e limpa.</p></div>
-        <div class="pm" data-kind="jot"><h3 class="pm__t">Você está numa reunião.</h3><p class="pm__d">Rascunho · <kbd>Win+J</kbd> abre um campo sobre qualquer aplicativo. <kbd>Enter</kbd> guarda, copia e devolve o foco à reunião.</p></div>
-        <div class="pm" data-kind="vidro"><h3 class="pm__t">Você está olhando uma interface.</h3><p class="pm__d">Vidro · <kbd>Win+Alt+V</kbd> para escrever, apontar e circular sobre a tela. <kbd>R</kbd> recorta só o que interessa.</p></div>
-        <div class="pm" data-kind="prompter"><h3 class="pm__t">Você está gravando um vídeo.</h3><p class="pm__d">Teleprompter · três linhas logo abaixo da câmera, e o olhar perto da lente. Com o modo oculto, a gravação não vê a faixa.</p></div>
-        <div class="pm" data-kind="share"><h3 class="pm__t">Você está compartilhando a tela.</h3><p class="pm__d">As anotações do que falar ficam na tela, fora da transmissão, e o clique passa através delas.</p></div>
-        </div>
-      </div>
       </div>
     </section>
 
