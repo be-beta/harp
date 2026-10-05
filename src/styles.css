@@ -496,6 +496,18 @@ body[data-ghost="true"] .gp-resize {
  * Aberta e so o contorno; feita, enche com a cor de destaque e o texto da linha
  * recua para o segundo plano, sem riscar — riscar deixa ilegivel justamente o
  * que alguem pode querer reler. */
+/* Resultado sugerido de uma conta: visivel, e claramente nao digitado. */
+.cm-harp-calc {
+  /* Sugestao, nao texto: nao pode viajar junto numa copia. */
+  user-select: none;
+  margin-left: 0.45em;
+  padding: 0 0.3em;
+  border-radius: 4px;
+  background: rgba(var(--gp-accent-rgb), 0.14);
+  color: var(--gp-accent);
+  font-weight: 600;
+}
+
 /* Marcador de lista: com o resto do Markdown escondido, ele e o unico sinal de
    que a lista pegou. O traco fica mais largo, como um travessao, e o numero
    fica firme — apagados, pareciam nao ter feito nada. */
@@ -527,6 +539,17 @@ body[data-ghost="true"] .gp-resize {
   border-radius: 3px;
   cursor: pointer;
   transition: background-color 120ms var(--gp-ease), border-color 120ms var(--gp-ease);
+}
+
+/* Fora da tela, mas dentro da selecao: o Markdown que a caixa cobre viaja junto
+   quando quem copia e o navegador. */
+.cm-harp-task__texto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .cm-harp-task:hover {

@@ -929,6 +929,37 @@ Eram quinze segundos, de quando a aba só tinha um número e era preciso ler a
 lista inteira para se achar. Com um ícone em cada uma, três bastam — e começar
 a escrever recolhe na hora: quem digitou já sabe onde está.
 
+### Conta na linha **[D]**
+
+Terminou em `=`, o resultado aparece ao lado. Não é uma calculadora dentro do
+Harp: é a conta que já estava escrita na anotação, resolvida onde ela está —
+numa lista de compras, abrir a calculadora para `5,60 * 4` e voltar custa mais
+que a conta.
+
+Três regras para não atrapalhar: só age com `=` no fim da linha (um `?` depois
+é aceito); exige ao menos um operador, senão `Total = 42 =` viraria conta; e o
+resultado é sugestão à vista, nunca texto — `Ctrl+Alt+Enter` escreve. Um número
+que entra sozinho no arquivo é um número que ninguém pediu.
+
+Nada de `eval`. O texto pode vir de um arquivo aberto, e virar código é o tipo
+de coisa que não se conserta depois: há um analisador de descida recursiva, que
+devolve nada diante de meia conta.
+
+A vírgula decide a leitura: com vírgula no texto, ela é o decimal e o ponto é
+separador de milhar (`1.250,40`); sem vírgula nenhuma, o ponto é o decimal
+(`3.59`). É o que acerta a lista de compras e a conta copiada de outro lugar.
+
+### A caixa de tarefa viaja com o texto que ela cobre **[D]**
+
+O editor copia a partir do texto do documento e nunca perde nada. Mas quando
+quem copia é o próprio navegador — arrastar e soltar, ou um caminho em que o
+editor não intercepta —, o que vai é a seleção do DOM; e dentro de um widget
+não havia texto nenhum. A linha chegava ao destino sem o `- [ ]`, e às vezes
+sem chegar. A caixa passou a carregar, invisível, o Markdown que ela cobre.
+
+Pela mesma razão ao contrário, o resultado da conta leva `user-select: none`:
+ele é sugestão, e não pode viajar numa cópia.
+
 ### Listas: o marcador precisa aparecer **[D]**
 
 Com o resto do Markdown escondido, o `-` e o `1.` viraram o único sinal de que
@@ -1085,6 +1116,12 @@ Cada traço levava um contorno de 3 px da cor de contraste. Cumpria a função d
 separar do fundo, mas tinha borda: de perto, cada desenho parecia recortado e
 colado. Agora a mesma cor vai borrada, como sombra — separa sem marcar, e a
 anotação parece pousada sobre a tela em vez de impressa nela.
+
+A primeira versão errou a mão: sombra forte, pouco deslocada e desenhada duas
+vezes. A sombra de um traço fino aparece dos dois lados dele, e encostada assim
+virava um contorno escuro — nas capturas o desenho parecia ter duas linhas.
+Caindo mais e espalhando mais, com menos opacidade e uma passada só, ela sai de
+baixo do traço e volta a ser sombra.
 
 ### Vidro: desfazer por cópias inteiras **[D]**
 

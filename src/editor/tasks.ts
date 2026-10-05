@@ -90,12 +90,16 @@ export const toggleTask: Command = (view) => {
 
 /** A caixa desenhada no lugar do `[ ]`. So visual: o texto continua la. */
 class Caixa extends WidgetType {
-  constructor(readonly feita: boolean) {
+  /** @param texto O Markdown que a caixa cobre, para quem copiar o DOM. */
+  constructor(
+    readonly feita: boolean,
+    readonly texto: string,
+  ) {
     super();
   }
 
   eq(other: Caixa): boolean {
-    return other.feita === this.feita;
+    return other.feita === this.feita && other.texto === this.texto;
   }
 
   toDOM(): HTMLElement {
@@ -103,6 +107,18 @@ class Caixa extends WidgetType {
     caixa.className = "cm-harp-task";
     caixa.dataset.done = String(this.feita);
     caixa.setAttribute("aria-hidden", "true");
+
+    // O Markdown coberto, invisivel mas copiavel.
+    //
+    // O editor copia a partir do texto do documento e nunca perde nada. Mas
+    // quando quem copia e o proprio navegador — arrastar e soltar, ou um
+    // caminho em que o editor nao intercepta —, o que vai e a selecao do DOM,
+    // e dentro de um widget nao ha texto nenhum: a linha chegava ao destino sem
+    // o `- [ ]`, e as vezes sem chegar. **[D]**
+    const copiavel = document.createElement("span");
+    copiavel.className = "cm-harp-task__texto";
+    copiavel.textContent = this.texto;
+    caixa.append(copiavel);
     return caixa;
   }
 
@@ -131,7 +147,8 @@ function desenhar(view: EditorView): DecorationSet {
         const inicio = line.from + (comMarcador ? recuo : tarefa[1].length);
         const fim = line.from + tarefa[1].length + 3;
         if (feita) builder.add(line.from, line.from, linhaFeita);
-        builder.add(inicio, fim, Decoration.replace({ widget: new Caixa(feita) }));
+        const coberto = line.text.slice(inicio - line.from, fim - line.from);
+        builder.add(inicio, fim, Decoration.replace({ widget: new Caixa(feita, coberto) }));
       }
       pos = line.to + 1;
     }

@@ -67,12 +67,19 @@ function luminance(css: string): number {
  * mesma cor, agora borrada, separa sem marcar. **[D]**
  */
 function sombra(color: Color): string {
-  return luminance(paint(color)) > 0.42 ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 255, 255, 0.62)";
+  return luminance(paint(color)) > 0.42 ? "rgba(0, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.42)";
 }
 
-/** Quanto a sombra se espalha, e o quanto ela cai. */
-const BORRAO = 9;
-const QUEDA = 2;
+/**
+ * Quanto a sombra se espalha, e o quanto ela cai.
+ *
+ * Caiu pouco e era forte: a sombra de um traco fino aparece dos dois lados dele
+ * e, encostada assim, virava um contorno escuro — o desenho parecia ter duas
+ * linhas. Caindo mais e espalhando mais, ela sai de baixo do traco e passa a ser
+ * o que deveria ser: a anotacao parece pousada sobre a tela. **[D]**
+ */
+const BORRAO = 11;
+const QUEDA = 4;
 
 /** Liga a sombra difusa para o proximo desenho. */
 function comSombra(ctx: CanvasRenderingContext2D, color: Color, desenhar: () => void): void {
@@ -114,8 +121,6 @@ function tracar(ctx: CanvasRenderingContext2D, color: Color, largura: number, ca
   comSombra(ctx, color, () => {
     ctx.beginPath();
     caminho();
-    // Duas passadas: sob um traco fino, uma sombra so quase nao aparece.
-    ctx.stroke();
     ctx.stroke();
   });
 
@@ -160,7 +165,6 @@ function desenharSeta(ctx: CanvasRenderingContext2D, obj: Extract<Obj, { kind: "
   comSombra(ctx, obj.color, () => {
     ctx.beginPath();
     triangulo();
-    ctx.fill();
     ctx.fill();
   });
 

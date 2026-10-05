@@ -202,6 +202,10 @@ Fatos verificáveis, para o site não prometer o que não existe:
   cursor chega, e o traço e o número da lista ficam em destaque. `Tab` numa
   lista numerada cria o subitem como `a.`, `b.`, `c.`. Não é texto formatado —
   o arquivo continua sendo texto.
+- **Conta na linha:** uma linha que termina em `=` mostra o resultado ao lado —
+  `Pão = 5,60 * 4 =` responde sozinho. É sugestão, não texto: `Ctrl+Alt+Enter`
+  escreve. Não é uma calculadora dentro do app; é a conta que já estava na
+  anotação, resolvida onde ela está.
 - **Rascunhos:** `Win+J` abre um campo pequeno e translúcido sobre qualquer
   aplicativo; `Enter` guarda, copia e devolve o foco a quem estava antes. Os dez últimos
   ficam acessíveis na janela principal e **somem ao encerrar o Harp** — são

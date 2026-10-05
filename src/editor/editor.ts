@@ -29,6 +29,7 @@ import { HighlightStyle, indentUnit, syntaxHighlighting } from "@codemirror/lang
 import { markdown } from "@codemirror/lang-markdown";
 import { t } from "../core/i18n";
 import { ghostSearchPanel } from "./search-panel";
+import { calc, calcKeymap } from "./calc";
 import { INDENT, listKeymap, lists } from "./lists";
 import { links } from "./links";
 import { markdownPreview } from "./markdown-preview";
@@ -107,6 +108,7 @@ const formattingKeymap: KeyBinding[] = [
   { key: "Mod-i", run: toggleWrap("_") },
   // Antes do `defaultKeymap`, que usa Mod-Enter para inserir linha em branco.
   { key: "Mod-Enter", run: toggleTask },
+  ...calcKeymap,
 ];
 
 /**
@@ -305,6 +307,7 @@ export function createEditor(options: EditorOptions): GhostEditor {
     markdown({ extensions: [{ remove: ["SetextHeading"] }] }),
     links,
     lists,
+    calc,
     tasks,
     syntaxHighlighting(markdownHighlight),
     placeholder(t("editor.placeholder")),

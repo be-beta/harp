@@ -124,6 +124,8 @@ envia um binário feito na própria máquina.
   ninguém está mexendo e voltam quando o cursor chega (`Ctrl+Shift+M` desliga)
 - **Listas** com o marcador em destaque; `Tab` numa lista numerada cria o
   subitem como `a.`, `b.`, `c.`, e `Shift+Tab` volta para os números
+- **Conta na linha**: terminou em `=`, o resultado aparece ao lado;
+  `Ctrl+Alt+Enter` escreve
 - **Rascunhos**: `Win+J` abre um campo sobre qualquer app; `Enter` guarda, copia e
   devolve o foco. Os dez últimos ficam em `Ctrl+J`, e somem ao encerrar o Harp
 - **Vidro**: `Win+Alt+V` cobre a tela para anotar com texto, seta, retângulo e
@@ -161,6 +163,7 @@ envia um binário feito na própria máquina.
 | `Ctrl+J` | Rascunhos recentes |
 | `Ctrl+Enter` | Cria a tarefa, ou marca e desmarca |
 | `Tab` / `Shift+Tab` | Entra e sai de um subitem da lista |
+| `Ctrl+Alt+Enter` | Escreve o resultado da conta da linha |
 | `Ctrl+[` / `Ctrl+]` | Diminui / aumenta a opacidade em 10% |
 | `Ctrl+Shift+[` / `]` | Opacidade em saltos de 50% |
 | `Ctrl+P` | Alterna sempre-no-topo |
