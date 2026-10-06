@@ -160,6 +160,8 @@ function redraw(): void {
   pending = true;
   requestAnimationFrame(() => {
     pending = false;
+    // Copiando, a tela ja esta vazia e precisa continuar vazia.
+    if (finishing) return;
     const dpr = window.devicePixelRatio || 1;
     if (canvas.width !== Math.round(window.innerWidth * dpr)) {
       canvas.width = Math.round(window.innerWidth * dpr);
@@ -197,6 +199,19 @@ function desenharRecorte(cor: string): void {
   ctx.setLineDash([6, 4]);
   ctx.strokeRect(x, y, w, h);
   ctx.restore();
+}
+
+/** Apaga o canvas agora, sem esperar o proximo quadro. */
+function limparTela(): void {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+/** Resolve quando o quadro seguinte ja foi para a tela. */
+function quadroPintado(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+  });
 }
 
 function renderHud(): void {
@@ -710,7 +725,21 @@ async function finish(): Promise<void> {
   selectedId = null;
   hud.hidden = true;
   document.body.dataset.finishing = "true";
-  redraw();
+
+  /*
+   * A tela some ANTES da foto, e nao junto com a janela.
+   *
+   * O Rust esconde a janela e fotografa o monitor; as anotacoes entram depois,
+   * pela imagem. Mas o canvas continuava desenhado ate a janela sumir de fato —
+   * e quando o compositor do Windows demorava um instante, a foto saia com os
+   * desenhos ja nela. O resultado eram dois de cada objeto: o capturado, meio
+   * apagado, e o da imagem, inteiro.
+   *
+   * Apagar e esperar o quadro vazio chegar a tela custa um quadro e resolve na
+   * origem, sem depender do tempo que a janela leva para sumir. **[D]**
+   */
+  limparTela();
+  await quadroPintado();
 
   try {
     const png = await renderPng(

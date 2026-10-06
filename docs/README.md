@@ -1,14 +1,23 @@
 # Documentação do Harp
 
-Quatro documentos, cada um com um leitor diferente. Comece pelo que corresponde
+Cinco documentos, cada um com um leitor diferente. Comece pelo que corresponde
 ao que você veio fazer.
 
 | Documento | Para quem | O que responde |
 | --- | --- | --- |
 | [../README.md](../README.md) | Quem chega ao repositório | O que é, como instalar, atalhos, como rodar o projeto |
+| [MANUAL.md](MANUAL.md) | Quem vai **explicar** o Harp — tutorial, ajuda, site | Todas as funções e modos, com o comportamento exato de cada um |
 | [IDENTIDADE.md](IDENTIDADE.md) | Quem vai **escrever sobre** o Harp | Manifesto, tese, público, tom de voz, identidade visual, briefing do site |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Quem vai **mexer no código** | Como o app é feito e por que cada decisão foi tomada |
 | [DISTRIBUICAO.md](DISTRIBUICAO.md) | Quem vai **publicar** | Como sair uma versão, chaves, winget, GitHub Pages |
+
+## Se você veio escrever um tutorial ou uma ajuda
+
+Leia [MANUAL.md](MANUAL.md): ele descreve cada função e cada modo com o
+comportamento exato, inclusive os casos em que o Harp decide não fazer nada.
+Depois passe por [IDENTIDADE.md](IDENTIDADE.md) para o tom de voz — explicar o
+Harp com o vocabulário errado o descaracteriza mais rápido do que um recurso a
+menos.
 
 ## Se você veio construir o site
 

@@ -929,6 +929,24 @@ Eram quinze segundos, de quando a aba só tinha um número e era preciso ler a
 lista inteira para se achar. Com um ícone em cada uma, três bastam — e começar
 a escrever recolhe na hora: quem digitou já sabe onde está.
 
+### A tela do Vidro some antes da foto **[D]**
+
+O Rust esconde a janela e fotografa o monitor; as anotações entram depois, pela
+imagem. Mas o canvas continuava desenhado até a janela sumir de fato — e quando
+o compositor do Windows demorava um instante, a foto saía com os desenhos já
+nela. O resultado eram **dois de cada objeto**: o capturado, meio apagado, e o
+da imagem, inteiro. Só aparecia no app; no navegador, onde não há captura de
+tela, estava sempre perfeito.
+
+Duas voltas foram gastas culpando a sombra. O que decidiu foi medir os pixels de
+uma captura do usuário: dois contornos concêntricos, o de fora mais fraco — não
+era desenho com borda, eram duas cópias.
+
+Agora o frontend apaga o canvas e espera o quadro vazio chegar à tela antes de
+mandar a imagem. Custa um quadro e resolve na origem, sem depender do tempo que
+a janela leva para sumir. O Rust ainda espera a janela realmente sair da tela
+(`IsWindowVisible`), como segundo cinto.
+
 ### Conta na linha **[D]**
 
 Terminou em `=`, o resultado aparece ao lado. Não é uma calculadora dentro do
@@ -948,6 +966,27 @@ devolve nada diante de meia conta.
 A vírgula decide a leitura: com vírgula no texto, ela é o decimal e o ponto é
 separador de milhar (`1.250,40`); sem vírgula nenhuma, o ponto é o decimal
 (`3.59`). É o que acerta a lista de compras e a conta copiada de outro lugar.
+
+### Nomes na conta, resolvidos só para trás **[D]**
+
+Uma linha `rótulo = valor` passa a dar nome àquele valor, e `[rótulo]` usa o
+valor em outra conta. Uma passada de cima para baixo basta: cada linha enxerga
+os nomes que as de cima definiram, e só eles. Olhar só para trás é o que torna
+impossível uma conta depender de si mesma — não há ciclo, e não é preciso
+procurar um.
+
+Duas armadilhas que custaram caro e estão fechadas:
+
+- um nome vira número **dentro do analisador**, e não por substituição no texto.
+  Trocar `[Total]` por `"127.58"` numa conta escrita com vírgula faria o ponto
+  virar separador de milhar, e 127,58 viraria 12 758;
+- quem define um nome guarda o número, e não o resultado formatado. `144,38`
+  lido de volta como se a vírgula fosse milhar vira 14 438, e a linha seguinte
+  dividia um número cem vezes maior. Foi exatamente o que aconteceu no primeiro
+  teste.
+
+Nome desconhecido não mostra nada, em vez de valer zero: um zero inventado entra
+numa soma sem avisar.
 
 ### A caixa de tarefa viaja com o texto que ela cobre **[D]**
 

@@ -5,9 +5,11 @@ cima do que você está olhando, para que anotar não custe a tela.
 
 Windows, gratuito, tudo local.
 
-> **Estado:** `v0.2.0`, em beta. Janela, editor, abas com ícones, tarefas,
-> histórico, teleprompter, Rascunhos, Vidro e atualização dentro do app.
-> Documentação em [docs/](docs/README.md): arquitetura, identidade e distribuição.
+> **Estado:** `v0.2.5`, em beta. Janela, editor, abas com ícones, tarefas,
+> listas, conta na linha, histórico, teleprompter, Rascunhos, Vidro, bandeja e
+> atualização dentro do app.
+> Documentação em [docs/](docs/README.md): [manual de
+> comportamento](docs/MANUAL.md), arquitetura, identidade e distribuição.
 >
 > O projeto se chamou **GhostPad** até aqui. Quem usou a versão antiga não perde
 > nada: a pasta de dados é migrada na primeira abertura.
@@ -125,7 +127,8 @@ envia um binário feito na própria máquina.
 - **Listas** com o marcador em destaque; `Tab` numa lista numerada cria o
   subitem como `a.`, `b.`, `c.`, e `Shift+Tab` volta para os números
 - **Conta na linha**: terminou em `=`, o resultado aparece ao lado;
-  `Ctrl+Alt+Enter` escreve
+  `Ctrl+Alt+Enter` escreve. Uma linha `rótulo = valor` vira nome, e
+  `[rótulo]` usa esse valor em outra conta
 - **Rascunhos**: `Win+J` abre um campo sobre qualquer app; `Enter` guarda, copia e
   devolve o foco. Os dez últimos ficam em `Ctrl+J`, e somem ao encerrar o Harp
 - **Vidro**: `Win+Alt+V` cobre a tela para anotar com texto, seta, retângulo e

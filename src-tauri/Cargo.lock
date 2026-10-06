@@ -1595,7 +1595,7 @@ dependencies = [
 
 [[package]]
 name = "harp"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "arboard",
  "png 0.18.1",

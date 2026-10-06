@@ -31,8 +31,30 @@ import {
 /** A linha pede um resultado: termina em `=`, com um `?` opcional. */
 const PEDIDO = /=\s*\??\s*$/;
 
-/** O rabo de caracteres que podem formar uma conta. */
-const CONTA = /[\d\s+\-*/×÷.,()%]+$/;
+/** O rabo de caracteres que podem formar uma conta, com nomes entre colchetes. */
+const CONTA = /(?:\[[^\]]+\]|[\d\s+\-*/×÷.,()%])+$/;
+
+/**
+ * Marcador de lista ou de tarefa no comeco da linha.
+ *
+ * Sai antes de qualquer leitura: o `[ ]` de uma tarefa nao pode ser confundido
+ * com um nome entre colchetes, e o rotulo de `- [ ] Pao = ...` e "Pao".
+ */
+const MARCADOR = /^\s*(?:[-*+]|\d+\.|[a-z]\.)\s+(?:\[[ xX]\]\s*)?/;
+
+/** Nome entre colchetes: o valor de uma linha de cima. */
+const REFERENCIA = /\[([^\]]+)\]/g;
+
+/** O rotulo de uma linha: o que vem antes do primeiro `=`. */
+const ROTULO = /^(.+?)\s*=/;
+
+/** Um numero sozinho, para `Manteiga = 11,00` tambem valer como valor. */
+const SO_NUMERO = /^[\s\d.,]+$/;
+
+/** Nomes ja definidos pelas linhas de cima, por nome em minusculas. */
+export type Nomes = Map<string, number>;
+
+const chave = (nome: string) => nome.trim().toLowerCase();
 
 /** Precisa de pelo menos uma operação de verdade. */
 const TEM_OPERADOR = /[+\-*/×÷%]/;
@@ -57,7 +79,7 @@ function lerNumero(bruto: string, virgulaEDecimal: boolean): number {
 
 type Token = { tipo: "num"; valor: number } | { tipo: "op"; valor: string };
 
-function tokenizar(texto: string, virgulaEDecimal: boolean): Token[] | null {
+function tokenizar(texto: string, virgulaEDecimal: boolean, nomes: Nomes): Token[] | null {
   const tokens: Token[] = [];
   let i = 0;
 
@@ -65,6 +87,18 @@ function tokenizar(texto: string, virgulaEDecimal: boolean): Token[] | null {
     const c = texto[i];
     if (/\s/.test(c)) {
       i += 1;
+      continue;
+    }
+    // Um nome vira numero aqui, e nao por substituicao no texto: trocar
+    // `[Total]` por "127.58" dentro de uma conta escrita com virgula faria o
+    // ponto virar separador de milhar, e 127,58 viraria 12758.
+    if (c === "[") {
+      const fim = texto.indexOf("]", i);
+      if (fim < 0) return null;
+      const valor = nomes.get(chave(texto.slice(i + 1, fim)));
+      if (valor === undefined) return null;
+      tokens.push({ tipo: "num", valor });
+      i = fim + 1;
       continue;
     }
     if (/[\d.,]/.test(c)) {
@@ -171,22 +205,88 @@ function formatar(valor: number, virgulaEDecimal: boolean): string {
  * Pura de propósito: é onde moram todas as decisões, e é o que dá para testar
  * sem abrir o editor.
  */
-export function resultado(linha: string): string | null {
-  if (!PEDIDO.test(linha)) return null;
+export function resultado(linha: string, nomes: Nomes = new Map(), virgula = false): string | null {
+  const conta = calcular(linha, nomes);
+  return conta === null ? null : formatar(conta.valor, conta.virgula || virgula);
+}
 
-  const semPedido = linha.replace(PEDIDO, "");
-  const achou = CONTA.exec(semPedido);
-  if (!achou) return null;
+/**
+ * O numero de uma linha, antes de virar texto.
+ *
+ * Quem define um nome usa este, e nao o resultado formatado: `144,38` lido de
+ * volta como se a virgula fosse milhar vira 14438, e a linha seguinte dividia
+ * um numero cem vezes maior.
+ */
+function calcular(linha: string, nomes: Nomes): { valor: number; virgula: boolean } | null {
+  const conta = contaDaLinha(linha);
+  if (!conta) return null;
 
-  const conta = achou[0].trim();
-  if (!conta || !TEM_OPERADOR.test(conta)) return null;
-
-  const virgulaEDecimal = conta.includes(",");
-  const tokens = tokenizar(conta, virgulaEDecimal);
+  // A virgula so decide a leitura dos numeros escritos; um nome com virgula
+  // dentro nao pode mudar como `3.59` e lido.
+  const virgula = conta.replace(REFERENCIA, "").includes(",");
+  const tokens = tokenizar(conta, virgula, nomes);
   if (!tokens || tokens.length < 3) return null;
 
   const valor = avaliar(tokens);
-  return valor === null ? null : formatar(valor, virgulaEDecimal);
+  return valor === null ? null : { valor, virgula };
+}
+
+/** A conta por resolver de uma linha, ou `null` se ela nao pedir nenhuma. */
+function contaDaLinha(linha: string): string | null {
+  const limpa = linha.replace(MARCADOR, "");
+  if (!PEDIDO.test(limpa)) return null;
+
+  const achou = CONTA.exec(limpa.replace(PEDIDO, ""));
+  if (!achou) return null;
+
+  const conta = achou[0].trim();
+  return conta && TEM_OPERADOR.test(conta) ? conta : null;
+}
+
+/**
+ * O valor que uma linha passa a dar ao nome dela, se der algum.
+ *
+ * `Total = 5,6 + 11 =` define `Total` pelo resultado; `Manteiga = 11,00` define
+ * pelo numero escrito. Uma linha sem `=` nao define nada.
+ */
+function definicao(linha: string, nomes: Nomes): [string, number] | null {
+  const limpa = linha.replace(MARCADOR, "");
+  const rotulo = ROTULO.exec(limpa)?.[1]?.trim();
+  if (!rotulo || rotulo.includes("[")) return null;
+
+  const calculado = calcular(limpa, nomes);
+  if (calculado !== null) return [chave(rotulo), calculado.valor];
+
+  // Sem conta: vale o numero solto depois do ultimo `=`.
+  const depois = limpa.slice(limpa.lastIndexOf("=") + 1).trim();
+  if (!depois || !SO_NUMERO.test(depois)) return null;
+  const virgulaEDecimal = depois.includes(",");
+  const valor = Number(
+    virgulaEDecimal ? depois.replace(/\./g, "").replace(",", ".") : depois.replace(/,/g, ""),
+  );
+  return Number.isFinite(valor) ? [chave(rotulo), valor] : null;
+}
+
+/**
+ * Os resultados de um texto inteiro, linha a linha.
+ *
+ * Uma passada de cima para baixo: cada linha enxerga os nomes que as de cima
+ * definiram, e so eles. Olhar so para tras e o que garante que nenhuma conta
+ * dependa de si mesma — nao ha ciclo possivel, e nao e preciso procurar um.
+ * **[D]**
+ */
+export function calcularLinhas(linhas: string[]): (string | null)[] {
+  const nomes: Nomes = new Map();
+  // Numa conta so de nomes nao ha virgula nenhuma para ler, e o resultado sairia
+  // com ponto no meio de um texto escrito com virgula. Quem decide, ai, e o
+  // texto todo.
+  const virgulaNoTexto = linhas.some((linha) => /\d,\d/.test(linha));
+  return linhas.map((linha) => {
+    const valor = resultado(linha, nomes, virgulaNoTexto);
+    const nova = definicao(linha, nomes);
+    if (nova) nomes.set(nova[0], nova[1]);
+    return valor;
+  });
 }
 
 // --- Na tela -------------------------------------------------------------------
@@ -210,14 +310,22 @@ class Resultado extends WidgetType {
   }
 }
 
+/**
+ * O texto inteiro e percorrido, e nao so o pedaco visivel: um nome pode ter sido
+ * definido muito acima do que esta na tela. Sao anotacoes, nao planilhas — a
+ * conta por linha e uma expressao regular que falha cedo.
+ */
 function resultados(view: EditorView): DecorationSet {
   const builder = new RangeSetBuilder<Decoration>();
+  const linhas: string[] = [];
+  for (let n = 1; n <= view.state.doc.lines; n += 1) linhas.push(view.state.doc.line(n).text);
+  const valores = calcularLinhas(linhas);
 
   for (const { from, to } of view.visibleRanges) {
     for (let pos = from; pos <= to; ) {
       const linha = view.state.doc.lineAt(pos);
-      const valor = resultado(linha.text);
-      if (valor !== null) {
+      const valor = valores[linha.number - 1];
+      if (valor != null) {
         builder.add(linha.to, linha.to, Decoration.widget({ widget: new Resultado(valor), side: 1 }));
       }
       pos = linha.to + 1;
@@ -248,8 +356,10 @@ const mostrar: Extension = ViewPlugin.fromClass(
 function escrever(view: EditorView): boolean {
   const { state } = view;
   const linha = state.doc.lineAt(state.selection.main.head);
-  const valor = resultado(linha.text);
-  if (valor === null) return false;
+  const anteriores: string[] = [];
+  for (let n = 1; n <= linha.number; n += 1) anteriores.push(state.doc.line(n).text);
+  const valor = calcularLinhas(anteriores)[linha.number - 1];
+  if (valor == null) return false;
 
   // O `?` era o lugar guardado para o número; o número toma o lugar dele.
   const semInterrogacao = linha.text.replace(/\s*\?\s*$/, "");

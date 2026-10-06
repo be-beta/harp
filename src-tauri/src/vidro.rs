@@ -228,10 +228,12 @@ fn capture_screen(
         .and_then(|slot| *slot)
         .ok_or("area do Vidro desconhecida")?;
 
-    // Primeiro some, depois fotografa. Esperar o DWM terminar de compor e o que
-    // garante que a janela ja nao esta na tela quando a captura acontece.
+    // Primeiro some, depois fotografa. A tela do Vidro ja chegou aqui apagada
+    // — quem apaga e o frontend, antes de mandar a imagem —, e esta espera e o
+    // segundo cinto: so fotografa quando a janela realmente saiu da tela.
     if let Some(window) = app.get_webview_window("vidro") {
         let _ = window.hide();
+        capture::wait_until_gone(&window);
     }
     capture::wait_for_composition();
 
@@ -363,6 +365,7 @@ fn compose(tela: &mut [u8], anotacoes: &[u8]) {
 mod capture {
     use super::Area;
     use windows::Win32::Graphics::Dwm::DwmFlush;
+    use windows::Win32::UI::WindowsAndMessaging::IsWindowVisible;
     use windows::Win32::Graphics::Gdi::{
         BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, DeleteObject, GetDC,
         GetDIBits, ReleaseDC, SelectObject, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, CAPTUREBLT,
@@ -374,6 +377,21 @@ mod capture {
         unsafe {
             let _ = DwmFlush();
             let _ = DwmFlush();
+        }
+    }
+
+    /// Espera a janela sumir de fato, ate um limite.
+    ///
+    /// `hide()` pede; quem decide e o Windows. Sem a espera, a foto podia sair
+    /// com a janela ainda nela. O limite existe porque uma foto um instante
+    /// cedo demais e melhor que uma captura que nunca termina.
+    pub fn wait_until_gone(window: &tauri::WebviewWindow) {
+        let Ok(hwnd) = window.hwnd() else { return };
+        for _ in 0..100 {
+            if !unsafe { IsWindowVisible(hwnd).as_bool() } {
+                return;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(2));
         }
     }
 
