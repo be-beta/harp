@@ -21,8 +21,20 @@ import { DEFAULT_ACCENT, DEFAULT_THEME, type AccentId, type Theme } from "./them
 import { DEFAULT_CONTROLS, DEFAULT_MODULES, type BarControls, type MetricModules } from "../ui/metrics";
 import { isIconId, type IconId } from "../ui/icon-catalog";
 
-/** Acabamento da janela. O vidro e so CSS: nada de desfoque nativo. */
-export type Finish = "smooth" | "glass";
+/**
+ * Acabamento da janela: liso, cristal (borda e reflexo de vidro sobre o que
+ * esta atras) ou opaco (superficie fosca, sem transparencia). Tudo CSS: nada de
+ * desfoque nativo, que nao funciona nesta janela.
+ */
+export type Finish = "smooth" | "glass" | "solid";
+
+/**
+ * Estilo da janela: quanto do Harp aparece em volta do texto.
+ * - harp: a cor de destaque acesa na borda e nos controles ativos;
+ * - minimal: o de sempre;
+ * - clean: so o texto; barra e abas aparecem quando o mouse chega.
+ */
+export type WindowStyle = "harp" | "minimal" | "clean";
 
 export interface Settings {
   opacity: number;
@@ -32,8 +44,10 @@ export interface Settings {
   idleFade: boolean;
   /** Esconde os marcadores do Markdown fora da linha em uso. */
   markdownPreview: boolean;
-  /** Acabamento da janela: liso, ou com luz e aresta de vidro. */
+  /** Acabamento da janela. */
   finish: Finish;
+  /** Estilo da janela. */
+  style: WindowStyle;
   /** Atalhos globais escolhidos pelo usuario; ausentes = padrao do backend. */
   shortcuts: Partial<Record<GlobalAction, KeyCombo>>;
   /** Metricas visiveis na barra de status. */
@@ -65,6 +79,7 @@ export const DEFAULT_SETTINGS: Settings = {
   markdownPreview: true,
   // Liso de saida: o vidro e um gosto, e nao o que define o Harp.
   finish: "smooth",
+  style: "minimal",
   // Nunca liga sozinho: um usuario que nao pediu isso acharia que o app sumiu.
   excludeFromCapture: false,
   idleFade: true,

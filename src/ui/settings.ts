@@ -12,7 +12,7 @@
 
 import { FONTS, FONT_SIZE_MAX, FONT_SIZE_MIN, type FontId } from "../core/fonts";
 import { LANGUAGES, t, type Lang } from "../core/i18n";
-import type { Finish } from "../core/store";
+import type { Finish, WindowStyle } from "../core/store";
 import { ACCENTS, effectiveTheme, type AccentId, type Theme } from "../core/theme";
 
 export interface SettingsValues {
@@ -22,6 +22,7 @@ export interface SettingsValues {
   idleFade: boolean;
   theme: Theme;
   finish: Finish;
+  style: WindowStyle;
   accent: AccentId;
   /** Abre com o Windows, escondido na bandeja. Vem do proprio Windows. */
   autostart: boolean;
@@ -63,6 +64,7 @@ export interface SettingsHandlers {
   onIdleFade: (value: boolean) => void;
   onTheme: (theme: Theme) => void;
   onFinish: (finish: Finish) => void;
+  onStyle: (style: WindowStyle) => void;
   onAccent: (accent: AccentId) => void;
   onAutostart: (value: boolean) => void;
   onUpdate: () => void;
@@ -122,9 +124,37 @@ function escape(text: string): string {
   return node.innerHTML;
 }
 
+/**
+ * Trilhos de escolha: a opcao atual ganha uma pilula na cor de destaque, que
+ * desliza ate a opcao clicada em vez de aparecer nela.
+ *
+ * A pilula e um elemento so por trilho, movido por `transform`: trocar o fundo
+ * de cada botao piscaria, e deslizar diz "isto mudou para ali" sem precisar de
+ * palavra nenhuma. So anima quando a pessoa escolhe — ao abrir o painel, ela ja
+ * nasce no lugar.
+ */
+function posicionarTrilhos(host: HTMLElement, animar: boolean): void {
+  for (const trilho of host.querySelectorAll<HTMLElement>(".gp-seg")) {
+    let pilula = trilho.querySelector<HTMLElement>(".gp-seg__thumb");
+    if (!pilula) {
+      pilula = document.createElement("span");
+      pilula.className = "gp-seg__thumb";
+      pilula.setAttribute("aria-hidden", "true");
+      trilho.prepend(pilula);
+    }
+    const atual = trilho.querySelector<HTMLElement>('.gp-option[data-on="true"]');
+    pilula.dataset.animate = String(animar);
+    pilula.hidden = !atual;
+    if (!atual) continue;
+    pilula.style.transform = `translateX(${atual.offsetLeft}px)`;
+    pilula.style.width = `${atual.offsetWidth}px`;
+  }
+}
+
 export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandlers): SettingsPanel {
   const render = () => {
-    const { lang, font, fontSize, idleFade, theme, finish, accent, autostart, update } = handlers.values();
+    const { lang, font, fontSize, idleFade, theme, finish, style, accent, autostart, update } =
+      handlers.values();
 
     const idiomas = LANGUAGES.map(
       (item) => `
@@ -155,7 +185,16 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
       )
       .join("");
 
-    const acabamentos = (["smooth", "glass"] as Finish[])
+    const estilos = (["harp", "minimal", "clean"] as WindowStyle[])
+      .map(
+        (item) => `
+        <button class="gp-option" data-style-option="${item}" data-on="${item === style}">
+          ${t(`settings.style.${item}` as "settings.style.harp")}
+        </button>`,
+      )
+      .join("");
+
+    const acabamentos = (["smooth", "glass", "solid"] as Finish[])
       .map(
         (item) => `
         <button class="gp-option" data-finish-option="${item}" data-on="${item === finish}">
@@ -191,18 +230,24 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
 
         <section class="gp-sheet__section">
           <h2>${t("settings.language")}</h2>
-          <div class="gp-options">${idiomas}</div>
+          <div class="gp-options gp-seg">${idiomas}</div>
         </section>
 
         <section class="gp-sheet__section">
           <h2>${t("settings.theme")}</h2>
-          <div class="gp-options">${temas}</div>
+          <div class="gp-options gp-seg">${temas}</div>
+        </section>
+
+        <section class="gp-sheet__section">
+          <h2>${t("settings.style")}</h2>
+          <div class="gp-options gp-seg">${estilos}</div>
+          <p class="gp-sheet__note gp-sheet__note--faint" data-hint="style"></p>
         </section>
 
         <section class="gp-sheet__section">
           <h2>${t("settings.finish")}</h2>
-          <div class="gp-options">${acabamentos}</div>
-          <p class="gp-sheet__note gp-sheet__note--faint">${t("settings.finish.hint")}</p>
+          <div class="gp-options gp-seg">${acabamentos}</div>
+          <p class="gp-sheet__note gp-sheet__note--faint" data-hint="finish"></p>
         </section>
 
         <section class="gp-sheet__section">
@@ -226,7 +271,7 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
 
         <section class="gp-sheet__section">
           <h2>${t("settings.idleFade")}</h2>
-          <div class="gp-options">
+          <div class="gp-options gp-seg">
             <button class="gp-option" data-idle="on" data-on="${idleFade}">${t("settings.on")}</button>
             <button class="gp-option" data-idle="off" data-on="${!idleFade}">${t("settings.off")}</button>
           </div>
@@ -234,7 +279,7 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
 
         <section class="gp-sheet__section">
           <h2>${t("settings.autostart")}</h2>
-          <div class="gp-options">
+          <div class="gp-options gp-seg">
             <button class="gp-option" data-autostart="on" data-on="${autostart}">${t("settings.on")}</button>
             <button class="gp-option" data-autostart="off" data-on="${!autostart}">${t("settings.off")}</button>
           </div>
@@ -248,6 +293,7 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
         </section>
 
       </div>`;
+    syncState(false);
   };
 
   /**
@@ -256,8 +302,8 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
    * Refazer o painel inteiro a cada clique reiniciava a animação de entrada, o
    * que aparecia como uma piscada a cada escolha.
    */
-  const syncState = () => {
-    const { lang, font, fontSize, idleFade, theme, finish, accent, autostart } = handlers.values();
+  const syncState = (animar = true) => {
+    const { lang, font, fontSize, idleFade, theme, finish, style, accent, autostart } = handlers.values();
 
     // A chave vai explicita: a ordem dos atributos de um elemento nao e
     // garantida, entao ler "o primeiro" daria certo por acaso.
@@ -271,6 +317,19 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
     marcar("font", font);
     marcar("theme-option", theme);
     marcar("finish-option", finish);
+    marcar("style-option", style);
+
+    // A nota embaixo de estilo e acabamento descreve a opcao escolhida, e nao
+    // todas: tres frases para ler a cada abertura viram ruido.
+    const dica = (qual: string, chave: string) => {
+      const node = host.querySelector<HTMLElement>(`[data-hint="${qual}"]`);
+      if (node) node.textContent = t(chave as "settings.finish.hint.smooth");
+    };
+    dica("finish", `settings.finish.hint.${finish}`);
+    dica("style", `settings.style.hint.${style}`);
+
+    // Medir botao de painel escondido da largura zero; quem abre posiciona.
+    if (!host.hidden) posicionarTrilhos(host, animar);
     marcar("accent", accent);
 
     for (const node of host.querySelectorAll<HTMLElement>("[data-idle]")) {
@@ -294,6 +353,7 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
     open() {
       render();
       host.hidden = false;
+      posicionarTrilhos(host, false);
       // A animação de entrada vale para a abertura, não para cada clique.
       host.classList.add("gp-sheet--enter");
       host.addEventListener("animationend", () => host.classList.remove("gp-sheet--enter"), {
@@ -339,6 +399,13 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
     const size = target.closest<HTMLElement>("[data-size]")?.dataset.size;
     if (size) {
       handlers.onFontSize(handlers.values().fontSize + Number(size));
+      syncState();
+      return;
+    }
+
+    const estilo = target.closest<HTMLElement>("[data-style-option]")?.dataset.styleOption;
+    if (estilo) {
+      handlers.onStyle(estilo as WindowStyle);
       syncState();
       return;
     }

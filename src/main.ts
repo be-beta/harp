@@ -217,6 +217,7 @@ const settingsPanel = createSettingsPanel(el.settings, {
     idleFade: settings.idleFade,
     theme: settings.theme,
     finish: settings.finish,
+    style: settings.style,
     accent: settings.accent,
     autostart,
     update: {
@@ -238,6 +239,11 @@ const settingsPanel = createSettingsPanel(el.settings, {
   onTheme: (theme: Theme) => changeTheme(theme),
   onFinish: (finish) => {
     settings.finish = finish;
+    applyFinish();
+    void saveSettings(settings);
+  },
+  onStyle: (style) => {
+    settings.style = style;
     applyFinish();
     void saveSettings(settings);
   },
@@ -264,7 +270,7 @@ async function changeAutostart(value: boolean): Promise<void> {
   try {
     if (value) await enableAutostart();
     else await disableAutostart();
-    autostart = await autostartEnabled();
+    autostart = (await autostartEnabled()) === true;
     toast(t(autostart ? "toast.autostart.on" : "toast.autostart.off"));
   } catch (error) {
     toast(t("toast.autostart.failed", { error: String(error) }));
@@ -653,9 +659,10 @@ function toggleMarkdownPreview(): void {
   void saveSettings(settings);
 }
 
-/** Liso ou vidro: so uma marca no `body`, o resto e CSS. */
+/** Acabamento e estilo: so marcas no `body`, o resto e CSS. */
 function applyFinish(): void {
   el.body.dataset.finish = settings.finish;
+  el.body.dataset.style = settings.style;
 }
 
 // --- Tema ------------------------------------------------------------------
@@ -1970,7 +1977,7 @@ async function boot(): Promise<void> {
   wireEvents();
   void checkRecorders();
   appVersion = await getVersion().catch(() => "");
-  autostart = await autostartEnabled().catch(() => false);
+  autostart = (await autostartEnabled().catch(() => false)) === true;
   renderTray();
   // Ao recarregar a janela, os rascunhos continuam no processo.
   document.getElementById("drafts-glyph")!.innerHTML = glifoRascunho;

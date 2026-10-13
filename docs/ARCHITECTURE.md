@@ -100,14 +100,14 @@ WebView2, e ir atrás dela é reescrever o motor da janela sem garantia.
 
 Encerrado: **o Harp não usa desfoque nativo.**
 
-### Acabamento vidro: o vidro líquido sem fosco **[D]**
+### Acabamento cristal: o vidro líquido sem fosco **[D]**
 
 O que faz o vidro parecer vidro mora quase todo nas bordas: onde a luz bate,
 onde ela escorrega, a profundidade do material. Nada disso precisa enxergar o
 que está atrás da janela, então é CSS — funciona em qualquer máquina, com a
 janela sem foco, e mantém o que está atrás nítido, que é a tese do Harp.
 
-O acabamento "Vidro", opcional, troca o tom chapado por um gradiente mais leve
+O acabamento "Cristal", opcional, troca o tom chapado por um gradiente mais leve
 em cima, acende um fio de luz na borda superior e esquerda, põe um reflexo no
 canto de cima e um risco diagonal fraco, escurece a base como profundidade, e
 desenha a aresta com um resto de cor de refração. Liso é o padrão: o vidro é um
@@ -118,6 +118,50 @@ isso o app precisa dos pixels de trás, e a única forma de tê-los seria
 fotografar a tela atrás da janela o tempo todo — o que pesa e obrigaria o Harp a
 ficar sempre invisível em gravações, senão ele fotografaria a si mesmo. Não vale
 a troca.
+
+Chamava-se "Vidro" na primeira versão e foi renomeado: **Vidro** já é o nome do
+recurso de anotar sobre a tela (`Win+Alt+V`), que aparece na bandeja, nos atalhos
+e no manual. Dois "Vidro" com sentidos diferentes no mesmo app confundem.
+
+### Acabamento opaco: o fosco que não precisa enxergar atrás **[D]**
+
+O fosco das referências mostra as cores de trás desfocadas, e isso esta janela
+não consegue. O acabamento "Opaco" é o fosco possível: um fundo com luz de cima
+para baixo, a cor de destaque desfocada nos cantos como se viesse de trás, e um
+granulado fino gerado num SVG, sem imagem baixada. É opaco de verdade — a
+opacidade do usuário não se aplica, porque um "opaco" que deixa ver através
+contradiria o nome.
+
+### Estilos de janela: quanto do Harp aparece **[D]**
+
+Acabamento é a superfície; estilo é o quanto da interface aparece em volta do
+texto. São escolhas independentes, e combinam todas entre si.
+
+- **Harp** dá personalidade com a cor de destaque: um fio de luz na borda, mais
+  forte embaixo e sumindo para cima, com um clarão no meio da base — como um
+  feixe encostado na janela. A aba ativa, os modos ligados da barra e o cursor
+  ganham o mesmo brilho. Tudo desenhado **dentro** da janela: nada pode ser
+  pintado fora dela, então o brilho que nas referências vaza para fora aqui
+  acende a borda por dentro. Fica numa camada própria (`.gp-aura`), porque as
+  duas camadas extras do fundo já são do acabamento.
+- **Minimalista** é o de sempre, e continua o padrão.
+- **Limpo** deixa só o texto. A barra fica com a engrenagem, discreta até o
+  mouse chegar — sem ela não haveria caminho de volta para quem não decorou
+  `Ctrl+,`. As abas continuam ocupando a faixa do topo, que ainda se arrasta e
+  recebe o mouse, mas só aparecem quando ele chega lá.
+
+### Escolhas num trilho, e não em botões soltos **[D]**
+
+As escolhas de lista curta nas configurações viraram um trilho: a opção atual
+fica numa pílula da cor de destaque, que **desliza** até a opção clicada. É um
+elemento só por trilho, movido por `transform`, medido a partir dos botões —
+trocar o fundo de cada botão piscaria, e deslizar diz "isto mudou para ali" sem
+palavra nenhuma. Ao abrir o painel ela já nasce no lugar; só anima quando a
+pessoa escolhe. Botão de painel escondido mede largura zero, então quem abre o
+painel é quem posiciona.
+
+No menu `⋯` da barra, as caixas de marcar viraram interruptores, à direita do
+nome: ligar e desligar é o gesto, e o interruptor diz isso melhor.
 
 ### 3.2 Opacidade é CSS, nunca o efeito nativo
 
