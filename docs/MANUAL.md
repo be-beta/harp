@@ -23,7 +23,7 @@ A janela principal não tem barra de título, nem bordas, nem botões de sistema
 | **Transparência real** | Não é desfoque: é a tela de baixo aparecendo. (Fundo desfocado foi tentado duas vezes, com todas as variantes do Windows, e nenhuma desfoca de verdade nesta janela.) `Ctrl+[` e `Ctrl+]` mudam em 10%; com `Shift`, em saltos de 50%. O valor fica na barra. |
 | **Arrastar** | Por qualquer área vazia da janela — não há barra para pegar. |
 | **Redimensionar** | Pelas bordas com o mouse, ou `Ctrl+Alt+Shift+setas` (40 px por toque). |
-| **Acabamento** | **Liso** (padrão): o que está atrás aparece, escurecido. **Cristal**: a borda acende, a luz reflete no alto e a base ganha profundidade — o que está atrás continua nítido. **Sólido**: sem transparência, com a cor de destaque vazando dos cantos e um granulado fino; nada atrás aparece, e o controle de opacidade não se aplica. |
+| **Acabamento** | **Liso** (padrão): o que está atrás aparece, escurecido. **Cristal**: a borda acende, a luz reflete no alto e a base ganha profundidade — o que está atrás continua nítido. **Sólido**: sem transparência, com luz de cima para baixo e um granulado fino; nada atrás aparece, e o controle de opacidade não se aplica. No estilo Aura, a cor de destaque vaza dos cantos. |
 | **Estilo** | **Harp** (padrão): tudo à mão, sem chamar atenção. **Minimalista**: só o texto — a barra fica só com a engrenagem, discreta até o mouse chegar, e as abas aparecem quando o mouse chega no alto da janela; os atalhos continuam valendo para tudo. **Aura**: a cor de destaque brilhando por dentro da borda — colada nela, mais forte embaixo e sumindo para cima, sem linha de cor — e acesa na aba ativa, nos modos ligados da barra e no cursor. |
 | **Esmaecer parada** | Sem foco e sem uso, a janela desbota sozinha. Opcional nas configurações. Qualquer tecla ou o mouse por cima traz de volta. |
 | **Fechar** | `Ctrl+Q`, ou fechar a janela. O texto é salvo antes. Fechar encerra o Harp inteiro, inclusive o ícone da bandeja. |
@@ -332,8 +332,13 @@ iniciar com o Windows e atualização — nesta ordem. A atualização fica por
 
 As escolhas de uma lista curta — idioma, tema, estilo, acabamento, ligado e
 desligado — ficam num trilho: a opção atual numa pílula da cor de destaque, que
-desliza até a opção clicada. Embaixo de estilo e acabamento, uma frase descreve
-a opção escolhida. No menu `⋯` da barra, cada item é um interruptor.
+desliza até a opção clicada. Embaixo de estilo e acabamento, uma frase curta
+sugere a opção escolhida. Cada fonte aparece escrita nela mesma. No menu `⋯` da
+barra, cada item é um interruptor.
+
+**Na primeira abertura:** tema escuro, estilo Harp, acabamento liso, destaque
+menta, fonte Inter, esmaecer quando parado ligado, iniciar com o Windows
+desligado.
 
 `Ctrl+Shift+B` alterna claro e escuro direto, sem abrir nada.
 

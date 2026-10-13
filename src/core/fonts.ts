@@ -3,8 +3,9 @@
  *
  * Todas são OFL e vêm empacotadas com o app — nada é baixado em uso, o que
  * mantém a promessa de funcionar sem rede. Os arquivos de cada família só são
- * carregados quando a família é escolhida: empacotar sete famílias e carregar
- * as sete na abertura desperdiçaria memória por algo que ninguém pediu.
+ * carregados quando a família é escolhida, ou quando as configurações abrem:
+ * carregar as sete na abertura do app desperdiçaria memória por algo que
+ * ninguém pediu, mas a lista de fontes precisa mostrar cada uma de verdade.
  */
 
 export type FontId =
@@ -77,6 +78,17 @@ export const FONTS: FontChoice[] = [
 ];
 
 export const DEFAULT_FONT: FontId = "inter";
+
+/**
+ * Carrega todas as famílias, para a lista de fontes se mostrar como é.
+ *
+ * Antes, só a escolhida estava carregada: as outras apareciam numa fonte
+ * genérica, e escolher uma fonte era escolher pelo nome. São arquivos que já
+ * vêm com o app; a lista só abre quando a pessoa pede. **[D]**
+ */
+export function loadAllFonts(): Promise<unknown> {
+  return Promise.all(FONTS.map((font) => font.load?.()));
+}
 
 export const FONT_SIZE_MIN = 11;
 export const FONT_SIZE_MAX = 30;

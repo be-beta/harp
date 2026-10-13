@@ -5,7 +5,7 @@ cima do que você está olhando, para que anotar não custe a tela.
 
 Windows, gratuito, tudo local.
 
-> **Estado:** `v0.2.5`, em beta. Janela, editor, abas com ícones, tarefas,
+> **Estado:** `v0.2.6`, em beta. Janela, editor, abas com ícones, tarefas,
 > listas, conta na linha, histórico, teleprompter, Rascunhos, Vidro, bandeja e
 > atualização dentro do app.
 > Documentação em [docs/](docs/README.md): [manual de

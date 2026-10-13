@@ -44,7 +44,9 @@ export function effectiveTheme(theme: Theme): "light" | "dark" {
   return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }
 
-export const DEFAULT_THEME: Theme = "system";
+// Escuro na primeira abertura: e onde a transparencia e a cor de destaque
+// aparecem melhor, e o que mais se parece com o Harp do site.
+export const DEFAULT_THEME: Theme = "dark";
 export const DEFAULT_ACCENT: AccentId = "mint";
 
 export function applyTheme(theme: Theme): void {

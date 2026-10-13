@@ -134,6 +134,27 @@ opacidade do usuário não se aplica.
 Chamou-se "Opaco" por um dia. Saiu porque prometia o fosco de vidro, que não
 existe aqui; "Sólido" diz o que ele é.
 
+A cor de destaque vazando dos cantos ficou só no estilo Aura. Nos outros dois,
+um brilho solto no canto superior parecia mancha, e não escolha.
+
+### A lista de fontes mostra as fontes **[D]**
+
+Cada nome sempre deveria aparecer na própria fonte, e nunca apareceu. As aspas
+do nome da família (`"DM Serif Text", Georgia, serif`) fechavam o atributo
+`style` no meio, e o estilo saía vazio: a lista inteira na fonte do app. Agora
+as aspas vão escapadas.
+
+Além disso, cada família só carrega quando é escolhida — a lista mostraria uma
+fonte genérica no lugar das outras. Abrir as configurações carrega todas: são
+arquivos que já vêm com o app, e a lista só abre quando a pessoa pede.
+
+### O que vale na primeira abertura **[D]**
+
+Tema escuro, estilo Harp, acabamento liso, destaque menta, fonte Inter, esmaecer
+quando parado ligado, iniciar com o Windows desligado. O escuro substituiu o
+"seguir o sistema": é onde a transparência e a cor aparecem melhor, e o que se
+parece com o Harp que a pessoa viu no site antes de baixar.
+
 ### Estilos de janela: quanto do Harp aparece **[D]**
 
 Acabamento é a superfície; estilo é o quanto da interface aparece em volta do

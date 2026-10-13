@@ -10,7 +10,7 @@
  * na opacidade — que agora pode estar escondida.
  */
 
-import { FONTS, FONT_SIZE_MAX, FONT_SIZE_MIN, type FontId } from "../core/fonts";
+import { FONTS, FONT_SIZE_MAX, FONT_SIZE_MIN, loadAllFonts, type FontId } from "../core/fonts";
 import { LANGUAGES, t, type Lang } from "../core/i18n";
 import type { Finish, WindowStyle } from "../core/store";
 import { ACCENTS, effectiveTheme, type AccentId, type Theme } from "../core/theme";
@@ -164,13 +164,16 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
     ).join("");
 
     // Cada nome aparece na própria fonte: é a forma mais direta de escolher.
+    // As aspas dos nomes de fonte ("DM Serif Text") fechavam o atributo no meio:
+    // o estilo saia vazio e toda a lista aparecia na mesma fonte. Escapadas,
+    // cada nome aparece na propria fonte.
     const fontes = FONTS.map(
       (item) => `
         <button
           class="gp-option gp-option--font"
           data-font="${item.id}"
           data-on="${item.id === font}"
-          style="font-family: ${item.stack}"
+          style="font-family: ${item.stack.replace(/"/g, "&quot;")}"
         >
           ${item.label || t("settings.font.system")}
         </button>`,
@@ -355,6 +358,7 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
   const panel: SettingsPanel = {
     isOpen: () => !host.hidden,
     open() {
+      void loadAllFonts();
       render();
       host.hidden = false;
       posicionarTrilhos(host, false);
