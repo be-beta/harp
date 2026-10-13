@@ -12,6 +12,7 @@
 
 import { FONTS, FONT_SIZE_MAX, FONT_SIZE_MIN, type FontId } from "../core/fonts";
 import { LANGUAGES, t, type Lang } from "../core/i18n";
+import type { Finish } from "../core/store";
 import { ACCENTS, effectiveTheme, type AccentId, type Theme } from "../core/theme";
 
 export interface SettingsValues {
@@ -20,6 +21,7 @@ export interface SettingsValues {
   fontSize: number;
   idleFade: boolean;
   theme: Theme;
+  finish: Finish;
   accent: AccentId;
   /** Abre com o Windows, escondido na bandeja. Vem do proprio Windows. */
   autostart: boolean;
@@ -60,6 +62,7 @@ export interface SettingsHandlers {
   onFontSize: (size: number) => void;
   onIdleFade: (value: boolean) => void;
   onTheme: (theme: Theme) => void;
+  onFinish: (finish: Finish) => void;
   onAccent: (accent: AccentId) => void;
   onAutostart: (value: boolean) => void;
   onUpdate: () => void;
@@ -121,7 +124,7 @@ function escape(text: string): string {
 
 export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandlers): SettingsPanel {
   const render = () => {
-    const { lang, font, fontSize, idleFade, theme, accent, autostart, update } = handlers.values();
+    const { lang, font, fontSize, idleFade, theme, finish, accent, autostart, update } = handlers.values();
 
     const idiomas = LANGUAGES.map(
       (item) => `
@@ -148,6 +151,15 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
         (item) => `
         <button class="gp-option" data-theme-option="${item}" data-on="${item === theme}">
           ${t(`theme.${item}` as "theme.system")}
+        </button>`,
+      )
+      .join("");
+
+    const acabamentos = (["smooth", "glass"] as Finish[])
+      .map(
+        (item) => `
+        <button class="gp-option" data-finish-option="${item}" data-on="${item === finish}">
+          ${t(`settings.finish.${item}` as "settings.finish.smooth")}
         </button>`,
       )
       .join("");
@@ -185,6 +197,12 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
         <section class="gp-sheet__section">
           <h2>${t("settings.theme")}</h2>
           <div class="gp-options">${temas}</div>
+        </section>
+
+        <section class="gp-sheet__section">
+          <h2>${t("settings.finish")}</h2>
+          <div class="gp-options">${acabamentos}</div>
+          <p class="gp-sheet__note gp-sheet__note--faint">${t("settings.finish.hint")}</p>
         </section>
 
         <section class="gp-sheet__section">
@@ -239,7 +257,7 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
    * que aparecia como uma piscada a cada escolha.
    */
   const syncState = () => {
-    const { lang, font, fontSize, idleFade, theme, accent, autostart } = handlers.values();
+    const { lang, font, fontSize, idleFade, theme, finish, accent, autostart } = handlers.values();
 
     // A chave vai explicita: a ordem dos atributos de um elemento nao e
     // garantida, entao ler "o primeiro" daria certo por acaso.
@@ -252,6 +270,7 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
     marcar("lang", lang);
     marcar("font", font);
     marcar("theme-option", theme);
+    marcar("finish-option", finish);
     marcar("accent", accent);
 
     for (const node of host.querySelectorAll<HTMLElement>("[data-idle]")) {
@@ -320,6 +339,13 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
     const size = target.closest<HTMLElement>("[data-size]")?.dataset.size;
     if (size) {
       handlers.onFontSize(handlers.values().fontSize + Number(size));
+      syncState();
+      return;
+    }
+
+    const acabamento = target.closest<HTMLElement>("[data-finish-option]")?.dataset.finishOption;
+    if (acabamento) {
+      handlers.onFinish(acabamento as Finish);
       syncState();
       return;
     }

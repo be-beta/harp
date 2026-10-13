@@ -216,6 +216,7 @@ const settingsPanel = createSettingsPanel(el.settings, {
     fontSize: settings.fontSize,
     idleFade: settings.idleFade,
     theme: settings.theme,
+    finish: settings.finish,
     accent: settings.accent,
     autostart,
     update: {
@@ -235,6 +236,11 @@ const settingsPanel = createSettingsPanel(el.settings, {
     if (value !== settings.idleFade) toggleIdleFade();
   },
   onTheme: (theme: Theme) => changeTheme(theme),
+  onFinish: (finish) => {
+    settings.finish = finish;
+    applyFinish();
+    void saveSettings(settings);
+  },
   onAccent: (accent: AccentId) => {
     settings.accent = accent;
     applyAccent(accent, settings.theme);
@@ -645,6 +651,11 @@ function toggleMarkdownPreview(): void {
   editor.setMarkdownPreview(settings.markdownPreview);
   toast(t(settings.markdownPreview ? "toast.markdown.on" : "toast.markdown.off"));
   void saveSettings(settings);
+}
+
+/** Liso ou vidro: so uma marca no `body`, o resto e CSS. */
+function applyFinish(): void {
+  el.body.dataset.finish = settings.finish;
 }
 
 // --- Tema ------------------------------------------------------------------
@@ -1890,6 +1901,7 @@ async function boot(): Promise<void> {
   applyStaticTranslations();
   applyTheme(settings.theme);
   applyAccent(settings.accent, settings.theme);
+  applyFinish();
   // No modo "sistema", o Windows pode trocar de claro para escuro a qualquer
   // hora; o tom do destaque precisa trocar junto.
   watchSystemTheme(() => {

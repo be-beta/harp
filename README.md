@@ -139,7 +139,9 @@ envia um binário feito na própria máquina.
 - **Aviso quando há gravação em andamento**, lembrando de se ocultar
 - **Teleprompter** com rolagem automática e modo faixa para gravações
 - **Português, inglês e espanhol**, com oito opções de fonte embutidas
-- **Tema claro, escuro ou do sistema**, com cor de destaque à escolha
+- **Tema claro, escuro ou do sistema**, com cor de destaque à escolha e
+  acabamento liso ou **vidro** — borda acesa e reflexo de luz, com o que está
+  atrás ainda nítido
 - **Bandeja e início com o Windows**: o Harp pode subir escondido ao ligar o
   computador, com os atalhos globais já valendo
 - **Autosave** do texto, com backup

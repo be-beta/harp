@@ -21,6 +21,9 @@ import { DEFAULT_ACCENT, DEFAULT_THEME, type AccentId, type Theme } from "./them
 import { DEFAULT_CONTROLS, DEFAULT_MODULES, type BarControls, type MetricModules } from "../ui/metrics";
 import { isIconId, type IconId } from "../ui/icon-catalog";
 
+/** Acabamento da janela. O vidro e so CSS: nada de desfoque nativo. */
+export type Finish = "smooth" | "glass";
+
 export interface Settings {
   opacity: number;
   alwaysOnTop: boolean;
@@ -29,6 +32,8 @@ export interface Settings {
   idleFade: boolean;
   /** Esconde os marcadores do Markdown fora da linha em uso. */
   markdownPreview: boolean;
+  /** Acabamento da janela: liso, ou com luz e aresta de vidro. */
+  finish: Finish;
   /** Atalhos globais escolhidos pelo usuario; ausentes = padrao do backend. */
   shortcuts: Partial<Record<GlobalAction, KeyCombo>>;
   /** Metricas visiveis na barra de status. */
@@ -58,6 +63,8 @@ export const DEFAULT_SETTINGS: Settings = {
   // Ligado de saida: quem nao escreve Markdown nunca ve um marcador, e quem
   // escreve ve o seu de volta assim que o cursor chega na linha.
   markdownPreview: true,
+  // Liso de saida: o vidro e um gosto, e nao o que define o Harp.
+  finish: "smooth",
   // Nunca liga sozinho: um usuario que nao pediu isso acharia que o app sumiu.
   excludeFromCapture: false,
   idleFade: true,

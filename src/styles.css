@@ -1,8 +1,10 @@
 /* Harp - camada visual
  *
- * Regra que organiza todo este arquivo: o desfoque NAO esta aqui. Quando existe,
- * ele vem do DWM, aplicado no Rust. O CSS cuida apenas de escurecer, arredondar
- * e manter o texto legivel sobre um fundo que pode ser qualquer coisa.
+ * Regra que organiza todo este arquivo: nao existe desfoque. O que esta atras da
+ * janela aparece como esta, e o CSS cuida de escurecer, arredondar, dar o
+ * acabamento de vidro quando pedido, e manter o texto legivel sobre um fundo que
+ * pode ser qualquer coisa. (Os fundos desfocados do Windows foram testados duas
+ * vezes e nao desfocam nesta janela — ver ARCHITECTURE.md, 3.1.)
  */
 
 /* Paleta.
@@ -39,6 +41,15 @@
   --gp-panel-soft: rgba(10, 10, 10, 0.72);
   --gp-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
   --gp-link: #93c5fd;
+  /* Acabamento vidro (escuro): a luz aparece como brilho branco. */
+  --gp-glass-rim: rgba(255, 255, 255, 0.3);
+  --gp-glass-rim-side: rgba(255, 255, 255, 0.14);
+  --gp-glass-rim-low: rgba(255, 255, 255, 0.06);
+  --gp-glass-depth: rgba(0, 0, 0, 0.38);
+  --gp-glass-shine: rgba(255, 255, 255, 0.13);
+  --gp-glass-streak: rgba(255, 255, 255, 0.035);
+  --gp-glass-edge-a: rgba(255, 255, 255, 0.55);
+  --gp-glass-edge-b: rgba(255, 255, 255, 0.06);
   color-scheme: dark;
 }
 
@@ -59,6 +70,15 @@
   /* Halo claro: o texto escuro precisa se destacar do que estiver atrás. */
   --gp-text-shadow: 0 1px 2px rgba(255, 255, 255, 0.55);
   --gp-link: #1d4ed8;
+  /* Acabamento vidro (claro): o brilho e mais forte e a sombra mais leve. */
+  --gp-glass-rim: rgba(255, 255, 255, 0.95);
+  --gp-glass-rim-side: rgba(255, 255, 255, 0.6);
+  --gp-glass-rim-low: rgba(0, 0, 0, 0.05);
+  --gp-glass-depth: rgba(0, 0, 0, 0.1);
+  --gp-glass-shine: rgba(255, 255, 255, 0.5);
+  --gp-glass-streak: rgba(255, 255, 255, 0.16);
+  --gp-glass-edge-a: rgba(255, 255, 255, 0.95);
+  --gp-glass-edge-b: rgba(0, 0, 0, 0.08);
   color-scheme: light;
 }
 
@@ -78,6 +98,15 @@
     --gp-panel-soft: rgba(10, 10, 10, 0.72);
     --gp-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
     --gp-link: #93c5fd;
+    /* Acabamento vidro (escuro): a luz aparece como brilho branco. */
+    --gp-glass-rim: rgba(255, 255, 255, 0.3);
+    --gp-glass-rim-side: rgba(255, 255, 255, 0.14);
+    --gp-glass-rim-low: rgba(255, 255, 255, 0.06);
+    --gp-glass-depth: rgba(0, 0, 0, 0.38);
+    --gp-glass-shine: rgba(255, 255, 255, 0.13);
+    --gp-glass-streak: rgba(255, 255, 255, 0.035);
+    --gp-glass-edge-a: rgba(255, 255, 255, 0.55);
+    --gp-glass-edge-b: rgba(255, 255, 255, 0.06);
     color-scheme: dark;
   }
 }
@@ -114,6 +143,69 @@ body {
   border-radius: var(--gp-radius);
   background: rgba(var(--gp-bg), var(--gp-opacity));
   transition: background-color var(--gp-opacity-duration, 120ms) var(--gp-ease);
+  pointer-events: none;
+}
+
+/* --- Acabamento vidro -----------------------------------------------------------
+
+   O vidro liquido sem fosco. Desfocar o que esta atras da janela nao e possivel
+   aqui (o WebView so enxerga a propria pagina, e os fundos nativos do Windows
+   falharam nos dois testes), mas o que faz o vidro parecer vidro mora quase todo
+   nas bordas: onde a luz bate, onde ela escorrega, e a profundidade que o
+   material tem. Isso e CSS, funciona em qualquer maquina e com a janela sem
+   foco. O que esta atras continua nitido — e a tese do Harp. */
+
+body[data-finish="glass"] .gp-backdrop {
+  /* O tom deixa de ser chapado: mais leve em cima, onde a luz entra. */
+  background: linear-gradient(
+    168deg,
+    rgba(var(--gp-bg), calc(var(--gp-opacity) * 0.7)) 0%,
+    rgba(var(--gp-bg), var(--gp-opacity)) 52%,
+    rgba(var(--gp-bg), min(1, calc(var(--gp-opacity) * 1.1))) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 var(--gp-glass-rim),
+    inset 1px 0 0 var(--gp-glass-rim-side),
+    inset -1px 0 0 var(--gp-glass-rim-low),
+    inset 0 -1px 0 var(--gp-glass-rim-low),
+    inset 0 -22px 34px -22px var(--gp-glass-depth),
+    inset 0 22px 30px -26px var(--gp-glass-shine);
+}
+
+/* Reflexo: a luz que bate no canto de cima e um risco diagonal fraco, como
+   numa placa de vidro de verdade. */
+body[data-finish="glass"] .gp-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 65% at 10% -15%, var(--gp-glass-shine) 0%, transparent 58%),
+    linear-gradient(118deg, transparent 40%, var(--gp-glass-streak) 47%, transparent 53%);
+  pointer-events: none;
+}
+
+/* Aresta: um fio que brilha onde a luz bate e some do lado oposto, com um
+   resto de cor de refracao. E o detalhe que separa vidro de plastico. */
+body[data-finish="glass"] .gp-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 215deg at 32% 28%,
+    var(--gp-glass-edge-a),
+    rgba(170, 215, 255, 0.22),
+    var(--gp-glass-edge-b),
+    rgba(255, 200, 235, 0.2),
+    var(--gp-glass-edge-a)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
   pointer-events: none;
 }
 

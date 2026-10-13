@@ -78,6 +78,47 @@ não ajudava ninguém.
 Desfoque confiável e independente do foco fica registrado como pesquisa futura
 (por exemplo, capturar a região atrás da janela e desfocar no próprio app).
 
+**Segunda tentativa, com a máquina testando de verdade (build 26300).** Dois
+suspeitos tinham ficado de fora da primeira: o quadro do DWM nunca era estendido
+para dentro da janela (`DwmExtendFrameIntoClientArea` com margens −1, sem o qual
+um fundo de sistema não tem onde aparecer numa janela sem borda), e a camada
+escura a 85% podia estar escondendo um desfoque que funcionava. O laboratório
+corrigiu os dois — quadro estendido, camada a 30% — e passou por seis variantes:
+
+| Variante | Resultado |
+|---|---|
+| Transparente | funciona perfeitamente |
+| Acrylic (`DWMSBT_TRANSIENTWINDOW`) | **cinza** — a cor de reserva do acrylic |
+| Mica, Tabbed | **pretas** |
+| Acrylic e blur legados (`SetWindowCompositionAttribute`) | **pretos** |
+
+Todas com a API respondendo sucesso, `WS_EX_LAYERED` desligado, transparência do
+sistema ligada, notebook na tomada, plano equilibrado. O cinza é a pista: é o
+que o Windows desenha quando decide não desfocar, e ele decidiu sem nenhuma das
+razões conhecidas. A causa mora no jeito como o Tauri compõe a janela com o
+WebView2, e ir atrás dela é reescrever o motor da janela sem garantia.
+
+Encerrado: **o Harp não usa desfoque nativo.**
+
+### Acabamento vidro: o vidro líquido sem fosco **[D]**
+
+O que faz o vidro parecer vidro mora quase todo nas bordas: onde a luz bate,
+onde ela escorrega, a profundidade do material. Nada disso precisa enxergar o
+que está atrás da janela, então é CSS — funciona em qualquer máquina, com a
+janela sem foco, e mantém o que está atrás nítido, que é a tese do Harp.
+
+O acabamento "Vidro", opcional, troca o tom chapado por um gradiente mais leve
+em cima, acende um fio de luz na borda superior e esquerda, põe um reflexo no
+canto de cima e um risco diagonal fraco, escurece a base como profundidade, e
+desenha a aresta com um resto de cor de refração. Liso é o padrão: o vidro é um
+gosto, e não o que define o Harp.
+
+O vidro líquido de verdade **entorta** o fundo nas bordas, como uma lente. Para
+isso o app precisa dos pixels de trás, e a única forma de tê-los seria
+fotografar a tela atrás da janela o tempo todo — o que pesa e obrigaria o Harp a
+ficar sempre invisível em gravações, senão ele fotografaria a si mesmo. Não vale
+a troca.
+
 ### 3.2 Opacidade é CSS, nunca o efeito nativo
 
 O controle de opacidade mexe numa camada CSS por baixo do texto

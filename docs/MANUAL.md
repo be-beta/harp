@@ -20,9 +20,10 @@ A janela principal não tem barra de título, nem bordas, nem botões de sistema
 | Comportamento | Como funciona |
 |---|---|
 | **Sempre no topo** | Ligado de fábrica. `Ctrl+P` alterna. O chip "Topo" na barra mostra o estado. |
-| **Transparência real** | Não é desfoque: é a tela de baixo aparecendo. `Ctrl+[` e `Ctrl+]` mudam em 10%; com `Shift`, em saltos de 50%. O valor fica na barra. |
+| **Transparência real** | Não é desfoque: é a tela de baixo aparecendo. (Fundo desfocado foi tentado duas vezes, com todas as variantes do Windows, e nenhuma desfoca de verdade nesta janela.) `Ctrl+[` e `Ctrl+]` mudam em 10%; com `Shift`, em saltos de 50%. O valor fica na barra. |
 | **Arrastar** | Por qualquer área vazia da janela — não há barra para pegar. |
 | **Redimensionar** | Pelas bordas com o mouse, ou `Ctrl+Alt+Shift+setas` (40 px por toque). |
+| **Acabamento** | **Liso** (padrão) ou **Vidro**: o vidro acende a borda, põe um reflexo de luz no alto e dá profundidade à base. É um acabamento — o que está atrás continua nítido, não há desfoque. |
 | **Esmaecer parada** | Sem foco e sem uso, a janela desbota sozinha. Opcional nas configurações. Qualquer tecla ou o mouse por cima traz de volta. |
 | **Fechar** | `Ctrl+Q`, ou fechar a janela. O texto é salvo antes. Fechar encerra o Harp inteiro, inclusive o ícone da bandeja. |
 
@@ -322,8 +323,9 @@ desligado.
 
 ## 10. Configurações (`Ctrl+,`)
 
-Idioma (português, inglês, espanhol), fonte, tamanho do texto, esmaecer quando
-parado, tema (claro, escuro ou do sistema), cor de destaque, atalhos globais,
+Idioma (português, inglês, espanhol), tema (claro, escuro ou do sistema),
+acabamento (liso ou vidro), cor de destaque, fonte, tamanho do texto, esmaecer
+quando parado, atalhos globais,
 iniciar com o Windows e atualização — nesta ordem. A atualização fica por
 último: é a única seção que não muda a experiência de escrever.
 
