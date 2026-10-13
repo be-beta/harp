@@ -185,7 +185,7 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
       )
       .join("");
 
-    const estilos = (["harp", "minimal", "clean"] as WindowStyle[])
+    const estilos = (["harp", "minimal", "aura"] as WindowStyle[])
       .map(
         (item) => `
         <button class="gp-option" data-style-option="${item}" data-on="${item === style}">
@@ -328,8 +328,6 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
     dica("finish", `settings.finish.hint.${finish}`);
     dica("style", `settings.style.hint.${style}`);
 
-    // Medir botao de painel escondido da largura zero; quem abre posiciona.
-    if (!host.hidden) posicionarTrilhos(host, animar);
     marcar("accent", accent);
 
     for (const node of host.querySelectorAll<HTMLElement>("[data-idle]")) {
@@ -338,6 +336,12 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
     for (const node of host.querySelectorAll<HTMLElement>("[data-autostart]")) {
       node.dataset.on = String((node.dataset.autostart === "on") === autostart);
     }
+
+    // Por ultimo, depois de TODAS as marcas: posicionada antes de esmaecer e
+    // iniciar com o Windows serem marcados, a pilula ia para a escolha anterior
+    // e so chegava na certa no clique seguinte. Medir botao de painel escondido
+    // da largura zero; quem abre o painel posiciona.
+    if (!host.hidden) posicionarTrilhos(host, animar);
 
     const valor = host.querySelector<HTMLElement>(".gp-options__value");
     if (valor) valor.textContent = t("settings.fontSize.value", { n: fontSize });

@@ -46,16 +46,27 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_process::init())
-        // Iniciar com o Windows passa `--hidden`: o Harp sobe escondido, so na
-        // bandeja, com os atalhos globais ja valendo.
-        .plugin(tauri_plugin_autostart::init(
-            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
-            Some(vec![START_HIDDEN]),
-        ))
         .plugin(tauri_plugin_updater::Builder::new().build())
         // Antes do setup: o webview pode perguntar pelas capacidades antes de o
         // setup terminar, e precisa achar o lugar onde a resposta vai chegar.
         .manage(std::sync::Arc::new(window_fx::ReportSlot::default()));
+
+    // Iniciar com o Windows passa `--hidden`: o Harp sobe escondido, so na
+    // bandeja, com os atalhos globais ja valendo.
+    //
+    // So no Harp instalado. O plugin grava no registro o caminho do programa
+    // que esta rodando no momento do clique — e a versao de teste tem a mesma
+    // identidade do instalado. Um clique ali fazia o Windows abrir a versao de
+    // teste ao ligar o computador, sem o servidor local que carrega a
+    // interface: uma janela inteira branca, que nao era o icone fixado na
+    // barra. Em desenvolvimento, a opcao responde que nao esta disponivel. **[D]**
+    #[cfg(not(debug_assertions))]
+    {
+        builder = builder.plugin(tauri_plugin_autostart::init(
+            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
+            Some(vec![START_HIDDEN]),
+        ));
+    }
 
     #[cfg(desktop)]
     {

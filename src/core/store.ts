@@ -30,11 +30,15 @@ export type Finish = "smooth" | "glass" | "solid";
 
 /**
  * Estilo da janela: quanto do Harp aparece em volta do texto.
- * - harp: a cor de destaque acesa na borda e nos controles ativos;
- * - minimal: o de sempre;
- * - clean: so o texto; barra e abas aparecem quando o mouse chega.
+ * - harp: o de sempre, e o padrao — o Harp como ele e;
+ * - minimal: so o texto; barra e abas aparecem quando o mouse chega;
+ * - aura: a cor de destaque como brilho por dentro da borda, e nos controles
+ *   ativos.
  */
-export type WindowStyle = "harp" | "minimal" | "clean";
+export type WindowStyle = "harp" | "minimal" | "aura";
+
+const ESTILOS: WindowStyle[] = ["harp", "minimal", "aura"];
+const ACABAMENTOS: Finish[] = ["smooth", "glass", "solid"];
 
 export interface Settings {
   opacity: number;
@@ -79,7 +83,7 @@ export const DEFAULT_SETTINGS: Settings = {
   markdownPreview: true,
   // Liso de saida: o vidro e um gosto, e nao o que define o Harp.
   finish: "smooth",
-  style: "minimal",
+  style: "harp",
   // Nunca liga sozinho: um usuario que nao pediu isso acharia que o app sumiu.
   excludeFromCapture: false,
   idleFade: true,
@@ -132,6 +136,10 @@ export async function loadSettings(): Promise<Settings> {
     iconUsage: Object.fromEntries(
       Object.entries(saved?.iconUsage ?? {}).filter(([icon]) => isIconId(icon)),
     ),
+    // Um nome de estilo ou acabamento que deixou de existir volta ao padrao, em
+    // vez de deixar a janela sem nenhum.
+    style: ESTILOS.includes(saved?.style as WindowStyle) ? (saved!.style as WindowStyle) : DEFAULT_SETTINGS.style,
+    finish: ACABAMENTOS.includes(saved?.finish as Finish) ? (saved!.finish as Finish) : DEFAULT_SETTINGS.finish,
   };
 }
 

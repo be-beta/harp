@@ -248,12 +248,17 @@ body[data-finish="solid"] .gp-backdrop::before {
   pointer-events: none;
 }
 
-/* --- Estilo Harp ---------------------------------------------------------------
+/* --- Estilo Aura ------------------------------------------------------------------
 
-   A cor de destaque acesa na borda, mais forte embaixo e sumindo para cima, com
-   um clarao no centro da base — como um feixe de luz encostado na janela. Fica
-   dentro da janela: nada pode ser desenhado fora dela. Os controles ativos
-   (aba, modos da barra, cursor) ganham o mesmo brilho. */
+   A cor de destaque como brilho por dentro da borda: nasce colado nela, se
+   espalha para dentro e some subindo — mais forte embaixo, nada no alto. Nao ha
+   linha de cor: o que se ve na borda e o resto do brilho.
+
+   A primeira versao parecia luz vindo de uma fonte unica embaixo, com um fio
+   aceso contornando a janela. Brilho interno em pixels fixos tem outra
+   vantagem: numa janela pequena ele continua sendo so a borda, e nao toma o
+   texto. Os controles ativos (aba, modos da barra, cursor) ganham o mesmo
+   brilho. */
 
 .gp-aura {
   position: fixed;
@@ -262,104 +267,74 @@ body[data-finish="solid"] .gp-backdrop::before {
   pointer-events: none;
 }
 
-body[data-style="harp"] .gp-aura {
-  background:
-    radial-gradient(60% 22% at 50% 104%, rgba(var(--gp-accent-rgb), 0.55), transparent 70%),
-    radial-gradient(95% 45% at 50% 112%, rgba(var(--gp-accent-rgb), 0.22), transparent 75%);
+body[data-style="aura"] .gp-aura {
+  box-shadow:
+    inset 0 0 7px rgba(var(--gp-accent-rgb), 0.85),
+    inset 0 0 20px rgba(var(--gp-accent-rgb), 0.42),
+    inset 0 -16px 30px -12px rgba(var(--gp-accent-rgb), 0.6);
+  /* Some subindo: inteiro na base, metade no meio, nada no alto. */
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 16%, rgba(0, 0, 0, 0.45) 46%, transparent 80%);
+  mask-image: linear-gradient(to top, #000 0%, #000 16%, rgba(0, 0, 0, 0.45) 46%, transparent 80%);
 }
 
-/* O fio de luz na borda. */
-body[data-style="harp"] .gp-aura::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  padding: 2px;
-  border-radius: inherit;
-  background: linear-gradient(
-    to top,
-    rgba(var(--gp-accent-rgb), 1) 0%,
-    rgba(var(--gp-accent-rgb), 0.75) 18%,
-    rgba(var(--gp-accent-rgb), 0.22) 50%,
-    rgba(var(--gp-accent-rgb), 0.04) 82%
-  );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-
-/* O clarao no meio da base: onde o feixe e mais forte. */
-body[data-style="harp"] .gp-aura::before {
-  content: "";
-  position: absolute;
-  left: 14%;
-  right: 14%;
-  bottom: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95), transparent);
-  box-shadow: 0 0 24px 7px rgba(var(--gp-accent-rgb), 0.7);
-}
-
-body[data-style="harp"] .gp-tab[data-active="true"] {
+body[data-style="aura"] .gp-tab[data-active="true"] {
   background: rgba(var(--gp-accent-rgb), 0.2);
   box-shadow: inset 0 0 0 1px rgba(var(--gp-accent-rgb), 0.45), 0 0 14px rgba(var(--gp-accent-rgb), 0.35);
 }
 
-body[data-style="harp"] .gp-tab[data-active="true"] .gp-tab__icon svg {
+body[data-style="aura"] .gp-tab[data-active="true"] .gp-tab__icon svg {
   filter: drop-shadow(0 0 4px rgba(var(--gp-accent-rgb), 0.85));
 }
 
-body[data-style="harp"] .gp-chip[data-active="true"] {
+body[data-style="aura"] .gp-chip[data-active="true"] {
   color: var(--gp-accent);
   text-shadow: 0 0 10px rgba(var(--gp-accent-rgb), 0.55);
 }
 
-body[data-style="harp"] .gp-chip[data-active="true"] .gp-chip__dot {
-  box-shadow: 0 0 6px 1px rgba(var(--gp-accent-rgb), 0.9), 0 0 14px 3px rgba(var(--gp-accent-rgb), 0.45);
+body[data-style="aura"] .gp-chip[data-active="true"] .gp-chip__dot {
+  box-shadow: 0 0 4px 1px rgba(var(--gp-accent-rgb), 0.9), 0 0 9px 2px rgba(var(--gp-accent-rgb), 0.45);
 }
 
-body[data-style="harp"] .cm-editor .cm-cursor {
+body[data-style="aura"] .cm-editor .cm-cursor {
   border-left-color: var(--gp-accent);
   box-shadow: 0 0 8px rgba(var(--gp-accent-rgb), 0.8);
 }
 
-/* --- Estilo limpo ----------------------------------------------------------------
+/* --- Estilo minimalista ----------------------------------------------------------------
 
    So o texto. A barra fica com a engrenagem, discreta ate o mouse chegar; as
    abas continuam no lugar (a faixa do topo ainda se arrasta e recebe o mouse),
    mas so aparecem quando ele chega la. Atalhos continuam valendo para tudo. */
 
-body[data-style="clean"] .gp-status__group:first-child {
+body[data-style="minimal"] .gp-status__group:first-child {
   display: none;
 }
 
-body[data-style="clean"] .gp-status__group--right {
+body[data-style="minimal"] .gp-status__group--right {
   margin-left: auto;
 }
 
-body[data-style="clean"] .gp-status__group--right > :not(#chip-settings) {
+body[data-style="minimal"] .gp-status__group--right > :not(#chip-settings) {
   display: none !important;
 }
 
-body[data-style="clean"] #chip-settings {
+body[data-style="minimal"] #chip-settings {
   opacity: 0.4;
   transition: opacity 180ms var(--gp-ease);
 }
 
-body[data-style="clean"] .gp-status:hover #chip-settings,
-body[data-style="clean"] #chip-settings:focus-visible {
+body[data-style="minimal"] .gp-status:hover #chip-settings,
+body[data-style="minimal"] #chip-settings:focus-visible {
   opacity: 1;
 }
 
-body[data-style="clean"] .gp-tabs {
+body[data-style="minimal"] .gp-tabs {
   opacity: 0;
   transition: opacity 200ms var(--gp-ease);
 }
 
-body[data-style="clean"] .gp-topbar:hover .gp-tabs,
-body[data-style="clean"] .gp-tabs:focus-within {
+body[data-style="minimal"] .gp-topbar:hover .gp-tabs,
+body[data-style="minimal"] .gp-tabs:focus-within {
   opacity: 1;
 }
 
@@ -430,8 +405,10 @@ body[data-style="clean"] .gp-tabs:focus-within {
   gap: 2px;
   min-width: 0;
   /* Dez abas abertas numa janela estreita nao cabem; elas encolhem em vez de
-     empurrar a area de arraste para fora da janela. */
-  overflow: hidden;
+     empurrar a area de arraste para fora da janela. A folga deixa o brilho da
+     aba ativa passar da caixa sem virar um quadrado. */
+  overflow: clip;
+  overflow-clip-margin: 14px;
 }
 
 /* Aba: glifo, numero discreto e X.
@@ -876,7 +853,11 @@ body[data-dense="true"] .gp-chip__label {
    os chips comunicam estado com o ponto colorido mesmo sem o rotulo. */
 .gp-status__group:first-child {
   flex: 0 1 auto;
-  overflow: hidden;
+  /* `clip` com folga, e nao `hidden`: o grupo ainda cede espaco as metricas,
+     mas o brilho de um modo ligado pode passar da caixa. Com `hidden`, ele era
+     cortado num quadrado visivel. */
+  overflow: clip;
+  overflow-clip-margin: 12px;
 }
 
 .gp-status__group--right {

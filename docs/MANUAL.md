@@ -23,8 +23,8 @@ A janela principal não tem barra de título, nem bordas, nem botões de sistema
 | **Transparência real** | Não é desfoque: é a tela de baixo aparecendo. (Fundo desfocado foi tentado duas vezes, com todas as variantes do Windows, e nenhuma desfoca de verdade nesta janela.) `Ctrl+[` e `Ctrl+]` mudam em 10%; com `Shift`, em saltos de 50%. O valor fica na barra. |
 | **Arrastar** | Por qualquer área vazia da janela — não há barra para pegar. |
 | **Redimensionar** | Pelas bordas com o mouse, ou `Ctrl+Alt+Shift+setas` (40 px por toque). |
-| **Acabamento** | **Liso** (padrão): o que está atrás aparece, escurecido. **Cristal**: a borda acende, a luz reflete no alto e a base ganha profundidade — o que está atrás continua nítido. **Opaco**: uma superfície fosca, com a cor de destaque vazando dos cantos e um granulado fino; nada atrás aparece, e o controle de opacidade não se aplica. |
-| **Estilo** | **Harp**: a cor de destaque acesa na borda, mais forte embaixo e sumindo para cima, e brilhando na aba ativa, nos modos ligados da barra e no cursor. **Minimalista** (padrão): tudo à mão, sem chamar atenção. **Limpo**: só o texto — a barra fica só com a engrenagem, discreta até o mouse chegar, e as abas aparecem quando o mouse chega no alto da janela. Os atalhos continuam valendo para tudo. |
+| **Acabamento** | **Liso** (padrão): o que está atrás aparece, escurecido. **Cristal**: a borda acende, a luz reflete no alto e a base ganha profundidade — o que está atrás continua nítido. **Sólido**: sem transparência, com a cor de destaque vazando dos cantos e um granulado fino; nada atrás aparece, e o controle de opacidade não se aplica. |
+| **Estilo** | **Harp** (padrão): tudo à mão, sem chamar atenção. **Minimalista**: só o texto — a barra fica só com a engrenagem, discreta até o mouse chegar, e as abas aparecem quando o mouse chega no alto da janela; os atalhos continuam valendo para tudo. **Aura**: a cor de destaque brilhando por dentro da borda — colada nela, mais forte embaixo e sumindo para cima, sem linha de cor — e acesa na aba ativa, nos modos ligados da barra e no cursor. |
 | **Esmaecer parada** | Sem foco e sem uso, a janela desbota sozinha. Opcional nas configurações. Qualquer tecla ou o mouse por cima traz de volta. |
 | **Fechar** | `Ctrl+Q`, ou fechar a janela. O texto é salvo antes. Fechar encerra o Harp inteiro, inclusive o ícone da bandeja. |
 
@@ -325,7 +325,7 @@ desligado.
 ## 10. Configurações (`Ctrl+,`)
 
 Idioma (português, inglês, espanhol), tema (claro, escuro ou do sistema),
-estilo (Harp, minimalista, limpo), acabamento (liso, cristal, opaco), cor de
+estilo (Harp, minimalista, aura), acabamento (liso, cristal, sólido), cor de
 destaque, fonte, tamanho do texto, esmaecer quando parado, atalhos globais,
 iniciar com o Windows e atualização — nesta ordem. A atualização fica por
 último: é a única seção que não muda a experiência de escrever.

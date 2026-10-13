@@ -123,32 +123,44 @@ Chamava-se "Vidro" na primeira versão e foi renomeado: **Vidro** já é o nome 
 recurso de anotar sobre a tela (`Win+Alt+V`), que aparece na bandeja, nos atalhos
 e no manual. Dois "Vidro" com sentidos diferentes no mesmo app confundem.
 
-### Acabamento opaco: o fosco que não precisa enxergar atrás **[D]**
+### Acabamento sólido: o fosco que não precisa enxergar atrás **[D]**
 
 O fosco das referências mostra as cores de trás desfocadas, e isso esta janela
-não consegue. O acabamento "Opaco" é o fosco possível: um fundo com luz de cima
-para baixo, a cor de destaque desfocada nos cantos como se viesse de trás, e um
-granulado fino gerado num SVG, sem imagem baixada. É opaco de verdade — a
-opacidade do usuário não se aplica, porque um "opaco" que deixa ver através
-contradiria o nome.
+não consegue. O acabamento "Sólido" é a superfície possível: um fundo com luz de
+cima para baixo, a cor de destaque desfocada nos cantos como se viesse de trás,
+e um granulado fino gerado num SVG, sem imagem baixada. É sólido de verdade — a
+opacidade do usuário não se aplica.
+
+Chamou-se "Opaco" por um dia. Saiu porque prometia o fosco de vidro, que não
+existe aqui; "Sólido" diz o que ele é.
 
 ### Estilos de janela: quanto do Harp aparece **[D]**
 
 Acabamento é a superfície; estilo é o quanto da interface aparece em volta do
 texto. São escolhas independentes, e combinam todas entre si.
 
-- **Harp** dá personalidade com a cor de destaque: um fio de luz na borda, mais
-  forte embaixo e sumindo para cima, com um clarão no meio da base — como um
-  feixe encostado na janela. A aba ativa, os modos ligados da barra e o cursor
-  ganham o mesmo brilho. Tudo desenhado **dentro** da janela: nada pode ser
-  pintado fora dela, então o brilho que nas referências vaza para fora aqui
-  acende a borda por dentro. Fica numa camada própria (`.gp-aura`), porque as
-  duas camadas extras do fundo já são do acabamento.
-- **Minimalista** é o de sempre, e continua o padrão.
-- **Limpo** deixa só o texto. A barra fica com a engrenagem, discreta até o
-  mouse chegar — sem ela não haveria caminho de volta para quem não decorou
+- **Harp** é o de sempre, e o padrão. O estilo que leva o nome do app é o que o
+  app é, e não uma variação dele.
+- **Minimalista** deixa só o texto. A barra fica com a engrenagem, discreta até
+  o mouse chegar — sem ela não haveria caminho de volta para quem não decorou
   `Ctrl+,`. As abas continuam ocupando a faixa do topo, que ainda se arrasta e
   recebe o mouse, mas só aparecem quando ele chega lá.
+- **Aura** dá personalidade com a cor de destaque: um brilho **por dentro** da
+  borda, colado nela, mais forte embaixo e sumindo para cima — nada no alto, e
+  nenhuma linha de cor. A aba ativa, os modos ligados da barra e o cursor ganham
+  o mesmo brilho. Fica numa camada própria (`.gp-aura`), porque as duas camadas
+  extras do fundo já são do acabamento.
+
+A primeira versão do brilho parecia luz vindo de uma fonte única embaixo, com um
+fio aceso contornando a janela. O brilho interno, em pixels fixos, tem uma
+vantagem além da aparência: numa janela pequena ele continua sendo só a borda e
+não toma o texto.
+
+O brilho dos controles passava da caixa deles e era cortado num **quadrado**
+pelo grupo da barra e pela faixa das abas, que escondem o que transborda para
+ceder espaço. Os dois trocaram `overflow: hidden` por `overflow: clip` com
+`overflow-clip-margin`: continuam cedendo espaço, e o brilho tem folga para
+terminar redondo.
 
 ### Escolhas num trilho, e não em botões soltos **[D]**
 
@@ -159,6 +171,11 @@ trocar o fundo de cada botão piscaria, e deslizar diz "isto mudou para ali" sem
 palavra nenhuma. Ao abrir o painel ela já nasce no lugar; só anima quando a
 pessoa escolhe. Botão de painel escondido mede largura zero, então quem abre o
 painel é quem posiciona.
+
+A pílula se posiciona **depois** de todas as marcas do painel estarem certas.
+Na primeira versão ela era medida antes de "esmaecer" e "iniciar com o Windows"
+serem marcados: o texto mudava de cor e a pílula ia para a escolha anterior,
+chegando na certa só no clique seguinte.
 
 No menu `⋯` da barra, as caixas de marcar viraram interruptores, à direita do
 nome: ligar e desligar é o gesto, e o interruptor diz isso melhor.
@@ -1277,6 +1294,24 @@ valendo: quem liga o computador não pediu uma janela, pediu os atalhos prontos.
 O estado vem do próprio Windows (a entrada de inicialização), e não das
 preferências, para o painel não mentir se a pessoa desligar pelo Gerenciador
 de Tarefas.
+
+### A versão de teste não mexe na inicialização do Windows **[D]**
+
+O plugin de inicialização grava no registro o caminho do programa **que está
+rodando no momento do clique**. A versão de teste (`tauri dev`) tem a mesma
+identidade do Harp instalado, então um clique em "Iniciar com o Windows" nela
+fazia o Windows abrir a versão de teste ao ligar o computador — sem o servidor
+local que carrega a interface. O resultado era uma janela inteira branca, que
+não era o ícone fixado na barra de tarefas (esse é do Harp instalado), e que só
+"virava" o Harp quando a pessoa clicava no ícone e abria o de verdade.
+
+O plugin agora só existe no Harp instalado (`#[cfg(not(debug_assertions))]`).
+Na versão de teste, a opção avisa que não está disponível e não toca no
+registro.
+
+As duas versões continuam dividindo a pasta de dados e a trava de instância
+única: com a de teste aberta, abrir o Harp instalado entrega a vez para ela.
+Feche uma antes de abrir a outra.
 
 ### Fechar a janela principal encerra o Harp **[D]**
 

@@ -267,6 +267,11 @@ const settingsPanel = createSettingsPanel(el.settings, {
 let autostart = false;
 
 async function changeAutostart(value: boolean): Promise<void> {
+  // A versao de teste nao mexe na inicializacao do Windows (ver lib.rs).
+  if (import.meta.env.DEV) {
+    toast(t("toast.autostart.dev"));
+    return;
+  }
   try {
     if (value) await enableAutostart();
     else await disableAutostart();

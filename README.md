@@ -141,10 +141,11 @@ envia um binário feito na própria máquina.
 - **Português, inglês e espanhol**, com oito opções de fonte embutidas
 - **Tema claro, escuro ou do sistema**, com cor de destaque à escolha e
   acabamento **liso**, **cristal** (borda acesa e reflexo de luz, com o que
-  está atrás ainda nítido) ou **opaco** (superfície fosca com a sua cor ao fundo)
-- **Três estilos de janela**: **Harp**, com a cor de destaque acesa na borda e
-  brilhando nos controles ativos; **Minimalista**, o de sempre; e **Limpo**, só o
-  texto — a barra fica com a engrenagem e as abas aparecem quando o mouse chega
+  está atrás ainda nítido) ou **sólido** (sem transparência, com a sua cor vazando
+  dos cantos)
+- **Três estilos de janela**: **Harp**, o de sempre; **Minimalista**, só o texto
+  — a barra fica com a engrenagem e as abas aparecem quando o mouse chega; e
+  **Aura**, a cor de destaque brilhando por dentro da borda e nos controles ativos
 - **Bandeja e início com o Windows**: o Harp pode subir escondido ao ligar o
   computador, com os atalhos globais já valendo
 - **Autosave** do texto, com backup
