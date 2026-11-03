@@ -148,6 +148,29 @@ Além disso, cada família só carrega quando é escolhida — a lista mostraria
 fonte genérica no lugar das outras. Abrir as configurações carrega todas: são
 arquivos que já vêm com o app, e a lista só abre quando a pessoa pede.
 
+### Fontes em teste: pelo nome, direto do Windows **[D]**
+
+Make Sans e Trap são candidatas a substituir a Inter, e são fontes compradas.
+O Harp as chama pelo nome da família, como já fazia com a fonte do sistema: os
+arquivos ficam no Windows de quem as tem e **não entram no app**, que é
+distribuído de graça e tem o código aberto — embuti-las seria publicar os
+arquivos. Para uma delas virar a fonte de todo mundo, precisa de uma licença que
+permita embutir em software.
+
+Só aparecem na lista se estiverem instaladas. Não há pergunta direta ao
+navegador sem pedir permissão, então a resposta vem da régua: a mesma frase,
+medida com a família e sem ela, em três fontes genéricas; se a largura não
+muda, o navegador caiu no substituto.
+
+### Ícones desenhados na barra **[D]**
+
+O "⋯" e o "⚙" eram caracteres de texto. Em 11 px, as três bolinhas viravam uma
+linha e a engrenagem cheia perdia contraste sobre fundo escuro. Viraram ícones
+de contorno da mesma família das abas: controles deslizantes para "o que
+mostrar na barra", uma engrenagem vazada para as configurações, e o `?` num
+círculo para os atalhos — um caractere solto no meio de ícones desenhados
+pareceria erro.
+
 ### O que vale na primeira abertura **[D]**
 
 Tema escuro, estilo Harp, acabamento liso, destaque menta, fonte Inter, esmaecer

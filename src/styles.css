@@ -1049,6 +1049,24 @@ body[data-narrow="true"] .gp-fontsize {
   display: none;
 }
 
+/* Opacidade: menos, o numero, mais. */
+.gp-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.gp-stepper__step[disabled],
+.gp-fontsize__btn[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Janela estreita: fica so o numero, como antes; os atalhos continuam. */
+body[data-narrow="true"] .gp-stepper__step {
+  display: none;
+}
+
 /* Aviso de versao nova.
  *
  * Um ponto na engrenagem, e nada mais: nem janela, nem som, nem pergunta. Quem
@@ -1070,11 +1088,17 @@ body[data-narrow="true"] .gp-fontsize {
 }
 
 .gp-chip--icon {
-  width: 20px;
-  height: 20px;
+  position: relative;
+  width: 22px;
+  height: 22px;
   justify-content: center;
   padding: 0;
   font-weight: 600;
+}
+
+.gp-chip--icon svg {
+  width: 15px;
+  height: 15px;
 }
 
 /* --- Busca (painel proprio, src/editor/search-panel.ts) -------------------- */

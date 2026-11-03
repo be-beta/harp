@@ -10,7 +10,7 @@
  * na opacidade — que agora pode estar escondida.
  */
 
-import { FONTS, FONT_SIZE_MAX, FONT_SIZE_MIN, loadAllFonts, type FontId } from "../core/fonts";
+import { FONT_SIZE_MAX, FONT_SIZE_MIN, availableFonts, loadAllFonts, type FontId } from "../core/fonts";
 import { LANGUAGES, t, type Lang } from "../core/i18n";
 import type { Finish, WindowStyle } from "../core/store";
 import { ACCENTS, effectiveTheme, type AccentId, type Theme } from "../core/theme";
@@ -167,7 +167,7 @@ export function createSettingsPanel(host: HTMLElement, handlers: SettingsHandler
     // As aspas dos nomes de fonte ("DM Serif Text") fechavam o atributo no meio:
     // o estilo saia vazio e toda a lista aparecia na mesma fonte. Escapadas,
     // cada nome aparece na propria fonte.
-    const fontes = FONTS.map(
+    const fontes = availableFonts().map(
       (item) => `
         <button
           class="gp-option gp-option--font"

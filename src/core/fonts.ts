@@ -10,6 +10,8 @@
 
 export type FontId =
   | "inter"
+  | "make-sans"
+  | "trap"
   | "dm-serif-text"
   | "eb-garamond"
   | "ibm-plex-mono"
@@ -26,6 +28,11 @@ export interface FontChoice {
   stack: string;
   /** Carrega os arquivos da família. */
   load?: () => Promise<unknown>;
+  /**
+   * Fonte do Windows, e não do app: só aparece na lista se estiver instalada.
+   * O valor é o nome da família, para conferir.
+   */
+  installed?: string;
 }
 
 const SYSTEM_STACK = '"Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif';
@@ -36,6 +43,22 @@ export const FONTS: FontChoice[] = [
     label: "Inter",
     stack: `"Inter Variable", "Inter", ${SYSTEM_STACK}`,
     load: () => import("@fontsource-variable/inter"),
+  },
+  // Em teste, candidatas a substituir a Inter. São fontes compradas: o Harp as
+  // usa pelo nome, direto do Windows de quem as tem, e os arquivos não entram
+  // no app — que é distribuído de graça e tem o código aberto. Para virar a fonte
+  // de todo mundo, precisa de uma licença que permita embutir. **[D]**
+  {
+    id: "make-sans",
+    label: "Make Sans",
+    stack: `"Make Sans", ${SYSTEM_STACK}`,
+    installed: "Make Sans",
+  },
+  {
+    id: "trap",
+    label: "Trap",
+    stack: `"Trap", ${SYSTEM_STACK}`,
+    installed: "Trap",
   },
   {
     id: "dm-serif-text",
@@ -86,6 +109,37 @@ export const DEFAULT_FONT: FontId = "inter";
  * genérica, e escolher uma fonte era escolher pelo nome. São arquivos que já
  * vêm com o app; a lista só abre quando a pessoa pede. **[D]**
  */
+const instaladas = new Map<string, boolean>();
+
+/**
+ * A família está instalada no Windows?
+ *
+ * Não há pergunta direta sem pedir permissão, então a resposta vem da régua: a
+ * mesma frase, medida com a família e sem ela. Se a largura não muda nas três
+ * fontes genéricas, o navegador caiu no substituto — a família não existe.
+ */
+export function isInstalled(family: string): boolean {
+  const guardada = instaladas.get(family);
+  if (guardada !== undefined) return guardada;
+
+  const ctx = document.createElement("canvas").getContext("2d");
+  if (!ctx) return false;
+  const amostra = "mmmmmmmmmmlli1WQ@#";
+  const existe = ["monospace", "serif", "sans-serif"].some((base) => {
+    ctx.font = `72px ${base}`;
+    const sem = ctx.measureText(amostra).width;
+    ctx.font = `72px "${family}", ${base}`;
+    return ctx.measureText(amostra).width !== sem;
+  });
+  instaladas.set(family, existe);
+  return existe;
+}
+
+/** As fontes que esta máquina consegue mostrar. */
+export function availableFonts(): FontChoice[] {
+  return FONTS.filter((font) => !font.installed || isInstalled(font.installed));
+}
+
 export function loadAllFonts(): Promise<unknown> {
   return Promise.all(FONTS.map((font) => font.load?.()));
 }

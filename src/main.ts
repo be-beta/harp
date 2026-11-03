@@ -112,6 +112,9 @@ const el = {
   draftsCount: document.getElementById("drafts-count") as HTMLSpanElement,
   iconPicker: document.getElementById("icon-picker") as HTMLDivElement,
   metricOpacity: document.getElementById("metric-opacity") as HTMLSpanElement,
+  opacityControl: document.getElementById("opacity-control") as HTMLSpanElement,
+  opacityLess: document.getElementById("opacity-less") as HTMLButtonElement,
+  opacityMore: document.getElementById("opacity-more") as HTMLButtonElement,
   shortcuts: document.getElementById("shortcuts") as HTMLDivElement,
   settings: document.getElementById("settings") as HTMLDivElement,
   chipSettings: document.getElementById("chip-settings") as HTMLButtonElement,
@@ -385,6 +388,8 @@ function applyOpacity(value: number): void {
   settings.opacity = Math.min(OPACITY_MAX, Math.max(OPACITY_MIN, Number(value.toFixed(2))));
   renderOpacity(settings.opacity);
   el.metricOpacity.textContent = `${Math.round(settings.opacity * 100)}%`;
+  el.opacityLess.disabled = settings.opacity <= OPACITY_MIN;
+  el.opacityMore.disabled = settings.opacity >= OPACITY_MAX;
 }
 
 /**
@@ -757,7 +762,7 @@ function renderModulesMenu(): void {
 function applyBarControls(): void {
   const mostrar = settings.barControls;
   el.fontSize.hidden = !mostrar.fontSize;
-  el.metricOpacity.hidden = !mostrar.opacity;
+  el.opacityControl.hidden = !mostrar.opacity;
   el.chipOnTop.hidden = !mostrar.onTop;
   el.chipGhost.hidden = !mostrar.ghost;
   el.chipStealth.hidden = !mostrar.stealth;
@@ -1816,6 +1821,8 @@ function wireEvents(): void {
     if (!el.modules.contains(target) && target !== el.chipModules) toggleModulesMenu(false);
   });
   el.metricOpacity.addEventListener("click", () => toggleIdleFade());
+  el.opacityLess.addEventListener("click", () => nudgeOpacity(-OPACITY_STEP));
+  el.opacityMore.addEventListener("click", () => nudgeOpacity(OPACITY_STEP));
 
   // O mouse por perto abre as abas; sair recomeca a contagem.
   el.tabs.addEventListener("mouseenter", scheduleTabsCollapse);
