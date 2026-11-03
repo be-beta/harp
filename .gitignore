@@ -27,3 +27,8 @@ dist-ssr
 *.pdb
 .env
 .env.local
+
+# Fontes de terceiros para teste local. Licencas como a FFL da Fontshare
+# proibem publicar os arquivos num repositorio; o Harp as usa instaladas no
+# Windows, pelo nome. Nunca versionar.
+assets/fonts/

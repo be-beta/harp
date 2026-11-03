@@ -13,6 +13,7 @@ export type FontId =
   | "bricolage-grotesque"
   | "trap"
   | "clash-display"
+  | "satoshi"
   | "dm-serif-text"
   | "eb-garamond"
   | "ibm-plex-mono"
@@ -31,9 +32,10 @@ export interface FontChoice {
   load?: () => Promise<unknown>;
   /**
    * Fonte do Windows, e não do app: só aparece na lista se estiver instalada.
-   * O valor é o nome da família, para conferir.
+   * Os valores são os nomes de família possíveis — a versão estática e a
+   * variável de uma mesma fonte se registram com nomes diferentes.
    */
-  installed?: string;
+  installed?: string[];
 }
 
 const SYSTEM_STACK = '"Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif';
@@ -54,22 +56,28 @@ export const FONTS: FontChoice[] = [
     stack: `"Bricolage Grotesque Variable", ${SYSTEM_STACK}`,
     load: () => import("@fontsource-variable/bricolage-grotesque"),
   },
-  // Trap (comprada) e Clash Display (Fontshare, licença própria) não vêm no
-  // app: o Harp as usa pelo nome, direto do Windows de quem as tem — o app é
-  // distribuído de graça e tem o código aberto, e embuti-las seria publicar os
-  // arquivos. Para virar a fonte de todo mundo, precisa de uma licença que
-  // permita embutir. **[D]**
+  // Trap (comprada), Clash Display e Satoshi (Fontshare, licença FFL) não vêm
+  // no app: o Harp as usa pelo nome, direto do Windows de quem as tem. A FFL
+  // proíbe publicar os arquivos num repositório e oferecer a fonte como opção
+  // para outras pessoas escreverem — o que é exatamente esta lista. Para uma
+  // delas virar a fonte de todo mundo, precisa de outra licença. **[D]**
   {
     id: "trap",
     label: "Trap",
     stack: `"Trap", ${SYSTEM_STACK}`,
-    installed: "Trap",
+    installed: ["Trap"],
   },
   {
     id: "clash-display",
     label: "Clash Display",
-    stack: `"Clash Display", ${SYSTEM_STACK}`,
-    installed: "Clash Display",
+    stack: `"Clash Display", "Clash Display Variable", ${SYSTEM_STACK}`,
+    installed: ["Clash Display", "Clash Display Variable"],
+  },
+  {
+    id: "satoshi",
+    label: "Satoshi",
+    stack: `"Satoshi", "Satoshi Variable", ${SYSTEM_STACK}`,
+    installed: ["Satoshi", "Satoshi Variable"],
   },
   {
     id: "dm-serif-text",
@@ -148,7 +156,7 @@ export function isInstalled(family: string): boolean {
 
 /** As fontes que esta máquina consegue mostrar. */
 export function availableFonts(): FontChoice[] {
-  return FONTS.filter((font) => !font.installed || isInstalled(font.installed));
+  return FONTS.filter((font) => !font.installed || font.installed.some(isInstalled));
 }
 
 export function loadAllFonts(): Promise<unknown> {

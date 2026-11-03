@@ -159,10 +159,24 @@ distribuído de graça e tem o código aberto — embuti-las seria publicar os
 arquivos. Para uma delas virar a fonte de todo mundo, precisa de uma licença que
 permita embutir em software.
 
-A Make Sans passou por aqui e saiu. Só aparecem na lista se estiverem instaladas. Não há pergunta direta ao
+A Make Sans passou por aqui e saiu; a Satoshi, também da Fontshare, entrou.
+Só aparecem na lista se estiverem instaladas — com o nome da versão estática ou
+o da variável, que se registram diferente no Windows. Não há pergunta direta ao
 navegador sem pedir permissão, então a resposta vem da régua: a mesma frase,
 medida com a família e sem ela, em três fontes genéricas; se a largura não
 muda, o navegador caiu no substituto.
+
+**O que a licença da Fontshare (FFL 2.0) permite.** Ela autoriza embutir a
+fonte em aplicativos para uso próprio, e proíbe duas coisas que o Harp faria:
+publicar os arquivos num repositório ou servidor público — o código do Harp é
+aberto no GitHub — e oferecer a fonte "como opção selecionável para terceiros
+criarem ou editarem o próprio conteúdo", que é exatamente a lista de fontes de
+um editor de texto. Para uma fonte da Fontshare virar a do Harp, o caminho é a
+licença personalizada que a própria FFL indica pedir à Indian Type Foundry.
+Leitura de quem não é advogado; vale confirmar com eles.
+
+Os arquivos de teste ficam em `assets/fonts/`, que o `.gitignore` exclui: um
+`git add -A` distraído os publicaria.
 
 ### Ícones desenhados na barra **[D]**
 

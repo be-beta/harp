@@ -79,7 +79,7 @@ que sai é o mesmo texto que você vê.
 |---|---|
 | **Autosave** | Contínuo, com teto: no máximo a cada 2 segundos, e sempre ao fechar. |
 | **Tamanho do texto** | `Ctrl+=` e `Ctrl+−`, ou os botões `A−`/`A+` na barra. |
-| **Fonte** | Oito opções embutidas nas configurações, cada uma escrita nela mesma. Nenhuma vem da internet. Em teste para substituir a Inter: a Bricolage Grotesque, que vem no app, e a Trap e a Clash Display, que aparecem só para quem as tem instaladas no Windows. |
+| **Fonte** | Oito opções embutidas nas configurações, cada uma escrita nela mesma. Nenhuma vem da internet. Em teste para substituir a Inter: a Bricolage Grotesque, que vem no app, e a Trap, a Clash Display e a Satoshi, que aparecem só para quem as tem instaladas no Windows. |
 | **Atalhos de edição** | Os do VS Code: mover linha (`Alt+setas`), duplicar (`Alt+Shift+setas`), multi-cursor (`Alt+clique`), busca (`Ctrl+F`). |
 | **Colar** | Sempre como texto puro. Espaços invisíveis e caracteres de largura zero que vêm de páginas web são removidos. |
 | **Links** | Endereços viram links sublinhados. `Ctrl+clique` abre no navegador. |
