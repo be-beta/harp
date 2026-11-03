@@ -148,20 +148,24 @@ Além disso, cada família só carrega quando é escolhida — a lista mostraria
 fonte genérica no lugar das outras. Abrir as configurações carrega todas: são
 arquivos que já vêm com o app, e a lista só abre quando a pessoa pede.
 
-### Fontes em teste: pelo nome, direto do Windows **[D]**
+### A Bricolage Grotesque é a fonte do Harp **[D]**
 
-Candidatas a substituir a Inter. A Bricolage Grotesque é OFL, como a Inter, e
-vem dentro do app como as outras. A Trap (comprada) e a Clash Display (da
-Fontshare, com licença própria) não: o Harp as chama pelo nome da família,
-como já fazia com a fonte do sistema. Os
+Substituiu a Inter depois de uma rodada de testes com Make Sans, Trap, Clash
+Display e Satoshi. É OFL, como a Inter: vem dentro do app, e ninguém precisa
+instalar nada. Vale para o editor, para a interface e para as etiquetas do
+Vidro. Quem já usava o Harp mantém a fonte que tinha salva; só a primeira
+abertura muda.
+
+A Trap (comprada) continua na lista, chamada pelo nome da família direto do
+Windows, como a fonte do sistema. Os
 arquivos ficam no Windows de quem as tem e **não entram no app**, que é
 distribuído de graça e tem o código aberto — embuti-las seria publicar os
 arquivos. Para uma delas virar a fonte de todo mundo, precisa de uma licença que
 permita embutir em software.
 
-A Make Sans passou por aqui e saiu; a Satoshi, também da Fontshare, entrou.
-Só aparecem na lista se estiverem instaladas — com o nome da versão estática ou
-o da variável, que se registram diferente no Windows. Não há pergunta direta ao
+Make Sans, Clash Display e Satoshi passaram por aqui e saíram. Uma fonte de
+fora só aparece na lista se estiver instalada — e o nome da versão estática e o
+da variável se registram diferente no Windows, então a lista aceita os dois. Não há pergunta direta ao
 navegador sem pedir permissão, então a resposta vem da régua: a mesma frase,
 medida com a família e sem ela, em três fontes genéricas; se a largura não
 muda, o navegador caiu no substituto.
@@ -189,7 +193,8 @@ pareceria erro.
 
 ### O que vale na primeira abertura **[D]**
 
-Tema escuro, estilo Harp, acabamento liso, destaque menta, fonte Inter, esmaecer
+Tema escuro, estilo Harp, acabamento liso, destaque menta, fonte Bricolage
+Grotesque, esmaecer
 quando parado ligado, iniciar com o Windows desligado. O escuro substituiu o
 "seguir o sistema": é onde a transparência e a cor aparecem melhor, e o que se
 parece com o Harp que a pessoa viu no site antes de baixar.
@@ -501,10 +506,10 @@ puro adiaria a gravação indefinidamente.
 
 ## 7. Tipografia
 
-Padrão: **Inter**.
+Padrão: **Bricolage Grotesque** (era a Inter até a v0.2.7).
 
-Embutidas (todas OFL, redistribuição permitida): Inter, DM Serif Text,
-EB Garamond, IBM Plex Mono, DM Mono, Syne, Comic Neue.
+Embutidas (todas OFL, redistribuição permitida): Bricolage Grotesque, Inter,
+DM Serif Text, EB Garamond, IBM Plex Mono, DM Mono, Syne, Comic Neue.
 
 **[D] Google Sans Flex foi removida.** O rascunho a listava sob "Bundle OFL",
 mas ela é proprietária do Google e não pode ser redistribuída. Substitutos
@@ -555,7 +560,8 @@ depois o que protege o trabalho, por último os modos especializados.
 itálico), `Mod-Alt-g`. Os atalhos do app rodam com `Prec.highest` antes de
 qualquer atalho do editor.
 
-**Fonte:** Inter Variable empacotada via `@fontsource-variable/inter`.
+**Fonte:** Inter Variable empacotada via `@fontsource-variable/inter` (hoje a
+padrão é a Bricolage Grotesque; ver seção 7).
 
 ### Fase 2 — Presença e posicionamento
 
@@ -834,8 +840,8 @@ idioma inicial vem do sistema, quando é um dos três.
 Trocar de idioma redesenha o que já está na tela — abas, chips, menus abertos —
 porque texto criado uma vez não muda sozinho.
 
-**Fontes**: Inter, DM Serif Text, EB Garamond, IBM Plex Mono, DM Mono, Syne,
-Comic Neue e a fonte do sistema. Todas OFL e empacotadas, nada baixado em uso.
+**Fontes**: Bricolage Grotesque, Inter, DM Serif Text, EB Garamond, IBM Plex
+Mono, DM Mono, Syne, Comic Neue e a fonte do sistema. Todas OFL e empacotadas, nada baixado em uso.
 Os arquivos de cada família só carregam quando ela é escolhida, e a troca da
 variável CSS acontece **depois** do carregamento — antes, o texto piscaria na
 fonte de fallback. No menu, cada nome aparece na própria fonte.

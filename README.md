@@ -5,7 +5,7 @@ cima do que você está olhando, para que anotar não custe a tela.
 
 Windows, gratuito, tudo local.
 
-> **Estado:** `v0.2.6`, em beta. Janela, editor, abas com ícones, tarefas,
+> **Estado:** `v0.2.7`, em beta. Janela, editor, abas com ícones, tarefas,
 > listas, conta na linha, histórico, teleprompter, Rascunhos, Vidro, bandeja e
 > atualização dentro do app.
 > Documentação em [docs/](docs/README.md): [manual de
@@ -138,7 +138,8 @@ envia um binário feito na própria máquina.
 - **Histórico local de versões**, para recuperar texto perdido
 - **Aviso quando há gravação em andamento**, lembrando de se ocultar
 - **Teleprompter** com rolagem automática e modo faixa para gravações
-- **Português, inglês e espanhol**, com oito opções de fonte embutidas
+- **Português, inglês e espanhol**, na **Bricolage Grotesque** e com mais oito
+  opções de fonte embutidas
 - **Tema claro, escuro ou do sistema**, com cor de destaque à escolha e
   acabamento **liso**, **cristal** (borda acesa e reflexo de luz, com o que
   está atrás ainda nítido) ou **sólido** (sem transparência, com a sua cor vazando

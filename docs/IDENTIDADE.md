@@ -128,9 +128,10 @@ inventar outra:
   menta, azul, violeta, âmbar, coral, roxo (`#3215ad` no claro) e cinza. A lista
   exata está em `src/core/theme.ts`. Menta é a padrão; o roxo é a cor preferida
   do autor para a marca.
-- **Tipografia.** O app traz Inter, DM Serif Text, EB Garamond, IBM Plex Mono,
-  DM Mono, Syne e Comic Neue — todas OFL, já no repositório. Inter é a padrão da
-  interface. O site deve usar uma dessas.
+- **Tipografia.** A fonte do Harp é a **Bricolage Grotesque** — no texto, na
+  interface e nas etiquetas do Vidro. O app traz também Inter, DM Serif Text,
+  EB Garamond, IBM Plex Mono, DM Mono, Syne e Comic Neue — todas OFL, já no
+  repositório. O site deve usar a Bricolage.
 - **Cantos arredondados de 8 px**, linhas de 1 px muito discretas, nenhuma
   sombra pesada.
 

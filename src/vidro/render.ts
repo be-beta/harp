@@ -22,7 +22,7 @@ const PONTA_COMPRIMENTO = 18;
 const PONTA_LARGURA = 15;
 const RAIO_CAIXA = 6;
 
-export const FONTE = '600 16px "Inter Variable", "Inter", "Segoe UI", system-ui, sans-serif';
+export const FONTE = '600 16px "Bricolage Grotesque Variable", "Segoe UI", system-ui, sans-serif';
 const LINHA = 22;
 const FOLGA_X = 10;
 const FOLGA_Y = 6;

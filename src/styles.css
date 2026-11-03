@@ -22,7 +22,7 @@
   --gp-accent-rgb: 110, 231, 183;
   --gp-accent: rgb(var(--gp-accent-rgb));
   --gp-danger: #f87171;
-  --gp-font: "Inter Variable", "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --gp-font: "Bricolage Grotesque Variable", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
   --gp-font-size: 15px;
   --gp-line-height: 1.6;
   --gp-ease: cubic-bezier(0.22, 1, 0.36, 1);

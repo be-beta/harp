@@ -12,8 +12,6 @@ export type FontId =
   | "inter"
   | "bricolage-grotesque"
   | "trap"
-  | "clash-display"
-  | "satoshi"
   | "dm-serif-text"
   | "eb-garamond"
   | "ibm-plex-mono"
@@ -41,43 +39,30 @@ export interface FontChoice {
 const SYSTEM_STACK = '"Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif';
 
 export const FONTS: FontChoice[] = [
-  {
-    id: "inter",
-    label: "Inter",
-    stack: `"Inter Variable", "Inter", ${SYSTEM_STACK}`,
-    load: () => import("@fontsource-variable/inter"),
-  },
-  // Em teste, candidatas a substituir a Inter.
-  //
-  // A Bricolage Grotesque é OFL, como a Inter: vem dentro do app.
+  // A fonte do Harp. OFL: vem dentro do app, e ninguém precisa instalar nada.
+  // Substituiu a Inter depois de uma rodada de testes com Make Sans, Trap,
+  // Clash Display e Satoshi. **[D]**
   {
     id: "bricolage-grotesque",
     label: "Bricolage Grotesque",
     stack: `"Bricolage Grotesque Variable", ${SYSTEM_STACK}`,
     load: () => import("@fontsource-variable/bricolage-grotesque"),
   },
-  // Trap (comprada), Clash Display e Satoshi (Fontshare, licença FFL) não vêm
-  // no app: o Harp as usa pelo nome, direto do Windows de quem as tem. A FFL
-  // proíbe publicar os arquivos num repositório e oferecer a fonte como opção
-  // para outras pessoas escreverem — o que é exatamente esta lista. Para uma
-  // delas virar a fonte de todo mundo, precisa de outra licença. **[D]**
+  {
+    id: "inter",
+    label: "Inter",
+    stack: `"Inter Variable", "Inter", ${SYSTEM_STACK}`,
+    load: () => import("@fontsource-variable/inter"),
+  },
+  // Trap é comprada e não vem no app: o Harp a usa pelo nome, direto do
+  // Windows de quem a tem, e ela só aparece na lista se estiver instalada. O
+  // app é distribuído de graça e tem o código aberto; embutir uma fonte paga
+  // seria publicar os arquivos. **[D]**
   {
     id: "trap",
     label: "Trap",
     stack: `"Trap", ${SYSTEM_STACK}`,
     installed: ["Trap"],
-  },
-  {
-    id: "clash-display",
-    label: "Clash Display",
-    stack: `"Clash Display", "Clash Display Variable", ${SYSTEM_STACK}`,
-    installed: ["Clash Display", "Clash Display Variable"],
-  },
-  {
-    id: "satoshi",
-    label: "Satoshi",
-    stack: `"Satoshi", "Satoshi Variable", ${SYSTEM_STACK}`,
-    installed: ["Satoshi", "Satoshi Variable"],
   },
   {
     id: "dm-serif-text",
@@ -119,7 +104,7 @@ export const FONTS: FontChoice[] = [
   { id: "system", label: "", stack: SYSTEM_STACK },
 ];
 
-export const DEFAULT_FONT: FontId = "inter";
+export const DEFAULT_FONT: FontId = "bricolage-grotesque";
 
 /**
  * Carrega todas as famílias, para a lista de fontes se mostrar como é.

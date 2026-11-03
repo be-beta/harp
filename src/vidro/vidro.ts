@@ -13,6 +13,8 @@
  */
 
 import "../styles.css";
+// A fonte do Harp nas etiquetas: sem isto, o canvas escrevia na fonte do sistema.
+import "@fontsource-variable/bricolage-grotesque";
 import "./vidro.css";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
