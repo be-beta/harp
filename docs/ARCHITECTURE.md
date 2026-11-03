@@ -150,14 +150,16 @@ arquivos que já vêm com o app, e a lista só abre quando a pessoa pede.
 
 ### Fontes em teste: pelo nome, direto do Windows **[D]**
 
-Make Sans e Trap são candidatas a substituir a Inter, e são fontes compradas.
-O Harp as chama pelo nome da família, como já fazia com a fonte do sistema: os
+Candidatas a substituir a Inter. A Bricolage Grotesque é OFL, como a Inter, e
+vem dentro do app como as outras. A Trap (comprada) e a Clash Display (da
+Fontshare, com licença própria) não: o Harp as chama pelo nome da família,
+como já fazia com a fonte do sistema. Os
 arquivos ficam no Windows de quem as tem e **não entram no app**, que é
 distribuído de graça e tem o código aberto — embuti-las seria publicar os
 arquivos. Para uma delas virar a fonte de todo mundo, precisa de uma licença que
 permita embutir em software.
 
-Só aparecem na lista se estiverem instaladas. Não há pergunta direta ao
+A Make Sans passou por aqui e saiu. Só aparecem na lista se estiverem instaladas. Não há pergunta direta ao
 navegador sem pedir permissão, então a resposta vem da régua: a mesma frase,
 medida com a família e sem ela, em três fontes genéricas; se a largura não
 muda, o navegador caiu no substituto.

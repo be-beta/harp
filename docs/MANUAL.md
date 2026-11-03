@@ -79,7 +79,7 @@ que sai é o mesmo texto que você vê.
 |---|---|
 | **Autosave** | Contínuo, com teto: no máximo a cada 2 segundos, e sempre ao fechar. |
 | **Tamanho do texto** | `Ctrl+=` e `Ctrl+−`, ou os botões `A−`/`A+` na barra. |
-| **Fonte** | Oito opções embutidas nas configurações, cada uma escrita nela mesma. Nenhuma vem da internet. Make Sans e Trap, em teste, aparecem só para quem as tem instaladas no Windows. |
+| **Fonte** | Oito opções embutidas nas configurações, cada uma escrita nela mesma. Nenhuma vem da internet. Em teste para substituir a Inter: a Bricolage Grotesque, que vem no app, e a Trap e a Clash Display, que aparecem só para quem as tem instaladas no Windows. |
 | **Atalhos de edição** | Os do VS Code: mover linha (`Alt+setas`), duplicar (`Alt+Shift+setas`), multi-cursor (`Alt+clique`), busca (`Ctrl+F`). |
 | **Colar** | Sempre como texto puro. Espaços invisíveis e caracteres de largura zero que vêm de páginas web são removidos. |
 | **Links** | Endereços viram links sublinhados. `Ctrl+clique` abre no navegador. |
@@ -202,7 +202,7 @@ vertical. O que não couber, rola.
 | Elemento | O que é |
 |---|---|
 | **Contagens** | Palavras, caracteres, linhas, tokens (aproximado) e páginas A4/ABNT (aproximado). |
-| **Opacidade** | `−`, o valor atual e `+`, de 10 em 10%. Clicar no número liga e desliga o esmaecer automático, indicado pelo ponto ao lado. Numa janela estreita fica só o número. |
+| **Opacidade** | `−`, o valor atual e `+`, de 10 em 10%. Numa janela estreita fica só o número. O esmaecer automático fica nas configurações. |
 | **Tamanho do texto** | `A−`, o número, `A+`. |
 | **Chips de estado** | Topo, Fantasma, Oculto. |
 | **Teleprompter** | Play/pausa, velocidade, faixa, palco. |

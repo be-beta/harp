@@ -15,7 +15,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { load, type Store } from "@tauri-apps/plugin-store";
 import type { GlobalAction, KeyCombo } from "./bridge";
-import { DEFAULT_FONT, DEFAULT_FONT_SIZE, type FontId } from "./fonts";
+import { DEFAULT_FONT, DEFAULT_FONT_SIZE, FONTS, type FontId } from "./fonts";
 import { detectLang, type Lang } from "./i18n";
 import { DEFAULT_ACCENT, DEFAULT_THEME, type AccentId, type Theme } from "./theme";
 import { DEFAULT_CONTROLS, DEFAULT_MODULES, type BarControls, type MetricModules } from "../ui/metrics";
@@ -136,8 +136,9 @@ export async function loadSettings(): Promise<Settings> {
     iconUsage: Object.fromEntries(
       Object.entries(saved?.iconUsage ?? {}).filter(([icon]) => isIconId(icon)),
     ),
-    // Um nome de estilo ou acabamento que deixou de existir volta ao padrao, em
-    // vez de deixar a janela sem nenhum.
+    // Um nome de estilo, acabamento ou fonte que deixou de existir volta ao
+    // padrao, em vez de deixar a janela sem nenhum.
+    font: FONTS.some((item) => item.id === saved?.font) ? (saved!.font as FontId) : DEFAULT_SETTINGS.font,
     style: ESTILOS.includes(saved?.style as WindowStyle) ? (saved!.style as WindowStyle) : DEFAULT_SETTINGS.style,
     finish: ACABAMENTOS.includes(saved?.finish as Finish) ? (saved!.finish as Finish) : DEFAULT_SETTINGS.finish,
   };

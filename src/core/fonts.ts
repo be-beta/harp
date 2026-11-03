@@ -10,8 +10,9 @@
 
 export type FontId =
   | "inter"
-  | "make-sans"
+  | "bricolage-grotesque"
   | "trap"
+  | "clash-display"
   | "dm-serif-text"
   | "eb-garamond"
   | "ibm-plex-mono"
@@ -44,21 +45,31 @@ export const FONTS: FontChoice[] = [
     stack: `"Inter Variable", "Inter", ${SYSTEM_STACK}`,
     load: () => import("@fontsource-variable/inter"),
   },
-  // Em teste, candidatas a substituir a Inter. São fontes compradas: o Harp as
-  // usa pelo nome, direto do Windows de quem as tem, e os arquivos não entram
-  // no app — que é distribuído de graça e tem o código aberto. Para virar a fonte
-  // de todo mundo, precisa de uma licença que permita embutir. **[D]**
+  // Em teste, candidatas a substituir a Inter.
+  //
+  // A Bricolage Grotesque é OFL, como a Inter: vem dentro do app.
   {
-    id: "make-sans",
-    label: "Make Sans",
-    stack: `"Make Sans", ${SYSTEM_STACK}`,
-    installed: "Make Sans",
+    id: "bricolage-grotesque",
+    label: "Bricolage Grotesque",
+    stack: `"Bricolage Grotesque Variable", ${SYSTEM_STACK}`,
+    load: () => import("@fontsource-variable/bricolage-grotesque"),
   },
+  // Trap (comprada) e Clash Display (Fontshare, licença própria) não vêm no
+  // app: o Harp as usa pelo nome, direto do Windows de quem as tem — o app é
+  // distribuído de graça e tem o código aberto, e embuti-las seria publicar os
+  // arquivos. Para virar a fonte de todo mundo, precisa de uma licença que
+  // permita embutir. **[D]**
   {
     id: "trap",
     label: "Trap",
     stack: `"Trap", ${SYSTEM_STACK}`,
     installed: "Trap",
+  },
+  {
+    id: "clash-display",
+    label: "Clash Display",
+    stack: `"Clash Display", ${SYSTEM_STACK}`,
+    installed: "Clash Display",
   },
   {
     id: "dm-serif-text",

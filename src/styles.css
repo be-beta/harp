@@ -959,16 +959,9 @@ body[data-tiny="true"] .gp-metrics .gp-metric:nth-child(n + 2) {
   opacity: 0.6;
 }
 
-/* Ponto discreto indicando que o esmaecimento automatico esta ligado. */
-.gp-metric[data-idle="true"]::after {
-  content: "";
-  display: inline-block;
-  width: 4px;
-  height: 4px;
-  margin-left: 5px;
-  border-radius: 50%;
-  background: var(--gp-accent);
-  vertical-align: middle;
+/* Um valor, e nao um botao: quem muda a opacidade sao o menos e o mais. */
+.gp-metric--value {
+  cursor: default;
 }
 
 .gp-barprompter {

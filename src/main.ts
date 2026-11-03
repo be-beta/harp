@@ -448,7 +448,6 @@ function wakeFromIdle(): void {
 
 function toggleIdleFade(): void {
   settings.idleFade = !settings.idleFade;
-  el.metricOpacity.dataset.idle = String(settings.idleFade);
   wakeFromIdle();
   toast(t(settings.idleFade ? "toast.idle.on" : "toast.idle.off"));
   void saveSettings(settings);
@@ -1820,7 +1819,6 @@ function wireEvents(): void {
     if (el.modules.hidden) return;
     if (!el.modules.contains(target) && target !== el.chipModules) toggleModulesMenu(false);
   });
-  el.metricOpacity.addEventListener("click", () => toggleIdleFade());
   el.opacityLess.addEventListener("click", () => nudgeOpacity(-OPACITY_STEP));
   el.opacityMore.addEventListener("click", () => nudgeOpacity(OPACITY_STEP));
 
@@ -1981,7 +1979,6 @@ async function boot(): Promise<void> {
     if (combo) await rebindGlobalShortcut(action as GlobalAction, combo);
   }
 
-  el.metricOpacity.dataset.idle = String(settings.idleFade);
   applyBarControls();
   renderBarPrompter();
   scheduleIdleFade();
